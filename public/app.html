@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#C9A24B">
+<title>Panel · Tatiana Hernández</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="app">
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="d-flex align-items-center gap-2 mb-3 px-2">
+      <div class="brand-mark">th</div>
+      <div>
+        <div class="serif" style="font-size:1.05rem;line-height:1;">Tatiana Hernández</div>
+        <div class="text-muted-th" style="font-size:.66rem;letter-spacing:2px;text-transform:uppercase;">Panel</div>
+      </div>
+    </div>
+    <a class="nav-link" data-route="dashboard"><i class="fa-solid fa-chart-line"></i> Inicio</a>
+    <a class="nav-link" data-route="patients"><i class="fa-solid fa-users"></i> Pacientes</a>
+    <a class="nav-link" data-route="new-patient"><i class="fa-solid fa-user-plus"></i> Registrar paciente</a>
+    <a class="nav-link" data-route="agenda"><i class="fa-solid fa-calendar-days"></i> Agenda</a>
+    <div style="flex:1"></div>
+    <div class="px-2 mb-2 text-muted-th" id="userBox" style="font-size:.82rem;"></div>
+    <a class="nav-link" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <button class="menu-toggle btn-ghost" id="menuToggle" style="width:42px;height:42px;border-radius:12px;"><i class="fa-solid fa-bars"></i></button>
+      <div id="view" style="flex:1;min-width:0;"></div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<!-- Modal genérico -->
+<div id="modal" class="hidden" style="position:fixed;inset:0;background:rgba(44,36,24,.45);z-index:2000;display:grid;place-items:center;padding:1rem;">
+  <div id="modalCard" style="background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:90vh;overflow:auto;box-shadow:var(--sombra);padding:1.6rem;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/ficha.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#C9A24B">
+<title>Acceso · Tatiana Hernández</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@300;400;500;600&family=Pinyon+Script&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <div class="brand-mark mx-auto mb-3" style="width:64px;height:64px;font-size:1.7rem;">th</div>
+      <div class="script" style="font-size:1.8rem;">Bienvenida</div>
+      <div class="eyebrow">Panel profesional</div>
+    </div>
+    <form id="loginForm" autocomplete="on">
+      <div class="mb-3">
+        <label class="form-label">Correo</label>
+        <input type="email" id="email" class="form-control" required autocomplete="username" placeholder="tatiana@cosmetologia.com">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Contraseña</label>
+        <input type="password" id="password" class="form-control" required autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <div id="err" class="hidden" style="color:var(--alerta);font-size:.85rem;margin-bottom:.8rem;"></div>
+      <button class="btn-oro w-100" type="submit" id="submitBtn">
+        <i class="fa-solid fa-right-to-bracket me-2"></i>Ingresar
+      </button>
+    </form>
+    <div class="text-center mt-3">
+      <a href="/" class="text-muted-th" style="font-size:.85rem;"><i class="fa-solid fa-arrow-left me-1"></i>Volver al inicio</a>
+    </div>
+  </div>
+</div>
+<script>
+  const form = document.getElementById('loginForm');
+  const err = document.getElementById('err');
+  const btn = document.getElementById('submitBtn');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    err.classList.add('hidden');
+    btn.disabled = true; btn.innerHTML = 'Ingresando…';
+    try {
+      const r = await fetch('/api/auth/login', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          email: document.getElementById('email').value,
+          password: document.getElementById('password').value
+        })
+      });
+      const data = await r.json();
+      if (!r.ok) throw new Error(data.error || 'No fue posible ingresar');
+      window.location.href = '/app';
+    } catch (ex) {
+      err.textContent = ex.message;
+      err.classList.remove('hidden');
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-right-to-bracket me-2"></i>Ingresar';
+    }
+  });
+</script>
+</body>
+</html>
