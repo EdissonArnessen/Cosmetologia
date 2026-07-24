@@ -1,0 +1,48 @@
+name: Publicar sitio en GitHub Pages
+
+# Publica automáticamente el sitio cada vez que se actualiza la rama principal.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita despliegues simultáneos; deja terminar el último.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar solo los archivos del sitio
+        run: |
+          mkdir -p _site/assets _site/.well-known
+          cp index.html manifest.webmanifest sw.js favicon.svg robots.txt sitemap.xml _headers _site/ 2>/dev/null || true
+          cp .nojekyll _site/.nojekyll 2>/dev/null || true
+          cp -r assets/. _site/assets/ 2>/dev/null || true
+          cp -r .well-known/. _site/.well-known/ 2>/dev/null || true
+
+      - name: Empaquetar para Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar
+        id: deployment
+        uses: actions/deploy-pages@v4

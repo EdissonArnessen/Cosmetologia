@@ -1,0 +1,4 @@
+# Canal para reportar problemas de seguridad (estándar RFC 9116).
+Contact: https://wa.me/573145435927
+Preferred-Languages: es, en
+Expires: 2027-07-24T00:00:00.000Z

@@ -1,0 +1,12 @@
+# Configuración para publicar gratis en Netlify (opcional).
+# El sitio es estático: no necesita compilación.
+[build]
+  publish = "."
+  command = ""
+
+# Las cabeceras de seguridad se toman del archivo _headers.
+# Redirección de asistencia para SPA-like (todo se sirve desde index.html).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
