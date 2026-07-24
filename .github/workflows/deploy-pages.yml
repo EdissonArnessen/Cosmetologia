@@ -23,6 +23,11 @@ jobs:
       - name: Descargar el repositorio
         uses: actions/checkout@v4
 
+      - name: Configurar y habilitar GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Preparar solo los archivos del sitio
         run: |
           mkdir -p _site/assets _site/.well-known
