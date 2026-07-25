@@ -1,14 +1,25 @@
 /* Service Worker — Tatiana Hernández · Estética Integral
    Hace que el sitio abra rápido y funcione incluso sin conexión.
    Al publicar una versión nueva, sube el número de CACHE (v1 -> v2 ...). */
-const CACHE = 'th-estetica-v1';
+const CACHE = 'th-estetica-v2';
 const CORE = [
   './',
   './index.html',
   './manifest.webmanifest',
   './favicon.svg',
   './assets/icon-192.png',
-  './assets/icon-512.png'
+  './assets/icon-512.png',
+  './fonts/cormorant-400.woff2',
+  './fonts/cormorant-500.woff2',
+  './fonts/cormorant-600.woff2',
+  './fonts/cormorant-700.woff2',
+  './fonts/cormorant-400i.woff2',
+  './fonts/cormorant-500i.woff2',
+  './fonts/jost-300.woff2',
+  './fonts/jost-400.woff2',
+  './fonts/jost-500.woff2',
+  './fonts/jost-600.woff2',
+  './fonts/pinyon-400.woff2'
 ];
 
 self.addEventListener('install', (event) => {

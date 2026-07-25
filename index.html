@@ -7,7 +7,7 @@
 <!-- ===================== SEGURIDAD ===================== -->
 <!-- Política de Seguridad de Contenido: limita de dónde se puede cargar código,
      estilos, fuentes y conexiones. Reduce el riesgo de inyección (XSS). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://wa.me; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://wa.me; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta http-equiv="X-Content-Type-Options" content="nosniff" />
 <meta name="format-detection" content="telephone=no" />
@@ -73,10 +73,22 @@
 }
 </script>
 
-<!-- ===================== FUENTES ===================== -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Pinyon+Script&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- ===================== FUENTES (propias, alojadas en el sitio) ===================== -->
+<link rel="preload" as="font" type="font/woff2" href="fonts/cormorant-500.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/pinyon-400.woff2" crossorigin>
+<style>
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:400;font-display:swap;src:url('fonts/cormorant-400i.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-style:italic;font-weight:500;font-display:swap;src:url('fonts/cormorant-500i.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/cormorant-400.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/cormorant-500.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/cormorant-600.woff2') format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/cormorant-700.woff2') format('woff2')}
+@font-face{font-family:'Jost';font-style:normal;font-weight:300;font-display:swap;src:url('fonts/jost-300.woff2') format('woff2')}
+@font-face{font-family:'Jost';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/jost-400.woff2') format('woff2')}
+@font-face{font-family:'Jost';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/jost-500.woff2') format('woff2')}
+@font-face{font-family:'Jost';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/jost-600.woff2') format('woff2')}
+@font-face{font-family:'Pinyon Script';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/pinyon-400.woff2') format('woff2')}
+</style>
 <style>
   :root{
     --cream:#F5EFE4;
@@ -827,9 +839,98 @@
   /* Al confirmar la cita: se muestra SOLO la tarjeta de éxito (se ocultan los campos) */
   #bookingForm.booking-done > *:not(#agendaOk){display:none}
   @media(max-width:560px){ .agenda::before{top:12px;opacity:.08} }
+
+  /* ===== Animación de entrada ===== */
+  .intro{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 42%,#FBF7EF 0%,#EFE3CE 68%,#E6D6BA 100%);
+    transition:opacity .6s ease,visibility .6s ease}
+  .intro.hide{opacity:0;visibility:hidden;pointer-events:none}
+  .intro-mark{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px}
+  .intro-th{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(5rem,20vw,8rem);line-height:.8;letter-spacing:-.06em;
+    opacity:0;transform:translateY(14px) scale(.92);animation:introTh .9s cubic-bezier(.2,.8,.3,1) forwards .1s}
+  .intro-swash{width:clamp(150px,42vw,230px);height:auto;margin-top:-4px}
+  .intro-swash path{stroke-dasharray:260;stroke-dashoffset:260;animation:introDraw 1s ease forwards .5s}
+  .intro-name{margin-top:16px;font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:.22em;color:var(--cocoa);
+    font-size:clamp(.9rem,3.4vw,1.25rem);opacity:0;animation:introUp .7s ease forwards .85s}
+  .intro-sub{margin-top:5px;font-family:'Jost',sans-serif;font-weight:500;letter-spacing:.42em;text-transform:uppercase;color:var(--gold-deep);
+    font-size:.62rem;opacity:0;animation:introUp .7s ease forwards 1.05s}
+  @keyframes introTh{to{opacity:1;transform:none}}
+  @keyframes introDraw{to{stroke-dashoffset:0}}
+  @keyframes introUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){
+    .intro-th,.intro-name,.intro-sub{animation:none;opacity:1;transform:none}
+    .intro-swash path{animation:none;stroke-dashoffset:0}
+  }
+
+  /* ===== Cifras animadas ===== */
+  .stats{padding:10px 0 4px}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:900px;margin:0 auto;
+    background:linear-gradient(180deg,rgba(251,247,239,.85),rgba(235,223,203,.5));border:1px solid var(--line);
+    border-radius:20px;padding:26px 20px;box-shadow:0 18px 44px -30px rgba(59,42,30,.5)}
+  .stat{text-align:center}
+  .stat-num{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(2rem,6vw,2.9rem);line-height:1;
+    background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat-lbl{margin-top:6px;font-family:'Jost',sans-serif;font-size:.74rem;font-weight:500;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--taupe)}
+  @media(max-width:640px){ .stats-grid{grid-template-columns:repeat(2,1fr);gap:14px} }
+
+  /* ===== Antes / Después deslizable ===== */
+  .ba{position:relative;width:100%;max-width:760px;margin:0 auto 8px;aspect-ratio:16/10;border-radius:20px;overflow:hidden;
+    box-shadow:var(--shadow);border:1px solid var(--line);touch-action:pan-y}
+  .ba-img{position:absolute;inset:0;background-size:cover;background-position:center}
+  .ba-after{background:linear-gradient(135deg,#F6E9D2 0%,#EAD09F 55%,#DFC188 100%)}
+  .ba-before{background:linear-gradient(135deg,#D2CBC1 0%,#B4A99A 55%,#9E9385 100%);clip-path:polygon(0 0,50% 0,50% 100%,0 100%)}
+  .ba-tag{position:absolute;top:14px;font-family:'Jost',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;color:#fff;background:rgba(59,42,30,.5);padding:5px 12px;border-radius:20px;backdrop-filter:blur(3px)}
+  .ba-tag-after{right:14px}
+  .ba-tag-before{left:14px}
+  .ba-line{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;transform:translateX(-1px);box-shadow:0 0 12px rgba(0,0,0,.35);pointer-events:none}
+  .ba-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;
+    background:var(--metal);color:var(--cocoa);display:flex;align-items:center;justify-content:center;font-size:1rem;
+    box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}
+  .ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize}
+  .ba-note{text-align:center;font-size:.82rem;color:var(--taupe);margin:0 auto 6px;max-width:640px}
+  .ba-note b{color:var(--bronze)}
+
+  /* ===== Visor de galería (lightbox) ===== */
+  .lightbox{position:fixed;inset:0;z-index:1500;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:rgba(40,28,18,.86);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease}
+  .lightbox.open{opacity:1;visibility:visible}
+  .lb-fig{max-width:min(92vw,900px);max-height:86vh;margin:0;display:flex;flex-direction:column;align-items:center;
+    transform:scale(.96);transition:transform .3s ease}
+  .lightbox.open .lb-fig{transform:scale(1)}
+  .lb-fig img{max-width:100%;max-height:78vh;border-radius:14px;box-shadow:0 30px 70px -20px rgba(0,0,0,.7);object-fit:contain}
+  .lb-fig figcaption{margin-top:12px;color:#F5EFE4;font-family:'Cormorant Garamond',serif;font-size:1.2rem;text-align:center}
+  .lb-close{position:absolute;top:18px;right:22px;width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
+    background:rgba(255,255,255,.14);color:#fff;font-size:1.7rem;line-height:1;display:flex;align-items:center;justify-content:center;
+    transition:background .25s,transform .2s}
+  .lb-close:hover{background:rgba(255,255,255,.28);transform:rotate(90deg)}
+  .gtile .g-photo{cursor:zoom-in}
 </style>
 </head>
 <body>
+
+<!-- ============ INTRO (animación de entrada) ============ -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-mark">
+    <span class="intro-th metal-text">th</span>
+    <svg class="intro-swash" viewBox="0 0 200 30" aria-hidden="true">
+      <defs><linearGradient id="introG" x1="0" x2="1"><stop offset="0" stop-color="#A6863F"/><stop offset=".5" stop-color="#E6D29A"/><stop offset="1" stop-color="#A6863F"/></linearGradient></defs>
+      <path d="M8 18 C 60 34, 150 34, 192 12" fill="none" stroke="url(#introG)" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <span class="intro-name">TATIANA HERNÁNDEZ</span>
+    <span class="intro-sub">ESTÉTICA INTEGRAL</span>
+  </div>
+</div>
+<script>
+(function(){
+  var el = document.getElementById('intro'); if(!el) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function cerrar(){ el.classList.add('hide'); setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 650); }
+  setTimeout(cerrar, reduce ? 300 : 1650);
+  el.addEventListener('click', cerrar);
+})();
+</script>
 
 <!-- ============ NAV ============ -->
 <header>
@@ -913,6 +1014,13 @@
     </div>
     <blockquote data-i18n="philo.quote">“Belleza, salud y bienestar en un solo lugar.”</blockquote>
     <p class="sub" data-i18n="philo.sub">Tratamientos personalizados para resaltar tu belleza natural. Todos nuestros servicios tienen una duración de 60 a 90 minutos y culminan con una limpieza facial. Te recibimos con un té de cortesía.</p>
+  </div>
+</section>
+
+<!-- ============ CIFRAS (animadas) ============ -->
+<section class="stats" data-view="inicio">
+  <div class="wrap">
+    <div class="stats-grid reveal" id="statsGrid"></div>
   </div>
 </section>
 
@@ -1008,6 +1116,16 @@
       <span class="eyebrow" data-i18n="sec.gal">Nuestro espacio</span>
       <h2>Galería de <span class="script metal-text">experiencias</span></h2>
     </div>
+
+    <!-- Comparador Antes / Después (deslizable) -->
+    <div class="ba reveal" id="baCompare">
+      <div class="ba-img ba-after"><span class="ba-tag ba-tag-after">Después</span></div>
+      <div class="ba-img ba-before" id="baBefore"><span class="ba-tag ba-tag-before">Antes</span></div>
+      <div class="ba-line" id="baLine"><span class="ba-grip" aria-hidden="true">⇔</span></div>
+      <input type="range" min="0" max="100" value="50" class="ba-range" id="baRange" aria-label="Comparar antes y después">
+    </div>
+    <p class="ba-note">Desliza para comparar. <b>Imágenes de muestra</b> — se reemplazan por tus fotos reales de antes/después.</p>
+
     <div class="gallery-grid reveal">
       <!-- Para usar tus fotos reales: dentro de cada figure agrega <img src="img/tu-foto.jpg" alt="..."> -->
 
@@ -1612,6 +1730,15 @@
 </button>
 
 <div class="toast" id="toast"></div>
+
+<!-- Visor de galería (lightbox) -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lb-close" id="lbClose" aria-label="Cerrar visor">×</button>
+  <figure class="lb-fig">
+    <img id="lbImg" src="" alt="">
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+</div>
 
 <script>
 (function(){
@@ -2403,6 +2530,8 @@
       SFX.tap(); haptic(10);
       t.classList.remove('tapped'); void t.offsetWidth; t.classList.add('tapped');
       setTimeout(function(){ t.classList.remove('tapped'); }, 950);
+      var ph = t.querySelector('.g-photo');
+      if(ph){ var cap = t.querySelector('.cap'); abrirLightbox(ph.getAttribute('src'), cap ? cap.textContent : (ph.getAttribute('alt') || '')); }
     });
   });
 
@@ -2803,6 +2932,55 @@
       }
     }catch(_){}
   })();
+
+  /* ============================================================
+     CIFRAS ANIMADAS + ANTES/DESPUÉS + VISOR DE GALERÍA
+     ============================================================ */
+  /* Cifras — EDITA aquí tus números reales */
+  var STATS = [
+    { n:500, suf:'+', label:'Clientas felices' },
+    { n:8,   suf:'',  label:'Años de experiencia' },
+    { n:15,  suf:'+', label:'Tratamientos' },
+    { n:100, suf:'%', label:'Dedicación' }
+  ];
+  function animarCifra(el, target, suf){
+    var dur = 1400, ini = null;
+    function paso(ts){ if(ini === null) ini = ts; var p = Math.min((ts - ini) / dur, 1);
+      el.textContent = Math.floor(p * target) + (suf || '');
+      if(p < 1) requestAnimationFrame(paso); else el.textContent = target + (suf || ''); }
+    requestAnimationFrame(paso);
+  }
+  (function renderStats(){
+    var g = document.getElementById('statsGrid'); if(!g) return;
+    g.innerHTML = STATS.map(function(s){
+      return '<div class="stat"><div class="stat-num" data-n="' + s.n + '" data-suf="' + (s.suf || '') + '">0' + (s.suf || '') + '</div><div class="stat-lbl">' + esc(s.label) + '</div></div>';
+    }).join('');
+    var hecho = false;
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting && !hecho){ hecho = true;
+        g.querySelectorAll('.stat-num').forEach(function(el){ animarCifra(el, +el.getAttribute('data-n'), el.getAttribute('data-suf')); });
+        io.disconnect(); } });
+    }, { threshold:.4 });
+    io.observe(g);
+  })();
+
+  /* Antes / Después deslizable */
+  (function baInit(){
+    var wrap = document.getElementById('baCompare'); if(!wrap) return;
+    var before = document.getElementById('baBefore'), line = document.getElementById('baLine'), range = document.getElementById('baRange');
+    function set(v){ before.style.clipPath = 'polygon(0 0,' + v + '% 0,' + v + '% 100%,0 100%)'; line.style.left = v + '%'; }
+    set(50);
+    range.addEventListener('input', function(){ set(this.value); });
+  })();
+
+  /* Visor de galería (lightbox) */
+  var lb = document.getElementById('lightbox'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
+  function abrirLightbox(src, cap){ if(!lb) return; lbImg.setAttribute('src', src || ''); lbImg.setAttribute('alt', cap || ''); lbCap.textContent = cap || ''; lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false'); if(typeof SFX !== 'undefined') SFX.open(); }
+  function cerrarLightbox(){ if(!lb) return; lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true'); setTimeout(function(){ lbImg.setAttribute('src', ''); }, 300); }
+  var lbClose = document.getElementById('lbClose');
+  if(lbClose) lbClose.addEventListener('click', cerrarLightbox);
+  if(lb) lb.addEventListener('click', function(e){ if(e.target === lb) cerrarLightbox(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') cerrarLightbox(); });
 })();
 </script>
 
