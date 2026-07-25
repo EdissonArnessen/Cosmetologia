@@ -62,7 +62,7 @@
   "priceRange": "$$",
   "areaServed": { "@type": "Country", "name": "Colombia" },
   "sameAs": [
-    "https://www.instagram.com/tatianah.cosmetologa",
+    "https://www.instagram.com/tatianah.estetica_integral",
     "https://www.tiktok.com/@tatianah.cosmetologa"
   ],
   "makesOffer": [
@@ -361,8 +361,8 @@
   /* floating buttons (WhatsApp + Instagram) */
   .fab-stack{position:fixed;right:22px;bottom:22px;z-index:120;display:flex;flex-direction:column;align-items:center;gap:14px;transition:gap .35s ease}
   .fab-stack.min{gap:0}
-  .fab{position:relative;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -10px rgba(0,0,0,.5);transition:width .35s,height .35s,opacity .3s,margin .35s,transform .3s;animation:float 4s ease-in-out infinite}
-  .fab svg{width:30px;height:30px;fill:#fff;flex-shrink:0}
+  .fab{position:relative;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px -10px rgba(0,0,0,.5);transition:width .35s,height .35s,opacity .3s,margin .35s,transform .3s;animation:float 4s ease-in-out infinite}
+  .fab svg{width:25px;height:25px;fill:#fff;flex-shrink:0}
   .fab:hover{transform:scale(1.1)}
   .fab-wa{background:#25D366}
   .fab-wa::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid #25D366;animation:pulse 2.4s ease-out infinite;pointer-events:none}
@@ -1186,9 +1186,9 @@
 
     <!-- Instagram -->
     <div class="ig-cta reveal">
-      <a class="ig-btn" href="https://www.instagram.com/tatianah.cosmetologa" target="_blank" rel="noopener">
+      <a class="ig-btn" href="https://www.instagram.com/tatianah.estetica_integral" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>
-        <span data-i18n="ig.cta">Mira más de nuestro trabajo en Instagram · @tatianah.cosmetologa</span>
+        <span data-i18n="ig.cta">Mira más de nuestro trabajo en Instagram · @tatianah.estetica_integral</span>
       </a>
     </div>
   </div>
@@ -1680,14 +1680,14 @@
     <p data-i18n="foot.sub">Agenda tu ritual de cuidado y reserva un momento para ti.</p>
     <a class="wa" href="https://wa.me/573145435927" target="_blank" rel="noopener">WhatsApp · 314 543 59 27</a>
     <div class="social">
-      <a href="https://www.instagram.com/tatianah.cosmetologa" target="_blank" rel="noopener" aria-label="Instagram">
+      <a href="https://www.instagram.com/tatianah.estetica_integral" target="_blank" rel="noopener" aria-label="Instagram">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
       </a>
       <a href="https://www.tiktok.com/@tatianah.cosmetologa" target="_blank" rel="noopener" aria-label="TikTok">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 3c.3 2.3 1.8 4 4 4.3v3c-1.5 0-2.9-.4-4-1.1V15a6 6 0 11-6-6c.3 0 .7 0 1 .1v3.1c-.3-.1-.7-.2-1-.2a3 3 0 103 3V3h3z"/></svg>
       </a>
     </div>
-    <p style="font-size:.9rem;letter-spacing:.2em;text-transform:uppercase">@tatianah.cosmetologa</p>
+    <p style="font-size:.9rem;letter-spacing:.2em;text-transform:uppercase">@tatianah.estetica_integral</p>
 
     <div class="ubica">
       <h3 data-i18n="foot.ubi">Ubicación</h3>
@@ -1735,7 +1735,7 @@
   <a class="fab fab-tt oculto" id="fabTT" href="https://www.tiktok.com/@tatianah.cosmetologa" aria-label="Síguenos en TikTok">
     <svg viewBox="0 0 24 24" fill="#fff"><path d="M16.5 3c.35 2.1 1.7 3.6 3.7 3.9v2.7c-1.3 0-2.6-.4-3.7-1.1v5.9a5.4 5.4 0 11-5.4-5.4c.3 0 .6.03.9.08v2.8a2.6 2.6 0 102 2.53V3h2.5z"/></svg>
   </a>
-  <a class="fab fab-ig" href="https://www.instagram.com/tatianah.cosmetologa" aria-label="Síguenos en Instagram">
+  <a class="fab fab-ig" href="https://www.instagram.com/tatianah.estetica_integral" aria-label="Síguenos en Instagram">
     <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="#fff" stroke="none"/></svg>
   </a>
   <a class="fab fab-wa" href="https://wa.me/573145435927" aria-label="Escríbenos por WhatsApp">
@@ -1887,7 +1887,7 @@
   var fabStack = document.getElementById('fabStack');
   var fabTT = document.getElementById('fabTT');
   var chatBubble = document.getElementById('chatBubble');
-  var ttTimer, idleTimer, chatCerrada = false, chatSonó = false;
+  var ttTimer, idleTimer, chatAutoTimer, chatCerrada = false, chatSonó = false;
 
   var VISTAS_PRIVADAS = ['admin','citas','consent','ficha'];
   function mostrarChat(){
@@ -1896,6 +1896,9 @@
     if(!fabStack.classList.contains('min')) return; /* solo cuando están minimizados */
     chatBubble.classList.add('show');
     if(!chatSonó){ SFX.open(); chatSonó = true; }
+    /* Se muestra 5 segundos y se cierra solo (y no vuelve a molestar) */
+    clearTimeout(chatAutoTimer);
+    chatAutoTimer = setTimeout(function(){ ocultarChat(); chatCerrada = true; }, 5000);
   }
   function ocultarChat(){ chatBubble.classList.remove('show'); }
 
@@ -2154,7 +2157,13 @@
     ig:   function(){ tono(660, 0.10, 'sine', 0.05); setTimeout(function(){ tono(880, 0.12, 'sine', 0.05); }, 80); },
     tt:   function(){ tono(760, 0.08, 'square', 0.04); setTimeout(function(){ tono(1010, 0.10, 'square', 0.04); }, 70); },
     wa:   function(){ tono(600, 0.10, 'sine', 0.05); setTimeout(function(){ tono(760, 0.14, 'sine', 0.05); }, 80); },
-    back: function(){ tono(520, 0.09, 'sine', 0.05); setTimeout(function(){ tono(390, 0.13, 'sine', 0.05); }, 70); }
+    back: function(){ tono(520, 0.09, 'sine', 0.05); setTimeout(function(){ tono(390, 0.13, 'sine', 0.05); }, 70); },
+    reveal: function(){ /* destello más llamativo (arpegio ascendente) */
+      tono(523, 0.12, 'sine', 0.06);
+      setTimeout(function(){ tono(659, 0.12, 'sine', 0.06); }, 80);
+      setTimeout(function(){ tono(784, 0.12, 'sine', 0.06); }, 160);
+      setTimeout(function(){ tono(1046, 0.22, 'triangle', 0.06); }, 250);
+    }
   };
 
   /* ---- Idioma ES / EN ---- */
@@ -2211,7 +2220,7 @@
     "gal.5":"Our space", "gal.6":"Tatiana Hernández · Aesthetician",
     "gal.note":"Real photos of our space and procedures · tap any to view it larger.",
     "exp.eyebrow":"Live the experience",
-    "ig.cta":"See more of our work on Instagram · @tatianah.cosmetologa"
+    "ig.cta":"See more of our work on Instagram · @tatianah.estetica_integral"
   };
   var langBase = {}; /* texto original en español */
   document.querySelectorAll('[data-i18n]').forEach(function(el){
@@ -2962,7 +2971,7 @@
   /* Cifras — EDITA aquí tus números reales */
   var STATS = [
     { n:500, suf:'+', label:'Clientas felices' },
-    { n:8,   suf:'',  label:'Años de experiencia' },
+    { n:5,   suf:'★', label:'Calificación' },
     { n:15,  suf:'+', label:'Tratamientos' },
     { n:100, suf:'%', label:'Dedicación' }
   ];
@@ -2998,11 +3007,14 @@
 
   /* Visor de galería (lightbox) */
   var lb = document.getElementById('lightbox'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
-  function abrirLightbox(src, cap){ if(!lb) return; lbImg.setAttribute('src', src || ''); lbImg.setAttribute('alt', cap || ''); lbCap.textContent = cap || ''; lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false'); if(typeof SFX !== 'undefined') SFX.open(); }
+  function abrirLightbox(src, cap){ if(!lb) return; lbImg.setAttribute('src', src || ''); lbImg.setAttribute('alt', cap || ''); lbCap.textContent = cap || ''; lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false'); if(typeof SFX !== 'undefined') SFX.reveal(); }
   function cerrarLightbox(){ if(!lb) return; lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true'); setTimeout(function(){ lbImg.setAttribute('src', ''); }, 300); }
   var lbClose = document.getElementById('lbClose');
   if(lbClose) lbClose.addEventListener('click', cerrarLightbox);
   if(lb) lb.addEventListener('click', function(e){ if(e.target === lb) cerrarLightbox(); });
+  /* Sonido llamativo al iniciar el video */
+  var expMedia = document.querySelector('.exp-media');
+  if(expMedia) expMedia.addEventListener('play', function(){ if(typeof SFX !== 'undefined') SFX.reveal(); });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') cerrarLightbox(); });
 })();
 </script>
