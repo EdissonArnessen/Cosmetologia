@@ -801,6 +801,30 @@
   .mc-empty-ic{font-size:2.4rem;margin-bottom:8px}
   .mc-empty p{color:var(--taupe);margin-bottom:16px}
   @media(max-width:560px){ .mc-actions .mc-btn{flex:1 1 auto;justify-content:center} }
+
+  /* ===== Marca de agua de la marca en Agenda (elegancia + profesionalismo) ===== */
+  .agenda{overflow:hidden}
+  .agenda::before{
+    content:"th";
+    position:absolute;top:26px;right:-14px;z-index:0;
+    font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(11rem,26vw,23rem);
+    line-height:.8;letter-spacing:-.08em;
+    background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;
+    opacity:.07;pointer-events:none;user-select:none;
+  }
+  .agenda .wrap{position:relative;z-index:1}
+  /* Marca de agua sutil dentro del formulario de reserva */
+  #bookingForm{position:relative;overflow:hidden}
+  #bookingForm::after{
+    content:"th";
+    position:absolute;right:16px;bottom:2px;z-index:0;
+    font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(6rem,20vw,9rem);
+    line-height:1;letter-spacing:-.06em;
+    background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;
+    opacity:.11;pointer-events:none;user-select:none;
+  }
+  #bookingForm > *{position:relative;z-index:1}
+  @media(max-width:560px){ .agenda::before{top:12px;opacity:.05} }
 </style>
 </head>
 <body>
