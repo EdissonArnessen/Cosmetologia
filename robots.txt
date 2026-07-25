@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tatianahernandez.netlify.app/sitemap.xml
+Sitemap: https://edissonarnessen.github.io/Cosmetologia/sitemap.xml
