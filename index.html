@@ -763,6 +763,44 @@
     .form-actions-ficha{flex-direction:column;align-items:stretch}
     .form-actions-ficha .btn{width:100%;justify-content:center}
   }
+
+  /* Acceso "Mis citas" en la sección Agenda */
+  .agenda-consulta{margin:-4px 0 26px;text-align:center}
+  .mc-link{display:inline-flex;align-items:center;gap:10px;padding:11px 20px;border-radius:30px;
+    font-family:'Jost',sans-serif;font-size:.88rem;font-weight:500;color:var(--bronze);cursor:pointer;
+    background:linear-gradient(180deg,rgba(220,198,140,.22),rgba(194,160,90,.10));border:1px solid var(--line);
+    transition:transform .2s ease,box-shadow .3s ease,color .25s ease}
+  .mc-link svg{width:20px;height:20px;flex-shrink:0}
+  .mc-link:hover{transform:translateY(-2px);box-shadow:0 12px 22px -14px rgba(166,134,63,.7);color:var(--cocoa)}
+
+  /* Lista privada "Mis citas" */
+  .mc-priv{font-size:.9rem;color:var(--taupe);background:rgba(154,111,63,.07);border:1px solid var(--line);
+    border-radius:14px;padding:14px 16px;margin-bottom:20px;line-height:1.55}
+  .mc-remind{background:linear-gradient(120deg,var(--gold-deep),var(--gold));color:#fff;border-radius:14px;
+    padding:14px 18px;margin-bottom:18px;font-weight:500;box-shadow:var(--shadow)}
+  .mc-card{background:var(--cream-card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;
+    margin-bottom:14px;box-shadow:0 10px 26px -20px rgba(59,42,30,.5)}
+  .mc-card.mc-past{opacity:.6}
+  .mc-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+  .mc-serv{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;color:var(--cocoa)}
+  .mc-badge{font-family:'Jost',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+    padding:5px 11px;border-radius:20px;white-space:nowrap}
+  .mc-hoy{background:#b9452f;color:#fff}
+  .mc-manana{background:var(--gold-deep);color:#fff}
+  .mc-proxima{background:rgba(194,160,90,.22);color:var(--gold-deep)}
+  .mc-pasada{background:rgba(120,100,80,.16);color:var(--taupe)}
+  .mc-meta{font-size:.94rem;color:var(--cocoa-soft);margin-bottom:12px}
+  .mc-actions{display:flex;flex-wrap:wrap;gap:9px}
+  .mc-btn{display:inline-flex;align-items:center;gap:6px;font-family:'Jost',sans-serif;font-size:.8rem;font-weight:500;
+    padding:9px 15px;border-radius:22px;cursor:pointer;border:1px solid var(--gold);background:transparent;
+    color:var(--bronze);text-decoration:none;transition:transform .2s ease,background .25s ease,color .25s ease}
+  .mc-btn:hover{transform:translateY(-2px)}
+  .mc-btn-cal{background:linear-gradient(120deg,var(--gold-deep),var(--gold));color:#fff;border-color:transparent}
+  .mc-btn-wa:hover,.mc-btn-g:hover{background:var(--bronze);color:#fff;border-color:var(--bronze)}
+  .mc-empty{text-align:center;padding:26px 10px}
+  .mc-empty-ic{font-size:2.4rem;margin-bottom:8px}
+  .mc-empty p{color:var(--taupe);margin-bottom:16px}
+  @media(max-width:560px){ .mc-actions .mc-btn{flex:1 1 auto;justify-content:center} }
 </style>
 </head>
 <body>
@@ -790,6 +828,7 @@
         <li><a data-nav="servicios" data-i18n="nav.servicios">Servicios</a></li>
         <li><a data-nav="galeria" data-i18n="nav.galeria">Galería</a></li>
         <li><a data-nav="agenda" data-i18n="nav.agenda">Agenda</a></li>
+        <li><a data-nav="miscitas" data-i18n="nav.miscitas">Mis citas</a></li>
         <li><a data-nav="ficha" data-i18n="nav.ficha" hidden>Ficha técnica</a></li>
         <li><a data-nav="testimonios" data-i18n="nav.opiniones">Opiniones</a></li>
         <li><a data-nav="faq" data-i18n="nav.faq">FAQ</a></li>
@@ -998,6 +1037,13 @@
       <h2>Agenda tu <span class="script metal-text">ritual de cuidado</span></h2>
     </div>
 
+    <div class="agenda-consulta reveal">
+      <a data-nav="miscitas" class="mc-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span data-i18n="mc.link">¿Ya reservaste? Consulta tus citas y agrégalas a tu calendario</span>
+      </a>
+    </div>
+
     <form class="form-card reveal" id="bookingForm" novalidate>
       <div class="grid2">
         <div class="field">
@@ -1110,10 +1156,25 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm0 2a8 8 0 11-4.1 14.9l-.3-.2-2.8.8.8-2.7-.2-.3A8 8 0 0112 4z"/></svg>
             <span data-i18n="ok.wa">Enviar por WhatsApp</span>
           </button>
+          <button type="button" class="btn btn-ghost btn-sm" data-nav="miscitas" data-i18n="ok.miscitas">📅 Ver mis citas</button>
           <button type="button" class="btn btn-ghost btn-sm" id="btnNueva" data-i18n="ok.otra">Agendar otra cita</button>
         </div>
       </div>
     </form>
+  </div>
+</section>
+
+<!-- ============ MIS CITAS (consulta privada del cliente) ============ -->
+<section class="ficha" id="miscitas" data-view="miscitas">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow" data-i18n="mc.eyebrow">Tus reservas</span>
+      <h2>Mis <span class="script metal-text">citas</span></h2>
+    </div>
+    <div class="form-card reveal">
+      <p class="mc-priv" data-i18n="mc.priv">🔒 Tus citas se guardan de forma privada y solo en este dispositivo: nadie más puede verlas. Agrégalas a tu calendario para recibir un recordatorio automático un día antes.</p>
+      <div id="misCitasLista"></div>
+    </div>
   </div>
 </section>
 
@@ -1573,6 +1634,7 @@
       return;
     }
     if(name === 'citas') renderCitas();
+    if(name === 'miscitas') renderMisCitas();
     var cur = currentView();
     if(cur !== name) viewStack.push(cur);
     showView(name);
@@ -1945,6 +2007,11 @@
     "ok.wa":"Send via WhatsApp", "ok.otra":"Book another",
     "ficha.guardar":"💾 Save form", "ficha.enviar":"Send via WhatsApp (optional)",
     "ficha.ok":"✓ Form saved to your client database.",
+    "nav.miscitas":"My appointments",
+    "mc.link":"Already booked? Check your appointments and add them to your calendar",
+    "mc.eyebrow":"Your bookings",
+    "mc.priv":"🔒 Your appointments are stored privately on this device only — no one else can see them. Add them to your calendar to get an automatic reminder one day before.",
+    "ok.miscitas":"📅 View my appointments",
     "gate.titulo":"Access your form", "gate.btn":"Verify & continue",
     "pol.titulo":"\u274E Cancellation policy",
     "faq.q1":"How long is a session?",
@@ -2562,6 +2629,152 @@
     SFX.wa(); haptic(15);
     window.open("https://wa.me/" + WA + "?text=" + encodeURIComponent(fichaMensaje(f)), "_blank");
   });
+
+  /* ============================================================
+     MIS CITAS — consulta privada del cliente + recordatorio
+     Confidencialidad: cada persona ve SOLO sus propias citas, que se
+     guardan en su dispositivo; nadie más puede consultarlas.
+     "Agregar al calendario" crea el evento con alarma 1 día antes. */
+  function pad2(n){ return (n < 10 ? '0' : '') + n; }
+  function parseHora(hora){
+    hora = String(hora || '').toLowerCase();
+    var m = hora.match(/(\d{1,2}):(\d{2})/);
+    if(!m) return {h:9, m:0};
+    var h = +m[1], mi = +m[2];
+    if(/p\.?\s*m/.test(hora) && h < 12) h += 12;
+    if(/a\.?\s*m/.test(hora) && h === 12) h = 0;
+    return {h:h, m:mi};
+  }
+  function fechaHoraCita(d){
+    var p = String(d && d.fecha || '').split('-'); if(p.length !== 3) return null;
+    var hm = parseHora(d.hora);
+    var dt = new Date(+p[0], +p[1]-1, +p[2], hm.h, hm.m, 0, 0);
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+  function estadoCita(dt){
+    var now = new Date();
+    var hoy0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var d0 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    var dias = Math.round((d0 - hoy0) / 86400000);
+    var en = document.documentElement.lang === 'en';
+    if(dt < now) return {k:'pasada', txt: en ? 'Past' : 'Pasada'};
+    if(dias === 0) return {k:'hoy', txt: en ? 'Today' : '¡Hoy!'};
+    if(dias === 1) return {k:'manana', txt: en ? 'Tomorrow' : '¡Mañana!'};
+    return {k:'proxima', txt: en ? 'Upcoming' : 'Próxima'};
+  }
+  function icsStamp(dt){ return dt.getFullYear() + pad2(dt.getMonth()+1) + pad2(dt.getDate()) + 'T' + pad2(dt.getHours()) + pad2(dt.getMinutes()) + '00'; }
+  function icsEsc(s){ return String(s == null ? '' : s).replace(/([,;\\])/g, '\\$1').replace(/\r?\n/g, '\\n'); }
+  function buildICS(d){
+    var start = fechaHoraCita(d); if(!start) return '';
+    var end = new Date(start.getTime() + 90*60000);
+    var en = document.documentElement.lang === 'en';
+    return [
+      'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Tatiana Hernandez//Estetica Integral//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      'UID:th-' + (d.ts || start.getTime()) + '@tatianahernandez',
+      'DTSTAMP:' + icsStamp(new Date()),
+      'DTSTART:' + icsStamp(start),
+      'DTEND:' + icsStamp(end),
+      'SUMMARY:' + icsEsc('Cita · ' + (d.servicio || 'Servicio') + ' — Tatiana Hernández'),
+      'DESCRIPTION:' + icsEsc((en ? 'Appointment: ' : 'Reserva: ') + (d.servicio || '') + '. ' + (en ? 'Remember your deposit to secure your spot.' : 'Recuerda tu abono para asegurar el cupo.') + ' WhatsApp: https://wa.me/' + WA),
+      'LOCATION:' + icsEsc('Tatiana Hernández · Estética Integral'),
+      'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:' + icsEsc(en ? 'Reminder: your appointment is tomorrow' : 'Recordatorio: mañana tienes tu cita') , 'TRIGGER:-P1D','END:VALARM',
+      'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:' + icsEsc(en ? 'Your appointment is today' : 'Tu cita es hoy'), 'TRIGGER:-PT2H','END:VALARM',
+      'END:VEVENT','END:VCALENDAR'
+    ].join('\r\n');
+  }
+  function descargarICS(d){
+    var ics = buildICS(d); if(!ics) return;
+    try{
+      var blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'cita-tatiana-' + (d.fecha || '') + '.ics';
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 1200);
+    }catch(_){ window.open('data:text/calendar;charset=utf-8,' + encodeURIComponent(ics)); }
+    SFX.exito(); haptic(12);
+  }
+  function googleCalUrl(d){
+    var start = fechaHoraCita(d); if(!start) return '#';
+    var end = new Date(start.getTime() + 90*60000);
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      + '&text=' + encodeURIComponent('Cita · ' + (d.servicio || '') + ' — Tatiana Hernández')
+      + '&dates=' + icsStamp(start) + '/' + icsStamp(end)
+      + '&ctz=America/Bogota'
+      + '&details=' + encodeURIComponent('Reserva de ' + (d.servicio || '') + '. Contacto: https://wa.me/' + WA);
+  }
+  function renderMisCitas(){
+    var cont = document.getElementById('misCitasLista'); if(!cont) return;
+    var en = document.documentElement.lang === 'en';
+    var citas = Store.all().filter(function(r){ return r.tipo === 'cita' && r.datos; })
+      .map(function(r){ return { d:r.datos, dt: fechaHoraCita(r.datos), ts:r.ts }; })
+      .filter(function(x){ return x.dt; });
+    if(!citas.length){
+      window.__misCitas = [];
+      cont.innerHTML = '<div class="mc-empty"><div class="mc-empty-ic">📅</div>'
+        + '<p>' + (en ? 'You have no appointments saved on this device yet.' : 'Aún no tienes citas guardadas en este dispositivo.') + '</p>'
+        + '<button type="button" class="btn btn-gold btn-sm" data-nav="agenda">' + (en ? 'Book an appointment' : 'Agendar una cita') + '</button></div>';
+      return;
+    }
+    var now = new Date();
+    var futuras = citas.filter(function(x){ return x.dt >= now; }).sort(function(a,b){ return a.dt - b.dt; });
+    var pasadas = citas.filter(function(x){ return x.dt < now; }).sort(function(a,b){ return b.dt - a.dt; });
+    var orden = futuras.concat(pasadas);
+    window.__misCitas = orden;
+    var prox = futuras.filter(function(x){ var k = estadoCita(x.dt).k; return k === 'hoy' || k === 'manana'; })[0];
+    var banner = '';
+    if(prox){
+      var e0 = estadoCita(prox.dt);
+      banner = '<div class="mc-remind">🔔 '
+        + (e0.k === 'hoy' ? (en ? 'Your appointment is <b>today</b>' : 'Tu cita es <b>hoy</b>') : (en ? 'Your appointment is <b>tomorrow</b>' : 'Tu cita es <b>mañana</b>'))
+        + ': ' + esc(prox.d.servicio || '') + ' · ' + esc(prox.d.hora || '') + '</div>';
+    }
+    cont.innerHTML = banner + orden.map(function(x, i){
+      var e = estadoCita(x.dt);
+      var pasada = e.k === 'pasada';
+      return '<div class="mc-card' + (pasada ? ' mc-past' : '') + '">'
+        + '<div class="mc-top"><span class="mc-serv">' + esc(x.d.servicio || '—') + '</span>'
+        + '<span class="mc-badge mc-' + e.k + '">' + e.txt + '</span></div>'
+        + '<div class="mc-meta">🗓️ ' + esc(fechaLarga(x.d.fecha)) + ' · 🕐 ' + esc(x.d.hora || '') + '</div>'
+        + (pasada ? '' :
+            '<div class="mc-actions">'
+            + '<button type="button" class="mc-btn mc-btn-cal" data-cal="' + i + '">📅 ' + (en ? 'Add to calendar' : 'Agregar al calendario') + '</button>'
+            + '<a class="mc-btn mc-btn-g" href="' + googleCalUrl(x.d) + '" target="_blank" rel="noopener">Google</a>'
+            + '<button type="button" class="mc-btn mc-btn-wa" data-wa="' + i + '">' + (en ? 'Confirm on WhatsApp' : 'Confirmar por WhatsApp') + '</button>'
+            + '</div>')
+        + '</div>';
+    }).join('');
+  }
+  var misCitasCont = document.getElementById('misCitasLista');
+  if(misCitasCont) misCitasCont.addEventListener('click', function(ev){
+    var cal = ev.target.closest('[data-cal]');
+    if(cal){ var x1 = (window.__misCitas || [])[+cal.getAttribute('data-cal')]; if(x1){ descargarICS(x1.d); showToast(document.documentElement.lang === 'en' ? 'Opening your calendar with a 1-day reminder…' : 'Abriendo tu calendario con recordatorio 1 día antes…'); } return; }
+    var wa = ev.target.closest('[data-wa]');
+    if(wa){ var x2 = (window.__misCitas || [])[+wa.getAttribute('data-wa')]; if(x2){ SFX.wa(); haptic(15); window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(construirMsgCita(x2.d)), '_blank'); } return; }
+    if(ev.target.closest('.mc-btn-g')) SFX.tap();
+  });
+
+  /* Recordatorio al abrir el sitio: si hay una cita hoy o mañana, avisa */
+  (function recordatorioAlAbrir(){
+    try{
+      var citas = Store.all().filter(function(r){ return r.tipo === 'cita' && r.datos; });
+      var aviso = null;
+      for(var i=0;i<citas.length;i++){
+        var dt = fechaHoraCita(citas[i].datos); if(!dt) continue;
+        var k = estadoCita(dt).k;
+        if(k === 'hoy' || k === 'manana'){ aviso = {k:k, d:citas[i].datos}; if(k === 'hoy') break; }
+      }
+      if(aviso){
+        var en = document.documentElement.lang === 'en';
+        setTimeout(function(){
+          showToast((aviso.k === 'hoy'
+              ? (en ? '🌿 Reminder: your appointment is today — ' : '🌿 Recuerda: hoy tienes tu cita de ')
+              : (en ? '🌿 Reminder: your appointment is tomorrow — ' : '🌿 Recordatorio: mañana tienes tu cita de '))
+            + (aviso.d.servicio || ''));
+        }, 2400);
+      }
+    }catch(_){}
+  })();
 })();
 </script>
 
