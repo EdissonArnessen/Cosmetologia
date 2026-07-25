@@ -7,7 +7,7 @@
 <!-- ===================== SEGURIDAD ===================== -->
 <!-- Política de Seguridad de Contenido: limita de dónde se puede cargar código,
      estilos, fuentes y conexiones. Reduce el riesgo de inyección (XSS). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://wa.me; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://wa.me; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; media-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta http-equiv="X-Content-Type-Options" content="nosniff" />
 <meta name="format-detection" content="telephone=no" />
@@ -906,6 +906,21 @@
     transition:background .25s,transform .2s}
   .lb-close:hover{background:rgba(255,255,255,.28);transform:rotate(90deg)}
   .gtile .g-photo{cursor:zoom-in}
+
+  /* ===== Video "vive la experiencia" + Instagram ===== */
+  .exp-block{max-width:760px;margin:28px auto 0;text-align:center}
+  .exp-eyebrow{display:block;font-family:'Jost',sans-serif;font-weight:500;font-size:.72rem;letter-spacing:.42em;
+    text-transform:uppercase;color:var(--gold-deep);margin-bottom:14px}
+  .exp-media{width:100%;aspect-ratio:16/10;object-fit:contain;background:#2b2018;border-radius:20px;
+    box-shadow:var(--shadow);border:1px solid var(--line);display:block}
+  .ig-cta{text-align:center;margin:24px auto 0}
+  .ig-btn{display:inline-flex;align-items:center;gap:12px;padding:14px 26px;border-radius:40px;
+    font-family:'Jost',sans-serif;font-weight:500;font-size:.9rem;color:#fff;text-decoration:none;
+    background:linear-gradient(120deg,#8a5a3c 0%,#C2A05A 60%,#DCC68C 100%);
+    box-shadow:0 14px 28px -14px rgba(166,134,63,.85);transition:transform .25s ease,box-shadow .25s ease}
+  .ig-btn svg{width:24px;height:24px;flex-shrink:0}
+  .ig-btn:hover{transform:translateY(-3px);box-shadow:0 20px 36px -14px rgba(166,134,63,.95)}
+  @media(max-width:560px){ .ig-btn{font-size:.8rem;padding:13px 18px} }
 </style>
 </head>
 <body>
@@ -1150,26 +1165,32 @@
       </figure>
 
       <figure class="gtile g5">
-        <div class="g-art"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 30h16v16a4 4 0 01-4 4H25a4 4 0 01-4-4z"/>
-          <path d="M21 30c0-3 4-5 8-5s8 2 8 5"/>
-          <path d="M27 24c0-3 1-4 2-6M32 24c0-3 1-4 2-6"/>
-          <path d="M43 20l5 5-14 14-5-5z"/><path d="M48 25l6-6"/>
-        </svg></div>
-        <figcaption class="cap" data-i18n="gal.5">Depilación con cera</figcaption>
+        <img class="g-photo" src="img/espacio.jpg" alt="Nuestro espacio · cabina de Tatiana Hernández" loading="lazy">
+        <figcaption class="cap" data-i18n="gal.5">Nuestro espacio</figcaption>
       </figure>
 
       <figure class="gtile g6">
-        <div class="g-art"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="29" cy="32" r="15"/>
-          <circle cx="23" cy="29" r="1.5" fill="currentColor" stroke="none"/><circle cx="35" cy="29" r="1.5" fill="currentColor" stroke="none"/>
-          <path d="M24 38c3 3 7 3 10 0"/>
-          <path d="M48 20a12 12 0 11-5-5"/><path d="M49 13v7h-7"/>
-        </svg></div>
-        <figcaption class="cap" data-i18n="gal.6">Tratamiento facial regenerativo</figcaption>
+        <img class="g-photo" src="img/tatiana.jpg" alt="Tatiana Hernández, cosmetóloga" loading="lazy">
+        <figcaption class="cap" data-i18n="gal.6">Tatiana Hernández · Cosmetóloga</figcaption>
       </figure>
     </div>
-    <p class="note reveal" data-i18n="gal.note">Ilustraciones representativas de cada procedimiento. Cuando tengas fotos reales de tu trabajo, se reemplazan fácilmente para dar aún más impacto.</p>
+    <p class="note reveal" data-i18n="gal.note">Fotos reales de nuestro espacio y procedimientos · toca cualquiera para verla en grande.</p>
+
+    <!-- Video: vive la experiencia -->
+    <div class="exp-block reveal">
+      <span class="exp-eyebrow" data-i18n="exp.eyebrow">Vive la experiencia</span>
+      <video class="exp-media" preload="none" playsinline controls poster="img/espacio.jpg">
+        <source src="video/experiencia.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <!-- Instagram -->
+    <div class="ig-cta reveal">
+      <a class="ig-btn" href="https://www.instagram.com/tatianah.cosmetologa" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>
+        <span data-i18n="ig.cta">Mira más de nuestro trabajo en Instagram · @tatianah.cosmetologa</span>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -2187,8 +2208,10 @@
     "adm.reportes":"Reports", "adm.soon":"Coming soon", "adm.salir":"Sign out",
     "gal.1":"Advanced aesthetics · Facial harmonization", "gal.2":"Deep facial cleansing",
     "gal.3":"Wellness & relaxation massage", "gal.4":"Advanced wellness massage",
-    "gal.5":"Waxing", "gal.6":"Regenerative facial treatment",
-    "gal.note":"Representative illustrations of each procedure. When you have real photos of your work, they can be swapped in easily for even more impact."
+    "gal.5":"Our space", "gal.6":"Tatiana Hernández · Aesthetician",
+    "gal.note":"Real photos of our space and procedures · tap any to view it larger.",
+    "exp.eyebrow":"Live the experience",
+    "ig.cta":"See more of our work on Instagram · @tatianah.cosmetologa"
   };
   var langBase = {}; /* texto original en español */
   document.querySelectorAll('[data-i18n]').forEach(function(el){

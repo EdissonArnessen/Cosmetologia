@@ -27,11 +27,13 @@ jobs:
 
       - name: Preparar solo los archivos del sitio
         run: |
-          mkdir -p _site/assets _site/.well-known _site/fonts
+          mkdir -p _site/assets _site/.well-known _site/fonts _site/img _site/video
           cp index.html manifest.webmanifest sw.js favicon.svg robots.txt sitemap.xml _headers _site/ 2>/dev/null || true
           cp .nojekyll _site/.nojekyll 2>/dev/null || true
           cp -r assets/. _site/assets/ 2>/dev/null || true
           cp -r fonts/. _site/fonts/ 2>/dev/null || true
+          cp -r img/. _site/img/ 2>/dev/null || true
+          cp -r video/. _site/video/ 2>/dev/null || true
           cp -r .well-known/. _site/.well-known/ 2>/dev/null || true
 
       - name: Empaquetar para Pages
