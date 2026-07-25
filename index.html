@@ -132,11 +132,15 @@
   /* ---------- NAV ---------- */
   header{
     position:sticky;top:0;z-index:90;
-    background:rgba(245,239,228,.82);backdrop-filter:blur(12px);
-    border-bottom:1px solid var(--line);transition:padding .3s ease;
+    background:rgba(245,239,228,.92);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);transition:padding .3s ease,box-shadow .3s ease;
+    box-shadow:0 8px 30px -22px rgba(59,42,30,.55);
   }
   .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 26px;max-width:1180px;margin:0 auto}
-  .brand{display:flex;align-items:center;gap:12px}
+  .brand{display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.3,1)}
+  .brand:hover{transform:scale(1.045)}
+  .brand:hover .logo-svg{filter:drop-shadow(0 6px 12px rgba(166,134,63,.45))}
+  .brand:active{transform:scale(.99)}
   .nav-left{display:flex;align-items:center;gap:10px}
   .nav-back{
     width:38px;height:38px;border-radius:50%;border:1px solid var(--line);flex-shrink:0;
@@ -156,11 +160,22 @@
   .brand-name{display:flex;flex-direction:column}
   .brand-name b{font-family:'Cormorant Garamond',serif;font-size:1.12rem;letter-spacing:.14em;color:var(--cocoa);font-weight:600}
   .brand-name span{font-size:.56rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-deep)}
-  nav ul{display:flex;gap:30px;list-style:none}
-  nav ul a{font-size:.84rem;letter-spacing:.06em;color:var(--cocoa-soft);position:relative;padding:4px 0;transition:color .25s}
-  nav ul a::after{content:"";position:absolute;left:0;bottom:-2px;height:1px;width:0;background:var(--gold);transition:width .3s ease}
-  nav ul a:hover{color:var(--bronze)}
-  nav ul a:hover::after{width:100%}
+  nav ul{display:flex;gap:2px;list-style:none;align-items:center}
+  nav ul a{
+    font-family:'Jost',sans-serif;font-size:.85rem;font-weight:500;letter-spacing:.04em;
+    color:var(--cocoa-soft);position:relative;padding:9px 15px;border-radius:24px;
+    transition:color .25s ease,background .3s ease,box-shadow .3s ease,transform .2s ease;
+  }
+  nav ul a::after{content:"";position:absolute;left:50%;bottom:5px;height:2px;width:0;background:var(--metal);background-size:200% auto;border-radius:2px;transform:translateX(-50%);transition:width .3s ease}
+  nav ul a:hover{
+    color:var(--bronze);
+    background:linear-gradient(180deg,rgba(220,198,140,.28),rgba(194,160,90,.10));
+    box-shadow:0 10px 20px -12px rgba(166,134,63,.65);
+    transform:translateY(-2px);
+  }
+  nav ul a:hover::after{width:22px}
+  nav ul a.active{color:var(--gold-deep);font-weight:600;background:rgba(194,160,90,.16)}
+  nav ul a.active::after{width:22px}
   .nav-toggle{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px}
   .nav-toggle span{width:26px;height:2px;background:var(--cocoa);transition:.3s}
 
@@ -572,7 +587,7 @@
   @media(min-width:861px){.tabbar{display:none}}
 
   /* ---------- LOGO (vectorial, escalable) ---------- */
-  .logo-svg{height:44px;width:auto;display:block;color:var(--cocoa)}
+  .logo-svg{height:50px;width:auto;display:block;color:var(--cocoa);transition:color .3s ease}
   .logo-svg .lg-th{font-family:'Cormorant Garamond',serif;font-size:66px;font-weight:700;letter-spacing:-8px;fill:currentColor}
   .logo-svg .lg-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;letter-spacing:1.2px;fill:currentColor}
   .logo-svg .lg-sub{font-family:'Jost',sans-serif;font-size:8px;font-weight:500;letter-spacing:3.6px;fill:currentColor}
@@ -724,7 +739,7 @@
   /* Móviles: áreas de toque cómodas (mínimo ~44px, recomendación de accesibilidad) */
   @media(max-width:860px){
     .btn{padding:15px 26px}
-    nav ul a{padding:10px 0;display:inline-block}
+    nav ul a{padding:12px 16px;display:block;border-radius:14px}
     .rb-copy,.rb-toggle{min-height:40px}
     input,select,textarea{font-size:16px} /* evita el zoom automático de iOS al enfocar */
   }
@@ -734,6 +749,20 @@
 
   /* Imágenes y tarjetas: transición suave al aparecer, sin saltos de layout */
   .gtile,.svc-card{contain:layout paint}
+
+  /* Ficha: botones separados (Guardar / Enviar) + confirmación de guardado */
+  .form-actions-ficha{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .ficha-ok{
+    margin-top:14px;color:var(--gold-deep);font-weight:500;font-size:.92rem;
+    background:rgba(194,160,90,.12);border:1px solid var(--line);
+    border-radius:12px;padding:11px 16px;display:inline-block;
+    animation:fichaOkIn .35s ease both;
+  }
+  @keyframes fichaOkIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media(max-width:560px){
+    .form-actions-ficha{flex-direction:column;align-items:stretch}
+    .form-actions-ficha .btn{width:100%;justify-content:center}
+  }
 </style>
 </head>
 <body>
@@ -1338,9 +1367,11 @@
         <div class="field"><label>Fecha <span class="req">*</span></label><input type="date" name="fFecha" id="fFechaInput" required></div>
       </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-gold" data-i18n="ficha.submit">Guardar y enviar ficha</button>
+      <div class="form-actions form-actions-ficha">
+        <button type="submit" class="btn btn-gold" id="btnGuardarFicha" data-i18n="ficha.guardar">💾 Guardar ficha</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="btnEnviarFicha" data-i18n="ficha.enviar">Enviar por WhatsApp (opcional)</button>
       </div>
+      <p class="ficha-ok" id="fichaOk" hidden data-i18n="ficha.ok">✓ Ficha guardada en tu base de datos de clientes.</p>
     </form>
   </div>
 </section>
@@ -1508,6 +1539,10 @@
     });
     document.querySelectorAll('.tabbar a').forEach(function(t){
       t.classList.toggle('active', t.getAttribute('data-view') === name);
+    });
+    /* Resalta el enlace de la sección actual en el menú superior */
+    document.querySelectorAll('nav ul a[data-nav]').forEach(function(t){
+      t.classList.toggle('active', t.getAttribute('data-nav') === name);
     });
     menu.classList.remove('open');
     if(typeof VISTAS_PRIVADAS !== 'undefined' && VISTAS_PRIVADAS.indexOf(name) > -1 && typeof ocultarChat === 'function') ocultarChat();
@@ -1908,7 +1943,8 @@
     "agenda.submit":"\u2713 Confirm appointment",
     "ok.titulo":"Your appointment is registered!", "ok.sub":"To confirm it, send us the details via WhatsApp and make your deposit. See you soon 🌿",
     "ok.wa":"Send via WhatsApp", "ok.otra":"Book another",
-    "ficha.submit":"Save & send form",
+    "ficha.guardar":"💾 Save form", "ficha.enviar":"Send via WhatsApp (optional)",
+    "ficha.ok":"✓ Form saved to your client database.",
     "gate.titulo":"Access your form", "gate.btn":"Verify & continue",
     "pol.titulo":"\u274E Cancellation policy",
     "faq.q1":"How long is a session?",
@@ -2465,17 +2501,18 @@
     showToast("Identidad verificada · Ficha desbloqueada 🔓");
   });
 
-  /* ---- Ficha / consent form ---- */
-  fichaForm.addEventListener('submit', function(e){
-    e.preventDefault();
-    var f = e.target;
-    var invalid = !f.fNombre.value.trim() || !f.fTel.value.trim() || !f.firma.value.trim() || !f.fFecha.value || !f.fAcepta.checked;
-    err('errFicha', invalid);
-    if(invalid) return;
-
-    function val(name){ var el = f.querySelector('[name="'+name+'"]:checked'); return el ? el.value : 'No indicado'; }
-    var msg =
-      "📋 *FICHA TÉCNICA Y CONSENTIMIENTO*\n" +
+  /* ---- Ficha / consent form ----
+     GUARDAR  = almacena la ficha en la base de datos (dispositivo/nube).
+     ENVIAR   = opcional, comparte el documento por WhatsApp. */
+  function fichaVal(f, name){ var el = f.querySelector('[name="'+name+'"]:checked'); return el ? el.value : 'No indicado'; }
+  function fichaInvalida(f){ return !f.fNombre.value.trim() || !f.fTel.value.trim() || !f.firma.value.trim() || !f.fFecha.value || !f.fAcepta.checked; }
+  function fichaDatos(f){
+    return {nombre:f.fNombre.value.trim(), documento:f.fDoc.value.trim(), edad:f.fEdad.value, telefono:f.fTel.value.trim(),
+      piel:fichaVal(f,'piel'), embarazo:fichaVal(f,'embarazo'), previos:fichaVal(f,'previos'),
+      alergias:f.alergias.value.trim(), condiciones:f.condiciones.value.trim(), firma:f.firma.value.trim(), fecha:f.fFecha.value};
+  }
+  function fichaMensaje(f){
+    return "📋 *FICHA TÉCNICA Y CONSENTIMIENTO*\n" +
       "_Tatiana Hernández · Estética Integral_\n" +
       "━━━━━━━━━━━━━━━\n\n" +
       "👤 *DATOS DEL CLIENTE*\n" +
@@ -2484,9 +2521,9 @@
       "• Edad: " + (f.fEdad.value || 'No indicada') + "\n" +
       "• Teléfono: " + f.fTel.value.trim() + "\n\n" +
       "🩺 *ANTECEDENTES DE SALUD*\n" +
-      "• Tipo de piel: " + val('piel') + "\n" +
-      "• Embarazo/lactancia: " + val('embarazo') + "\n" +
-      "• Tratamientos recientes: " + val('previos') + "\n" +
+      "• Tipo de piel: " + fichaVal(f,'piel') + "\n" +
+      "• Embarazo/lactancia: " + fichaVal(f,'embarazo') + "\n" +
+      "• Tratamientos recientes: " + fichaVal(f,'previos') + "\n" +
       "• Alergias: " + (f.alergias.value.trim() || 'Ninguna reportada') + "\n" +
       "• Condiciones/medicamentos: " + (f.condiciones.value.trim() || 'Ninguna reportada') + "\n\n" +
       "✍️ *CONSENTIMIENTO INFORMADO*\n" +
@@ -2495,10 +2532,35 @@
       "• Fecha: " + fechaLarga(f.fFecha.value) + "\n" +
       "━━━━━━━━━━━━━━━\n" +
       "_Documento diligenciado desde la web oficial._ 🌿";
-    window.open("https://wa.me/" + WA + "?text=" + encodeURIComponent(msg), "_blank");
-    SFX.exito();
-    guardarRegistro('ficha', {nombre:f.fNombre.value.trim(), documento:f.fDoc.value.trim(), edad:f.fEdad.value, telefono:f.fTel.value.trim(), piel:val('piel'), embarazo:val('embarazo'), previos:val('previos'), alergias:f.alergias.value.trim(), condiciones:f.condiciones.value.trim(), firma:f.firma.value.trim(), fecha:f.fFecha.value});
-    showToast("Ficha lista — enviando por WhatsApp…");
+  }
+  var fichaGuardada = false;
+  var fichaOkMsg = document.getElementById('fichaOk');
+  function marcarFichaGuardada(){ fichaGuardada = true; if(fichaOkMsg) fichaOkMsg.hidden = false; }
+
+  /* GUARDAR: almacena la ficha en la base de datos (no envía nada) */
+  fichaForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var f = e.target;
+    if(fichaInvalida(f)){ err('errFicha', true); return; }
+    err('errFicha', false);
+    guardarRegistro('ficha', fichaDatos(f));
+    marcarFichaGuardada();
+    SFX.exito(); haptic([15,40,15]);
+    showToast(document.documentElement.lang==='en'
+      ? "Form saved to your client database."
+      : "Ficha guardada en tu base de datos de clientes.");
+  });
+
+  /* ENVIAR POR WHATSAPP: opcional, para compartir el documento */
+  var btnEnviarFicha = document.getElementById('btnEnviarFicha');
+  if(btnEnviarFicha) btnEnviarFicha.addEventListener('click', function(){
+    var f = fichaForm;
+    if(fichaInvalida(f)){ err('errFicha', true); return; }
+    err('errFicha', false);
+    /* Si aún no se guardó, se guarda también para no perder el registro */
+    if(!fichaGuardada){ guardarRegistro('ficha', fichaDatos(f)); marcarFichaGuardada(); }
+    SFX.wa(); haptic(15);
+    window.open("https://wa.me/" + WA + "?text=" + encodeURIComponent(fichaMensaje(f)), "_blank");
   });
 })();
 </script>
