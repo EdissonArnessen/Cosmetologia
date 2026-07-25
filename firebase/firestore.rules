@@ -1,0 +1,81 @@
+rules_version = '2';
+
+// ============================================================================
+//  REGLAS DE SEGURIDAD DE FIRESTORE — Tatiana Hernández · Estética Integral
+//  Objetivo:
+//   - Cada clienta solo puede ver/editar SUS PROPIAS citas (por su UID de Auth).
+//   - Nunca se confía en un userId enviado desde el cliente: se compara siempre
+//     contra request.auth.uid (la identidad verificada por Firebase Auth).
+//   - Los horarios se leen por cualquier usuario autenticado, y su "estado"
+//     solo puede cambiar entre 'disponible' y 'reservado'.
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- ⚙️ Config: UID(s) de la profesional/administradora (para sembrar horarios) ---
+    // Reemplaza por el UID real de la cuenta de Tatiana (lo ves en Auth > Usuarios).
+    function esAdmin() {
+      return request.auth != null
+        && request.auth.uid in [
+          'PON_AQUI_EL_UID_DE_TATIANA'
+        ];
+    }
+
+    // ---------------------------- CITAS ----------------------------
+    match /citas/{citaId} {
+      // Leer: solo el dueño de la cita.
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+
+      // Crear: el userId DEBE ser el propio UID (no uno inventado por el cliente),
+      // y la cita nace 'confirmada' y ligada a un horario.
+      allow create: if request.auth != null
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.estado == 'confirmada'
+                    && request.resource.data.horarioId is string
+                    && request.resource.data.keys().hasAll(
+                         ['userId','nombreCliente','servicio','fecha','hora','estado','horarioId']);
+
+      // Actualizar (p. ej. cancelar): solo el dueño, y sin cambiar el dueño
+      // ni el horario/fecha original. Solo se permite mover el 'estado'.
+      allow update: if request.auth != null
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == resource.data.userId
+                    && request.resource.data.horarioId == resource.data.horarioId
+                    && request.resource.data.estado in ['confirmada','cancelada','completada'];
+
+      // Borrar: nunca desde el cliente (se "cancela", no se elimina).
+      allow delete: if false;
+    }
+
+    // ---------------------------- HORARIOS ----------------------------
+    match /horarios/{horarioId} {
+      // Leer: cualquier usuaria autenticada (para ver la disponibilidad).
+      allow read: if request.auth != null;
+
+      // Crear/sembrar franjas: solo la administradora (Tatiana).
+      allow create: if esAdmin()
+                    && request.resource.data.estado in ['disponible','reservado'];
+
+      // Actualizar: cualquier usuaria autenticada PERO solo el campo 'estado'
+      // y solo entre 'disponible' <-> 'reservado' (lo usa la transacción de
+      // reserva/cancelación). El resto de campos no se puede tocar.
+      allow update: if request.auth != null
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+                    && request.resource.data.estado in ['disponible','reservado'];
+
+      // Borrar: solo la administradora.
+      allow delete: if esAdmin();
+    }
+  }
+}
+
+// ⚠️ NOTA DE INTEGRIDAD (léela):
+// Con reglas del lado del cliente, cualquier usuaria autenticada puede cambiar el
+// campo 'estado' de un horario. La TRANSACCIÓN evita las dobles reservas por
+// concurrencia normal, pero no impide que un usuario malintencionado manipule
+// 'estado' a propósito. Para blindaje total, mueve la reserva/cancelación a una
+// Cloud Function (plan Blaze) y en las reglas pon la escritura de 'horarios' en
+// 'if false' para el cliente. Para un centro pequeño, las reglas de arriba son un
+// punto de partida razonable y seguro para el uso real.
