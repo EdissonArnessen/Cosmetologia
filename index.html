@@ -7,7 +7,7 @@
 <!-- ===================== SEGURIDAD ===================== -->
 <!-- Política de Seguridad de Contenido: limita de dónde se puede cargar código,
      estilos, fuentes y conexiones. Reduce el riesgo de inyección (XSS). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://wa.me; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://script.google.com https://script.googleusercontent.com; media-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://wa.me; img-src 'self' data: blob: https://www.gstatic.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://apis.google.com https://script.google.com https://script.googleusercontent.com; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://script.google.com https://script.googleusercontent.com; frame-src https://www.google.com https://*.firebaseapp.com; media-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests" />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <meta http-equiv="X-Content-Type-Options" content="nosniff" />
 <meta name="format-detection" content="telephone=no" />
@@ -921,6 +921,27 @@
   .ig-btn svg{width:24px;height:24px;flex-shrink:0}
   .ig-btn:hover{transform:translateY(-3px);box-shadow:0 20px 36px -14px rgba(166,134,63,.95)}
   @media(max-width:560px){ .ig-btn{font-size:.8rem;padding:13px 18px} }
+
+  /* ===== Reserva en línea (Firebase) ===== */
+  .fb-head{text-align:center;margin-bottom:14px}
+  .fb-head .eyebrow{display:block}
+  .fb-sub{font-size:.9rem;color:var(--taupe);margin-top:6px}
+  .fb-note{font-size:.9rem;color:var(--cocoa-soft);background:rgba(194,160,90,.10);border:1px dashed var(--line);
+    border-radius:14px;padding:14px 16px;line-height:1.55;text-align:center}
+  .fb-note code{font-size:.82em;color:var(--bronze)}
+  .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:8px}
+  .slot{display:flex;flex-direction:column;gap:2px;padding:12px;border-radius:14px;cursor:pointer;
+    border:1px solid var(--line);background:var(--cream-card);color:var(--cocoa);transition:transform .2s,box-shadow .25s}
+  .slot:hover{transform:translateY(-2px);box-shadow:0 12px 22px -14px rgba(166,134,63,.7)}
+  .slot-hora{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600}
+  .slot-estado{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
+  .slot-ocupado{opacity:.5;cursor:not-allowed;background:rgba(120,100,80,.12)}
+  .slot-ocupado .slot-estado{color:var(--taupe)}
+  .ag-cargando,.ag-vacio{padding:16px;text-align:center;color:var(--taupe);font-size:.92rem}
+  .fb-mc-h{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--cocoa);margin-bottom:10px}
+  .fb-mc-sub{font-size:.86rem;color:var(--taupe);margin:4px 0 12px}
+  .fb-sep{border:none;border-top:1px solid var(--line);margin:18px 0 0}
+  #recaptcha-container{position:fixed;bottom:0;left:0;z-index:-1}
 </style>
 </head>
 <body>
@@ -1202,6 +1223,30 @@
       <h2>Agenda tu <span class="script metal-text">ritual de cuidado</span></h2>
     </div>
 
+    <!-- ===== RESERVA EN LÍNEA (Firebase) — se activa al configurar Firebase ===== -->
+    <div class="form-card reveal fb-card" id="fbAgendaCard">
+      <div class="fb-head">
+        <span class="eyebrow">Reserva en línea · tiempo real</span>
+        <p class="fb-sub">Elige tu horario y confírmalo al instante. Los cupos ocupados se bloquean solos.</p>
+      </div>
+      <p class="fb-note" id="fbNote">🔧 <b>Reservas en línea (próximamente).</b> Para activarlas se configura Firebase (ver <code>firebase/GUIA-FIREBASE-AGENDA.md</code>). Mientras tanto, agenda por WhatsApp aquí abajo. 🌿</p>
+      <div id="fbAuth" hidden>
+        <div class="field"><label>Tu celular (con indicativo)</label><input type="tel" id="fbTel" placeholder="+57 314 000 0000"></div>
+        <button type="button" class="btn btn-gold btn-sm" id="fbBtnSMS">Recibir código por SMS</button>
+        <div class="field" id="fbCodWrap" hidden style="margin-top:12px">
+          <label>Código del SMS</label>
+          <input type="text" id="fbCodigo" inputmode="numeric" placeholder="6 dígitos">
+          <button type="button" class="btn btn-gold btn-sm" id="fbBtnEntrar" style="margin-top:10px">Entrar</button>
+        </div>
+      </div>
+      <div id="fbAgenda" hidden>
+        <div class="field"><label>Elige el día</label><input type="date" id="fbFecha"></div>
+        <div class="slots" id="fbSlots"></div>
+        <p class="err" id="fbMsg"></p>
+        <button type="button" class="btn btn-ghost btn-sm" id="fbSalir" style="margin-top:6px">Cerrar sesión</button>
+      </div>
+    </div>
+
     <div class="agenda-consulta reveal">
       <a data-nav="miscitas" class="mc-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1337,6 +1382,12 @@
       <h2>Mis <span class="script metal-text">citas</span></h2>
     </div>
     <div class="form-card reveal">
+      <div id="fbMisCitasWrap" hidden>
+        <h3 class="fb-mc-h">Tus citas en línea</h3>
+        <div id="fbMisCitas"></div>
+        <hr class="fb-sep">
+        <p class="fb-mc-sub">Citas guardadas en este dispositivo:</p>
+      </div>
       <p class="mc-priv" data-i18n="mc.priv">🔒 Tus citas se guardan de forma privada y solo en este dispositivo: nadie más puede verlas. Agrégalas a tu calendario para recibir un recordatorio automático un día antes.</p>
       <div id="misCitasLista"></div>
     </div>
@@ -3028,5 +3079,76 @@
   }
 </script>
 <div id="printArea" aria-hidden="true"></div>
+
+<!-- reCAPTCHA invisible que exige Firebase para el envío de SMS -->
+<div id="recaptcha-container"></div>
+
+<!-- ===== INTEGRACIÓN FIREBASE (Agenda + Mis citas en línea) =====
+     Pasos para activarla:
+       1) Pega tu firebaseConfig en firebase/th-agenda-firebase.js
+       2) Publica firestore.rules y activa Authentication (Teléfono)
+       3) Cambia CONFIGURADO a true (abajo)
+     Con CONFIGURADO=false NO se carga Firebase: el sitio funciona igual
+     (agenda por WhatsApp) y no se hace ninguna petición externa. -->
+<script type="module">
+  const CONFIGURADO = false;   // ← ponlo en true cuando termines de configurar Firebase
+  const $ = (id) => document.getElementById(id);
+
+  if (!CONFIGURADO) {
+    console.info('[Firebase] Reservas en línea inactivas. Configura firebaseConfig y pon CONFIGURADO=true.');
+  } else {
+    try {
+      const m = await import('./firebase/th-agenda-firebase.js');
+      if ($('fbNote')) $('fbNote').hidden = true;
+      if ($('fbAuth')) $('fbAuth').hidden = false;
+
+      $('fbBtnSMS').addEventListener('click', async () => {
+        try { await m.enviarCodigoSMS($('fbTel').value.trim()); $('fbCodWrap').hidden = false; }
+        catch (e) { alert('No se pudo enviar el SMS: ' + e.message); }
+      });
+      $('fbBtnEntrar').addEventListener('click', async () => {
+        try { await m.verificarCodigoSMS($('fbCodigo').value.trim()); }
+        catch (e) { alert('Código incorrecto: ' + e.message); }
+      });
+      $('fbSalir').addEventListener('click', () => m.cerrarSesion());
+
+      m.alCambiarSesion((user) => {
+        $('fbAuth').hidden = !!user;
+        $('fbAgenda').hidden = !user;
+        $('fbMisCitasWrap').hidden = !user;
+        if (user) {
+          const hoy = new Date().toISOString().slice(0, 10);
+          $('fbFecha').value = hoy; $('fbFecha').min = hoy;
+          m.renderAgenda(hoy, $('fbSlots'));
+          m.renderMisCitasFB($('fbMisCitas'));
+        }
+      });
+
+      $('fbFecha').addEventListener('change', (e) => m.renderAgenda(e.target.value, $('fbSlots')));
+
+      $('fbSlots').addEventListener('click', async (e) => {
+        const b = e.target.closest('.slot:not(.slot-ocupado)'); if (!b) return;
+        const nombre = prompt('Tu nombre completo:'); if (!nombre) return;
+        try {
+          await m.reservarTurno(b.dataset.horario, { nombre, servicio: b.dataset.servicio });
+          $('fbMsg').textContent = '¡Cita confirmada! 🌿';
+        } catch (err) { $('fbMsg').textContent = err.message; }
+        m.renderAgenda($('fbFecha').value, $('fbSlots'));
+        m.renderMisCitasFB($('fbMisCitas'));
+      });
+
+      $('fbMisCitas').addEventListener('click', async (e) => {
+        const c = e.target.closest('[data-cancelar]'); if (!c) return;
+        if (!confirm('¿Cancelar esta cita?')) return;
+        await m.cancelarCita(c.dataset.cancelar);
+        m.renderMisCitasFB($('fbMisCitas'));
+        m.renderAgenda($('fbFecha').value, $('fbSlots'));
+      });
+    } catch (err) {
+      console.error('[Firebase] Error al cargar el módulo:', err);
+      if ($('fbNote')) $('fbNote').textContent = 'No se pudo cargar Firebase. Revisa la configuración en firebase/.';
+    }
+  }
+</script>
 </body>
 </html>
