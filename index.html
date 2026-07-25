@@ -810,10 +810,10 @@
     font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(11rem,26vw,23rem);
     line-height:.8;letter-spacing:-.08em;
     background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;
-    opacity:.07;pointer-events:none;user-select:none;
+    opacity:.11;pointer-events:none;user-select:none;
   }
   .agenda .wrap{position:relative;z-index:1}
-  /* Marca de agua sutil dentro del formulario de reserva */
+  /* Marca de agua dentro del formulario de reserva */
   #bookingForm{position:relative;overflow:hidden}
   #bookingForm::after{
     content:"th";
@@ -821,10 +821,12 @@
     font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(6rem,20vw,9rem);
     line-height:1;letter-spacing:-.06em;
     background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;
-    opacity:.11;pointer-events:none;user-select:none;
+    opacity:.17;pointer-events:none;user-select:none;
   }
   #bookingForm > *{position:relative;z-index:1}
-  @media(max-width:560px){ .agenda::before{top:12px;opacity:.05} }
+  /* Al confirmar la cita: se muestra SOLO la tarjeta de éxito (se ocultan los campos) */
+  #bookingForm.booking-done > *:not(#agendaOk){display:none}
+  @media(max-width:560px){ .agenda::before{top:12px;opacity:.08} }
 </style>
 </head>
 <body>
@@ -2484,7 +2486,8 @@
     document.getElementById('reservaBox').hidden = true;
     var ch = document.getElementById('comboHint'); if(ch){ ch.textContent=''; ch.classList.remove('show'); }
 
-    /* 3) Mostrar panel de éxito con el botón separado de WhatsApp */
+    /* 3) Mostrar SOLO el panel de éxito (se ocultan los campos del formulario) */
+    f.classList.add('booking-done');
     document.getElementById('agendaActions').style.display = 'none';
     document.getElementById('agendaOk').hidden = false;
     document.getElementById('agendaOk').scrollIntoView({block:'center', behavior:'smooth'});
@@ -2501,6 +2504,7 @@
   var btnNueva = document.getElementById('btnNueva');
   if(btnNueva) btnNueva.addEventListener('click', function(){
     SFX.tap(); haptic(10);
+    document.getElementById('bookingForm').classList.remove('booking-done');
     document.getElementById('agendaOk').hidden = true;
     document.getElementById('agendaActions').style.display = '';
     document.getElementById('bookingForm').scrollIntoView({block:'start', behavior:'smooth'});
