@@ -51,10 +51,12 @@ Archivos:
    y pégalo en `th-agenda-firebase.js`.
 5. **Firestore → Rules:** pega el contenido de `firestore.rules`. En `esAdmin()` pon
    el **UID real de Tatiana** (lo ves en *Authentication → Users* tras iniciar sesión una vez).
-6. Publica horarios (una vez logueada como Tatiana), desde la consola del navegador:
+6. Publica horarios (una vez logueada como Tatiana), desde la consola del navegador.
+   Por defecto usa la franja de trabajo **9:00 a. m. – 6:00 p. m.** (horas 9–17):
    ```js
    import('./firebase/th-agenda-firebase.js').then(m =>
-     m.crearHorariosDelDia('2026-07-25', ['09:00','10:30','12:00','14:00','15:30','17:00'])
+     m.crearHorariosDelDia('2026-07-25')            // usa 9:00–18:00 automáticamente
+     // o con horas propias: m.crearHorariosDelDia('2026-07-25', ['09:00','11:00','15:00'])
    );
    ```
 

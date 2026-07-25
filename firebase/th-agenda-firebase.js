@@ -190,7 +190,13 @@ async function cargarHorarios(fecha) {
  *    crearHorariosDelDia("2026-07-25", ["09:00","10:30","12:00"], "")
  *    El ID determinista "fecha_HH-mm" impide crear el mismo slot dos veces.
  * ============================================================ */
-async function crearHorariosDelDia(fecha, horas, servicio = '') {
+/* Horas de trabajo por defecto: 9:00 a. m. – 6:00 p. m.
+   Cada franja dura 60 min; la última inicia a las 17:00 y termina a las 18:00. */
+function horasLaborales() {
+  return ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+}
+
+async function crearHorariosDelDia(fecha, horas = horasLaborales(), servicio = '') {
   for (const hora of horas) {
     const id = fecha + '_' + hora.replace(':', '-'); // "2026-07-25_10-00"
     await setDoc(doc(db, 'horarios', id), {
@@ -255,6 +261,6 @@ export {
   auth, db,
   enviarCodigoSMS, verificarCodigoSMS, loginCorreo, cerrarSesion, alCambiarSesion,
   reservarTurno, obtenerMisCitas, cancelarCita,
-  cargarHorarios, crearHorariosDelDia,
+  cargarHorarios, crearHorariosDelDia, horasLaborales,
   renderAgenda, renderMisCitasFB
 };
