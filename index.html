@@ -911,8 +911,26 @@
   .exp-block{max-width:760px;margin:28px auto 0;text-align:center}
   .exp-eyebrow{display:block;font-family:'Jost',sans-serif;font-weight:500;font-size:.72rem;letter-spacing:.42em;
     text-transform:uppercase;color:var(--gold-deep);margin-bottom:14px}
-  .exp-media{width:100%;aspect-ratio:16/10;object-fit:contain;background:#2b2018;border-radius:20px;
-    box-shadow:var(--shadow);border:1px solid var(--line);display:block}
+  /* Rotador de videos (anterior + actual) con portada del logo que palpita */
+  .exp-rotador{position:relative;width:100%;aspect-ratio:16/10;border-radius:20px;overflow:hidden;
+    box-shadow:var(--shadow);border:1px solid var(--line);background:#1a120c}
+  .exp-slide{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity .6s ease}
+  .exp-slide.activo{opacity:1;pointer-events:auto}
+  .exp-media{width:100%;height:100%;object-fit:contain;background:#1a120c;display:block}
+  .exp-cover{position:absolute;inset:0;border:none;cursor:pointer;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:16px;background:#1a120c}
+  .exp-cover.hide{display:none}
+  .exp-logo{width:72%;max-width:440px;height:auto;animation:palpita 1.9s ease-in-out infinite}
+  .exp-play{width:64px;height:64px;border-radius:50%;background:linear-gradient(120deg,var(--gold-deep),var(--gold-light));
+    color:#1a120c;display:flex;align-items:center;justify-content:center;font-size:1.5rem;padding-left:4px;
+    box-shadow:0 12px 28px -8px rgba(0,0,0,.6)}
+  @keyframes palpita{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(220,198,140,0))}
+    50%{transform:scale(1.06);filter:drop-shadow(0 0 22px rgba(220,198,140,.6))}}
+  @media(prefers-reduced-motion:reduce){ .exp-logo{animation:none} }
+  .exp-dots{display:flex;justify-content:center;gap:8px;margin-top:12px}
+  .exp-dots button{width:9px;height:9px;border-radius:50%;border:none;cursor:pointer;padding:0;
+    background:var(--line);transition:background .25s,transform .25s}
+  .exp-dots button.on{background:var(--gold);transform:scale(1.25)}
   .ig-cta{text-align:center;margin:24px auto 0}
   .ig-btn{display:inline-flex;align-items:center;gap:12px;padding:14px 26px;border-radius:40px;
     font-family:'Jost',sans-serif;font-weight:500;font-size:.9rem;color:#fff;text-decoration:none;
@@ -1205,9 +1223,23 @@
     <!-- Video: vive la experiencia -->
     <div class="exp-block reveal">
       <span class="exp-eyebrow" data-i18n="exp.eyebrow">Vive la experiencia</span>
-      <video class="exp-media" preload="none" playsinline controls poster="img/logo-marca.jpg">
-        <source src="video/experiencia.mp4" type="video/mp4">
-      </video>
+      <div class="exp-rotador" id="expRotador">
+        <div class="exp-slide activo" data-i="0">
+          <video class="exp-media" preload="none" playsinline controls poster="img/logo-marca.jpg" data-src="video/experiencia.mp4"></video>
+          <button type="button" class="exp-cover" aria-label="Reproducir video">
+            <img class="exp-logo" src="img/logo-marca.jpg" alt="Tatiana Hernández · Estética Integral">
+            <span class="exp-play" aria-hidden="true">▶</span>
+          </button>
+        </div>
+        <div class="exp-slide" data-i="1">
+          <video class="exp-media" preload="none" playsinline controls poster="img/logo-marca.jpg" data-src="video/experiencia2.mp4"></video>
+          <button type="button" class="exp-cover" aria-label="Reproducir video">
+            <img class="exp-logo" src="img/logo-marca.jpg" alt="Tatiana Hernández · Estética Integral">
+            <span class="exp-play" aria-hidden="true">▶</span>
+          </button>
+        </div>
+      </div>
+      <div class="exp-dots" id="expDots"></div>
     </div>
 
     <!-- Instagram -->
@@ -3069,10 +3101,44 @@
   var lbClose = document.getElementById('lbClose');
   if(lbClose) lbClose.addEventListener('click', cerrarLightbox);
   if(lb) lb.addEventListener('click', function(e){ if(e.target === lb) cerrarLightbox(); });
-  /* Sonido llamativo al iniciar el video */
-  var expMedia = document.querySelector('.exp-media');
-  if(expMedia) expMedia.addEventListener('play', function(){ if(typeof SFX !== 'undefined') SFX.reveal(); });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape') cerrarLightbox(); });
+
+  /* Rotador "Vive la experiencia": alterna el video anterior y el actual por
+     intervalos; la portada es el logo dorado que palpita para llamar la atención. */
+  (function expRotador(){
+    var rot = document.getElementById('expRotador'); if(!rot) return;
+    var slides = Array.prototype.slice.call(rot.querySelectorAll('.exp-slide'));
+    var dotsWrap = document.getElementById('expDots');
+    var idx = 0, timer = null, reproduciendo = false;
+    function mostrar(i){
+      idx = (i + slides.length) % slides.length;
+      slides.forEach(function(s, k){ s.classList.toggle('activo', k === idx); });
+      if(dotsWrap) Array.prototype.forEach.call(dotsWrap.children, function(d, k){ d.classList.toggle('on', k === idx); });
+    }
+    function siguiente(){ if(!reproduciendo) mostrar(idx + 1); }
+    function reiniciar(){ clearInterval(timer); timer = setInterval(siguiente, 7000); }
+    if(dotsWrap){
+      dotsWrap.innerHTML = slides.map(function(_, k){ return '<button type="button" aria-label="Video ' + (k + 1) + '"></button>'; }).join('');
+      dotsWrap.addEventListener('click', function(e){
+        var b = e.target.closest('button'); if(!b) return;
+        mostrar(Array.prototype.indexOf.call(dotsWrap.children, b)); reiniciar();
+      });
+    }
+    slides.forEach(function(s){
+      var cover = s.querySelector('.exp-cover'), vid = s.querySelector('.exp-media');
+      if(!cover || !vid) return;
+      cover.addEventListener('click', function(){
+        if(!vid.getAttribute('src')) vid.setAttribute('src', vid.getAttribute('data-src'));
+        cover.classList.add('hide');
+        if(typeof SFX !== 'undefined') SFX.reveal();
+        vid.play().catch(function(){});
+      });
+      vid.addEventListener('play', function(){ reproduciendo = true; });
+      vid.addEventListener('pause', function(){ reproduciendo = false; });
+      vid.addEventListener('ended', function(){ reproduciendo = false; cover.classList.remove('hide'); });
+    });
+    mostrar(0); reiniciar();
+  })();
 })();
 </script>
 
