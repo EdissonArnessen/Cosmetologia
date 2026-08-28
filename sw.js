@@ -1,7 +1,7 @@
 /* Service Worker — Tatiana Hernández · Estética Integral
    Hace que el sitio abra rápido y funcione incluso sin conexión.
    Al publicar una versión nueva, sube el número de CACHE (v1 -> v2 ...). */
-const CACHE = 'th-estetica-v4';
+const CACHE = 'th-estetica-v5';
 const CORE = [
   './',
   './index.html',
