@@ -1087,6 +1087,56 @@
   @keyframes tabShine{0%{left:-60%}55%,100%{left:130%}}
   .tabbar a:not(.active):hover{color:var(--gold-deep)}
   @media(prefers-reduced-motion:reduce){.tabbar a.active::before{animation:none;display:none}}
+
+  /* ===== Promociones destacadas (inicio) ===== */
+  .destacados{padding:72px 0 40px;background:
+    radial-gradient(circle at 85% 0%,rgba(220,198,140,.18),transparent 45%),var(--cream)}
+  .dest-intro{max-width:560px;margin:10px auto 0;color:var(--cocoa-soft);font-size:1rem;line-height:1.6}
+  .dest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:38px}
+  .dest-card{position:relative;border-radius:22px;overflow:hidden;min-height:360px;display:flex;flex-direction:column;
+    justify-content:flex-end;cursor:pointer;box-shadow:0 24px 50px -30px rgba(59,42,30,.7);
+    border:1px solid var(--line);isolation:isolate}
+  .dest-card .dest-img{position:absolute;inset:0;background-size:cover;background-position:center;z-index:-2;
+    transition:transform .8s cubic-bezier(.2,.8,.3,1)}
+  .dest-card::after{content:"";position:absolute;inset:0;z-index:-1;
+    background:linear-gradient(180deg,rgba(40,28,18,0) 30%,rgba(40,28,18,.35) 55%,rgba(30,20,12,.86) 100%)}
+  .dest-card:hover{transform:translateY(-8px);box-shadow:0 34px 60px -28px rgba(59,42,30,.8)}
+  .dest-card:hover .dest-img{transform:scale(1.08)}
+  .dest-ribbon{position:absolute;top:16px;left:16px;z-index:2;display:inline-flex;align-items:center;gap:6px;
+    padding:8px 15px;border-radius:30px;font-family:'Jost',sans-serif;font-size:.66rem;letter-spacing:.14em;
+    text-transform:uppercase;font-weight:600;color:#3B2A1E;
+    background:linear-gradient(120deg,var(--gold-light),var(--gold) 70%);box-shadow:0 8px 18px -8px rgba(166,134,63,.9)}
+  .dest-ribbon svg{width:13px;height:13px}
+  .dest-body{position:relative;z-index:2;padding:22px 22px 24px;color:#fff}
+  .dest-body h3{color:#fff;font-size:1.75rem;line-height:1.05;margin-bottom:6px;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+  .dest-body h3 span{display:block;font-family:'Pinyon Script',cursive;font-size:1.7rem;font-weight:400;color:var(--gold-light)}
+  .dest-body p{color:rgba(255,255,255,.9);font-size:.92rem;line-height:1.45;margin-bottom:16px;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+  .dest-cta{display:inline-flex;align-items:center;gap:9px;padding:12px 22px;border:none;cursor:pointer;border-radius:34px;
+    font-family:'Jost',sans-serif;font-weight:600;font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:#3B2A1E;
+    background:linear-gradient(120deg,#fff,var(--gold-light));box-shadow:0 12px 24px -12px rgba(0,0,0,.6);
+    transition:transform .3s,box-shadow .3s,gap .3s}
+  .dest-cta svg{width:16px;height:16px}
+  .dest-card:hover .dest-cta{gap:14px;transform:translateY(-2px)}
+
+  /* Franja "nuestro espacio" (cabina) */
+  .cabina{position:relative;margin-top:24px;border-radius:22px;overflow:hidden;min-height:260px;
+    display:flex;align-items:center;box-shadow:0 24px 50px -30px rgba(59,42,30,.7);border:1px solid var(--line)}
+  .cabina .dest-img{position:absolute;inset:0;background:url('img/espacio.jpg') center/cover;z-index:-2}
+  .cabina::after{content:"";position:absolute;inset:0;z-index:-1;
+    background:linear-gradient(100deg,rgba(30,20,12,.82) 0%,rgba(40,28,18,.5) 45%,rgba(40,28,18,.15) 100%)}
+  .cabina-body{position:relative;z-index:2;padding:32px 34px;color:#fff;max-width:460px}
+  .cabina-body .eyebrow{color:var(--gold-light);display:block;margin-bottom:6px}
+  .cabina-body h3{color:#fff;font-size:2rem;line-height:1.05;margin-bottom:8px;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+  .cabina-body p{color:rgba(255,255,255,.92);font-size:.96rem;line-height:1.55;margin-bottom:16px;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+  @media(max-width:860px){
+    .dest-grid{grid-template-columns:1fr;gap:18px}
+    .dest-card{min-height:300px}
+    .cabina{min-height:0}
+    .cabina .dest-img{opacity:1}
+    .cabina::after{background:linear-gradient(160deg,rgba(30,20,12,.55) 0%,rgba(30,20,12,.85) 100%)}
+    .cabina-body{padding:26px 22px;max-width:none}
+  }
+  @media(prefers-reduced-motion:reduce){.dest-card .dest-img{transition:none}}
 </style>
 </head>
 <body>
@@ -1184,6 +1234,71 @@
     </div>
     <button class="promo-arrow next" id="promoNext" aria-label="Siguiente" type="button">›</button>
     <div class="promo-dots" id="promoDots"></div>
+  </div>
+</section>
+
+<!-- ============ PROMOCIONES DESTACADAS ============ -->
+<section class="destacados" data-view="inicio">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Lo más pedido</span>
+      <h2>Promociones <span class="script metal-text">destacadas</span></h2>
+      <p class="dest-intro">Los rituales que más eligen nuestras clientas: relajación corporal y una piel radiante. Reserva el tuyo.</p>
+    </div>
+
+    <div class="dest-grid">
+      <!-- Masaje corporal -->
+      <article class="dest-card reveal" data-svc="Masaje relajante" tabindex="0" role="button" aria-label="Agendar masaje corporal relajante">
+        <div class="dest-img" style="background-image:url('img/masaje-corporal.jpg')"></div>
+        <span class="dest-ribbon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z"/></svg> El más pedido</span>
+        <div class="dest-body">
+          <h3>Masaje corporal <span>relajante</span></h3>
+          <p>Libera el estrés acumulado, activa la circulación y renueva tu energía. Un momento de calma total.</p>
+          <button type="button" class="dest-cta">Agendar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </article>
+
+      <!-- Limpieza facial -->
+      <article class="dest-card reveal" data-svc="Limpieza facial profunda" tabindex="0" role="button" aria-label="Agendar limpieza facial profunda">
+        <div class="dest-img" style="background-image:url('img/limpieza-facial.jpg')"></div>
+        <span class="dest-ribbon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z"/></svg> Favorito</span>
+        <div class="dest-body">
+          <h3>Limpieza facial <span>profunda</span></h3>
+          <p>Purifica los poros, hidrata en profundidad y devuelve la luminosidad. Piel limpia, fresca y renovada.</p>
+          <button type="button" class="dest-cta">Agendar
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </article>
+
+      <!-- Combo estrella -->
+      <article class="dest-card reveal" data-combo="1" tabindex="0" role="button" aria-label="Consultar combo limpieza facial más masaje">
+        <div class="dest-img" style="background-image:url('img/estetica-facial.jpg')"></div>
+        <span class="dest-ribbon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.3 6.9.7-5.1 4.6 1.4 6.8L12 17.8 5.9 20.4l1.4-6.8L2.2 9l6.9-.7z"/></svg> Combo estrella</span>
+        <div class="dest-body">
+          <h3>Limpieza facial <span>+ masaje</span></h3>
+          <p>Renueva tu piel y relaja tu cuerpo en una sola sesión. La experiencia completa de bienestar.</p>
+          <button type="button" class="dest-cta">Consultar promo
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <!-- Nuestro espacio / cabina -->
+    <div class="cabina reveal">
+      <div class="dest-img"></div>
+      <div class="cabina-body">
+        <span class="eyebrow">Nuestro espacio</span>
+        <h3>Una cabina pensada para tu bienestar</h3>
+        <p>Un ambiente cálido, íntimo y profesional donde cada detalle está diseñado para que te sientas cómoda y renovada.</p>
+        <button type="button" class="dest-cta" data-ver-galeria>Ver el espacio
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -2384,6 +2499,24 @@
   }
   document.querySelectorAll('.reservar, .tag[data-svc]').forEach(function(b){
     b.addEventListener('click', function(e){ e.stopPropagation(); SFX.tap(); pickService(b.getAttribute('data-svc')); });
+  });
+
+  /* ---- Promociones destacadas (inicio) ---- */
+  document.querySelectorAll('.dest-card').forEach(function(card){
+    function activar(){
+      SFX.tap(); haptic(10);
+      if(card.hasAttribute('data-combo')){
+        var msg = "Hola, me interesa el combo de Limpieza facial + Masaje. ¿Me cuentas la promoción y la disponibilidad?";
+        window.open("https://wa.me/" + WA + "?text=" + encodeURIComponent(msg), "_blank", "noopener");
+      }else if(card.getAttribute('data-svc')){
+        pickService(card.getAttribute('data-svc'));
+      }
+    }
+    card.addEventListener('click', activar);
+    card.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); activar(); } });
+  });
+  document.querySelectorAll('[data-ver-galeria]').forEach(function(b){
+    b.addEventListener('click', function(e){ e.stopPropagation(); SFX.tap(); haptic(8); navTo('galeria'); });
   });
 
   /* ---- Detalle animado de cada servicio (modal que invita a agendar) ---- */
