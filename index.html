@@ -1186,8 +1186,6 @@
         <li><a data-nav="servicios" data-i18n="nav.servicios">Servicios</a></li>
         <li><a data-nav="galeria" data-i18n="nav.galeria">Galería</a></li>
         <li><a data-nav="agenda" data-i18n="nav.agenda">Agenda</a></li>
-        <li><a data-nav="miscitas" data-i18n="nav.miscitas">Mis citas</a></li>
-        <li><a data-nav="ficha" data-i18n="nav.ficha" hidden>Ficha técnica</a></li>
         <li><a data-nav="testimonios" data-i18n="nav.opiniones">Opiniones</a></li>
         <li><a data-nav="faq" data-i18n="nav.faq">FAQ</a></li>
         <li><a data-nav="contacto" data-i18n="nav.contacto">Contacto</a></li>
@@ -1543,13 +1541,6 @@
       <h2>Agenda tu <span class="script metal-text">ritual de cuidado</span></h2>
     </div>
 
-    <div class="agenda-consulta reveal">
-      <a data-nav="miscitas" class="mc-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 3v3M16 3v3M9 14l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span data-i18n="mc.link">¿Ya reservaste? Consulta tus citas y agrégalas a tu calendario</span>
-      </a>
-    </div>
-
     <form class="form-card reveal" id="bookingForm" novalidate>
       <div class="grid2">
         <div class="field">
@@ -1663,7 +1654,6 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 00-8.6 15l-1.3 4.7 4.8-1.3A10 10 0 1012 2zm0 2a8 8 0 11-4.1 14.9l-.3-.2-2.8.8.8-2.7-.2-.3A8 8 0 0112 4z"/></svg>
             <span data-i18n="ok.wa">Enviar por WhatsApp</span>
           </button>
-          <button type="button" class="btn btn-ghost btn-sm" data-nav="miscitas" data-i18n="ok.miscitas">📅 Ver mis citas</button>
           <button type="button" class="btn btn-ghost btn-sm" id="btnNueva" data-i18n="ok.otra">Agendar otra cita</button>
         </div>
       </div>
@@ -2169,7 +2159,7 @@
   function actualizarAtras(){ if(navBack) navBack.hidden = viewStack.length === 0; }
   function navTo(name){
     /* Vistas privadas: solo con sesión de administrador */
-    if((name === 'ficha' || name === 'citas' || name === 'consent') && !adminLogged){
+    if((name === 'ficha' || name === 'citas' || name === 'consent' || name === 'miscitas') && !adminLogged){
       showView('admin');
       viewStack.push('inicio');
       actualizarAtras();
@@ -2202,8 +2192,15 @@
     SFX.open(); haptic(12);
     navTo(resolveView(a.getAttribute('data-nav')));
   });
-  /* Vista inicial (respeta enlaces compartidos como misitio.html#agenda) */
-  showView(resolveView((location.hash||'#inicio').slice(1)));
+  /* Vista inicial (respeta enlaces compartidos como misitio.html#agenda).
+     Se enruta por navTo para que las vistas privadas exijan sesión de administrador
+     aunque se abran directamente por el enlace (#ficha, #citas, #miscitas…). */
+  (function(){
+    var inicial = resolveView((location.hash||'#inicio').slice(1));
+    var privadas = ['ficha','citas','consent','miscitas'];
+    if(privadas.indexOf(inicial) > -1 && !adminLogged){ showView('admin'); }
+    else showView(inicial);
+  })();
 
   /* ---- Mobile nav ---- */
   var toggle = document.getElementById('navToggle');
@@ -2843,6 +2840,9 @@
   function cerrarSesionAdmin(){
     adminLogged = false; adminLogin.hidden = false; adminPanel.hidden = true;
     var pw = document.getElementById('adminPass'); if(pw) pw.value = '';
+    /* Si estaba viendo una vista privada, vuelve al acceso de administrador */
+    var actual = currentView();
+    if(['ficha','citas','consent','miscitas'].indexOf(actual) > -1) showView('admin');
   }
   var adminBtn = document.getElementById('adminBtn');
   if(adminBtn) adminBtn.addEventListener('click', function(){
