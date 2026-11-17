@@ -15,6 +15,9 @@ const CATEGORIAS = [
   'Estética avanzada y armonía facial'
 ];
 const ROLES = { admin:'Administrador', recepcion:'Recepcionista', profesional:'Profesional' };
+/* Correos autorizados para crear su acceso de administradora en el primer ingreso.
+   (También se validan en firestore.rules para que sea seguro.) */
+const ADMIN_BOOTSTRAP = ['yuliethhernandezrtpo1991@gmail.com', 'biohazaa@gmail.com'];
 const DIAS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 
 /* ---------- utilidades DOM ---------- */
@@ -74,17 +77,30 @@ async function arrancar(){
  * Autenticación
  * ============================================================ */
 function wireLogin(){
+  // Recordar correo
+  try{ const re = localStorage.getItem('th_admin_email'); if(re){ el('email').value = re; const r = el('remember'); if(r) r.checked = true; } }catch(_){}
+  // Mostrar/ocultar contraseña
+  const eye = el('eyeBtn');
+  if(eye) eye.addEventListener('click', ()=>{
+    const p = el('pass'); const mostrar = p.type === 'password';
+    p.type = mostrar ? 'text' : 'password';
+    el('eyeIcon').innerHTML = mostrar
+      ? '<path d="M17.9 17.9A10.4 10.4 0 0112 19C5 19 1 12 1 12a18.4 18.4 0 015.1-5.9M9.9 4.2A10.4 10.4 0 0112 4c7 0 11 7 11 7a18.3 18.3 0 01-2.2 3.2M1 1l22 22M9.5 9.5a3 3 0 004 4" />'
+      : '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
+  });
+
   el('loginForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const email = el('email').value.trim();
     const pass  = el('pass').value;
     const btn = el('loginBtn'); const err = el('loginErr');
     err.textContent = ''; btn.disabled = true; btn.textContent = 'Ingresando…';
+    try{ if(el('remember') && el('remember').checked) localStorage.setItem('th_admin_email', email); else localStorage.removeItem('th_admin_email'); }catch(_){}
     try{
       await fb.signIn(fb.auth, email, pass);
     }catch(ex){
       err.textContent = codigoAuth(ex.code);
-      btn.disabled = false; btn.textContent = 'Ingresar';
+      btn.disabled = false; btn.textContent = 'Ingresar →';
     }
   });
   el('logoutBtn').addEventListener('click', ()=> fb.signOut(fb.auth));
@@ -109,6 +125,8 @@ async function onAuthChange(u){
   try{
     const snap = await fb.getDoc(fb.doc(fb.db,'usuarios',u.uid));
     if(!snap.exists()){
+      // Primer ingreso de una administradora autorizada → ofrecer crear su acceso
+      if(ADMIN_BOOTSTRAP.includes((u.email||'').toLowerCase())){ mostrarBootstrap(u); return; }
       el('loginErr').textContent = 'Tu usuario no está habilitado en el panel. Contacta a la administradora.';
       await fb.signOut(fb.auth); return;
     }
@@ -125,7 +143,50 @@ async function onAuthChange(u){
   mostrarApp();
 }
 
-function mostrarLogin(){ el('app').classList.add('hidden'); el('loginWrap').classList.remove('hidden'); el('pass').value=''; }
+function mostrarLogin(){
+  el('app').classList.add('hidden'); el('loginWrap').classList.remove('hidden');
+  const form = el('loginForm'); if(form) form.classList.remove('hidden');
+  const bc = el('bootCard'); if(bc) bc.classList.add('hidden');
+  const btn = el('loginBtn'); if(btn){ btn.disabled=false; btn.textContent='Ingresar →'; }
+  if(el('pass')) el('pass').value='';
+}
+
+/* Primer ingreso de administradora: crea su documento de usuario (rol admin). */
+function mostrarBootstrap(u){
+  el('app').classList.add('hidden'); el('loginWrap').classList.remove('hidden');
+  const form = el('loginForm'); if(form) form.classList.add('hidden');
+  let bc = el('bootCard');
+  if(!bc){ bc = document.createElement('form'); bc.id='bootCard'; bc.className='glass-card'; el('loginWrap').appendChild(bc); }
+  bc.classList.remove('hidden');
+  const nombreSug = (u.email||'').toLowerCase().startsWith('yulieth') ? 'Yuliet Tatiana Hernández' : '';
+  bc.innerHTML = `
+    <div class="gc-logo">t<b>h</b></div>
+    <div class="gc-sub">Estética Integral</div>
+    <h1>¡Hola, administradora!</h1>
+    <p class="gc-hint">Es tu primer ingreso con <b>${esc(u.email)}</b>.<br>Crea tu acceso para continuar.</p>
+    <div class="in">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg>
+      <input type="text" id="bootNombre" placeholder="Tu nombre completo" aria-label="Tu nombre completo" value="${esc(nombreSug)}">
+    </div>
+    <p class="err-msg" id="bootErr"></p>
+    <button type="button" class="gc-btn" id="bootBtn">Crear mi acceso →</button>
+    <button type="button" class="gc-btn" id="bootCancel" style="background:transparent;border:1px solid rgba(255,255,255,.5);box-shadow:none;margin-top:10px">Cancelar</button>`;
+  el('bootBtn').onclick = async ()=>{
+    const nombre = (el('bootNombre').value||'').trim() || u.email;
+    const b = el('bootBtn'); b.disabled=true; b.textContent='Creando…';
+    try{
+      await fb.setDoc(fb.doc(fb.db,'usuarios',u.uid), { nombre, email:u.email, rol:'admin', activo:true, creadoEn:fb.serverTimestamp() });
+      perfil = { id:u.uid, nombre, email:u.email, rol:'admin', activo:true };
+      bc.classList.add('hidden'); if(form) form.classList.remove('hidden');
+      mostrarApp();
+    }catch(ex){
+      console.error(ex);
+      el('bootErr').textContent = 'No se pudo crear el acceso: ' + (ex.message||'revisa las reglas de seguridad.');
+      b.disabled=false; b.textContent='Crear mi acceso →';
+    }
+  };
+  el('bootCancel').onclick = ()=> fb.signOut(fb.auth);
+}
 function mostrarApp(){
   el('loginWrap').classList.add('hidden'); el('app').classList.remove('hidden');
   el('sbAvatar').textContent = initials(perfil.nombre || usuario.email);
