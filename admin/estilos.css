@@ -309,23 +309,25 @@ tr:hover td{background:rgba(220,198,140,.08)}
   background:linear-gradient(120deg,var(--gold),var(--gold-deep));color:#fff;font-size:.66rem;font-weight:600;
   align-items:center;justify-content:center}
 
-/* ======================= LOGO INTEGRADO (difuminado) ======================= */
-/* Banda clara que se funde en el borde con la barra lateral oscura */
-.sb-brand{border-bottom:none;border-radius:16px;padding:16px 10px;margin:0 2px 16px;
-  background:radial-gradient(130% 120% at 50% 40%, #f5edda 0%, #efe4cf 62%, rgba(239,228,207,0) 100%)}
-/* Máscara que difumina los 4 bordes del logo para una integración suave */
-.sb-brand img.sb-logo, .gc-logo-img{
-  -webkit-mask-image:
-    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 13%, #000 87%, transparent 100%);
-  -webkit-mask-composite:source-in;
-  mask-image:
-    linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%),
-    linear-gradient(to bottom, transparent 0, #000 13%, #000 87%, transparent 100%);
-  mask-composite:intersect;
-}
-.sb-brand img.sb-logo{width:100%;max-width:100%;display:block;box-shadow:none;animation:logoIn .7s ease}
-.gc-logo-img{width:250px;max-width:88%;display:block;margin:0 auto 12px;box-shadow:none;animation:logoIn .7s ease}
+/* ======================= LOGO (monograma dorado, sin figura) ======================= */
+/* Área de marca: se funde HACIA ABAJO con la barra lateral oscura (degradado) */
+.sb-brand{border:none;border-bottom:none;border-radius:0;padding:10px 8px 18px;margin:0 2px 10px;position:relative;
+  background:linear-gradient(to bottom, rgba(220,198,140,.10) 0%, rgba(220,198,140,.03) 55%, rgba(220,198,140,0) 100%)}
+.sb-brand::after{content:"";position:absolute;left:12%;right:12%;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(220,198,140,.45),transparent)}
+.brandmark{display:flex;align-items:center;gap:12px;justify-content:center;animation:logoIn .7s ease}
+.bm-mono{font-family:'Cormorant Garamond',serif;font-weight:700;font-style:italic;font-size:2.7rem;line-height:.78;
+  background:linear-gradient(135deg,#f6e9c8 0%,#DCC68C 40%,#C2A05A 70%,#8a6a2f 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+.bm-name{display:flex;flex-direction:column;line-height:1.05}
+.bm-name b{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.04rem;letter-spacing:.12em;text-transform:uppercase;color:#fff}
+.bm-name > span{font-family:'Jost',sans-serif;font-size:.54rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-light);margin-top:3px}
+/* Versión grande para el login y el primer ingreso */
+.brandmark-lg{justify-content:center;margin-bottom:16px}
+.brandmark-lg .bm-mono{font-size:3.4rem}
+.brandmark-lg .bm-name b{font-size:1.18rem;color:#fff}
+.brandmark-lg .bm-name > span{font-size:.6rem}
 /* saludo personalizado del dashboard */
 .welcome .wl-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .welcome .wl-date{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);
