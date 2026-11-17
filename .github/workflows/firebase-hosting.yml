@@ -1,0 +1,52 @@
+name: Deploy a Firebase (Hosting + Reglas)
+
+# Publica AUTOMÁTICAMENTE el sitio (página pública + panel admin) y las
+# REGLAS de Firestore cada vez que se sube un cambio a la rama main.
+#
+# Requisito (una sola vez): crear el secreto FIREBASE_SERVICE_ACCOUNT en
+# GitHub → Settings → Secrets and variables → Actions, pegando el JSON de la
+# clave privada de la cuenta de servicio de Firebase. Sin el secreto, este
+# flujo NO falla: simplemente no publica.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar secreto
+        id: chk
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -n "$SA" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::notice::Falta el secreto FIREBASE_SERVICE_ACCOUNT; no se publica todavía."; fi
+
+      - name: Obtener el código
+        if: steps.chk.outputs.ok == 'true'
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        if: steps.chk.outputs.ok == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Guardar credenciales
+        if: steps.chk.outputs.ok == 'true'
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: printf '%s' "$SA" > "$HOME/sa.json"
+
+      - name: Publicar sitio y reglas
+        if: steps.chk.outputs.ok == 'true'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/../sa.json
+        run: |
+          export GOOGLE_APPLICATION_CREDENTIALS="$HOME/sa.json"
+          npx -y firebase-tools@13 deploy --only "hosting,firestore:rules" --project tatianahernandez-40b70 --non-interactive

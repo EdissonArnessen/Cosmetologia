@@ -360,8 +360,9 @@ function rankBars(data){
 async function vistaDashboard(v){
   v.innerHTML = `
     <div class="welcome">
-      <h2>Bienvenida a tu <span>espacio de bienestar</span></h2>
-      <p>Un lugar donde la belleza, la armonía y la tranquilidad se encuentran.</p>
+      <div class="wl-top"><h2>Hola, <span>${esc((perfil.nombre||'').split(' ')[0]||'bienvenida')}</span></h2><span class="wl-date">${fechaLarga(hoyISO())}</span></div>
+      <p>Bienvenida a tu espacio de bienestar — donde la belleza, la armonía y la tranquilidad se encuentran.</p>
+      <p class="wl-insight" id="wlInsight"></p>
     </div>
     <div class="kpi-grid" id="kpis"><div class="loading" style="grid-column:1/-1">Cargando indicadores…</div></div>
     <div class="dash-2col">
@@ -394,6 +395,13 @@ async function vistaDashboard(v){
     { k:'Clientes activos',  v: clientes.filter(c=>c.activo!==false).length, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8' }
   ];
   el('kpis').innerHTML = kpis.map(d=>`<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v"${d.txt?' style="font-size:1.5rem"':''}>${d.v}</div><div class="k">${d.k}</div></div>`).join('');
+  // Dato inteligente del día
+  const nHoy = citas.filter(c=>c.fecha===hoy && c.estado!=='cancelada').length;
+  const nPend = citas.filter(c=>c.estado==='pendiente').length;
+  const ins = el('wlInsight');
+  if(ins) ins.innerHTML = (nHoy||nPend)
+    ? `Hoy tienes <b>${nHoy}</b> cita${nHoy===1?'':'s'} y <b>${nPend}</b> pendiente${nPend===1?'':'s'} por confirmar.`
+    : 'No hay citas registradas aún. Carga datos de ejemplo en <b>Configuración</b> o crea tu primera cita en la <b>Agenda</b>. 🌿';
 
   // Citas por mes (6 meses)
   const meses6=[]; for(let i=5;i>=0;i--){ const d=new Date(anioAct,mesAct-i,1); meses6.push({ y:d.getFullYear(), m:d.getMonth() }); }
