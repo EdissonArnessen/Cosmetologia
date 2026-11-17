@@ -317,16 +317,31 @@ tr:hover td{background:rgba(220,198,140,.08)}
   background:linear-gradient(120deg,var(--gold),var(--gold-deep));color:#fff;font-size:.66rem;font-weight:600;
   align-items:center;justify-content:center}
 
-/* ======================= LOGO (imagen real, marco crema) ======================= */
-.sb-brand{border:none;border-bottom:none;border-radius:16px;padding:12px 12px 14px;margin:2px 2px 16px;position:relative;
-  background:linear-gradient(135deg,#f6efe0 0%,#efe4cd 55%,#e7d9bd 100%);
-  box-shadow:0 10px 22px -14px rgba(0,0,0,.55), inset 0 1px 1px rgba(255,255,255,.75)}
+/* ======================= LOGO (wordmark tipográfico, sin figura) ======================= */
+/* Placa crema reutilizable (barra lateral, login y primer ingreso) */
+.sb-brand{border:none;border-bottom:none;border-radius:16px;padding:14px 12px;margin:2px 2px 16px;position:relative;
+  background:linear-gradient(135deg,#f7f0e1 0%,#efe4cd 55%,#e7d9bd 100%);
+  box-shadow:0 10px 22px -14px rgba(0,0,0,.55), inset 0 1px 1px rgba(255,255,255,.8)}
 .sb-brand::after{content:none}
-.sb-brand img.sb-logo{width:100%;max-width:100%;display:block;margin:0 auto;border-radius:9px;
-  box-shadow:none;animation:logoIn .7s ease}
-.gc-logo-img{width:250px;max-width:84%;display:block;margin:0 auto 16px;border-radius:14px;padding:12px 14px;
-  background:linear-gradient(135deg,#f6efe0 0%,#efe4cd 55%,#e7d9bd 100%);
-  box-shadow:0 14px 30px -14px rgba(0,0,0,.6), inset 0 1px 1px rgba(255,255,255,.7);animation:logoIn .7s ease}
+.logo-plate{display:block;width:260px;max-width:86%;margin:0 auto 18px;border-radius:16px;padding:16px 18px;
+  background:linear-gradient(135deg,#f7f0e1 0%,#efe4cd 55%,#e7d9bd 100%);
+  box-shadow:0 16px 32px -16px rgba(0,0,0,.6), inset 0 1px 1px rgba(255,255,255,.8);animation:logoIn .7s ease}
+/* Composición del wordmark */
+.wordmark{display:flex;align-items:center;justify-content:center;gap:12px;animation:logoIn .7s ease}
+.wm-th{position:relative;font-family:'Cormorant Garamond',serif;font-weight:700;font-style:italic;
+  font-size:2.7rem;line-height:.8;color:#43301f;padding:0 2px}
+.wm-swash{position:absolute;left:-4%;right:-8%;bottom:-9px;width:112%;height:12px;overflow:visible}
+.wm-swash path{fill:none;stroke:var(--gold-deep);stroke-width:2.2;stroke-linecap:round}
+.wm-txt{display:flex;flex-direction:column;text-align:left;line-height:1.1}
+.wm-txt b{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.02rem;letter-spacing:.11em;
+  text-transform:uppercase;color:#43301f}
+.wm-txt small{font-family:'Jost',sans-serif;font-weight:500;font-size:.52rem;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--gold-deep);margin-top:4px}
+/* Versión grande (login / primer ingreso) */
+.wordmark-lg{gap:14px}
+.wordmark-lg .wm-th{font-size:3.2rem}
+.wordmark-lg .wm-txt b{font-size:1.16rem}
+.wordmark-lg .wm-txt small{font-size:.58rem}
 /* saludo personalizado del dashboard */
 .welcome .wl-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .welcome .wl-date{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);
