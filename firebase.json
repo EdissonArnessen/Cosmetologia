@@ -18,8 +18,7 @@
       "package-lock.json",
       "index.backup.html"
     ],
-    "cleanUrls": true,
-    "trailingSlash": false,
+    "cleanUrls": false,
     "headers": [
       {
         "source": "**/*.@(js|css|woff2|png|jpg|jpeg|svg|webp|mp4)",
