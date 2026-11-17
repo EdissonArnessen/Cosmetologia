@@ -297,6 +297,33 @@ function modal({ titulo, cuerpo, guardar, textoGuardar='Guardar' }){
   return { cerrar };
 }
 async function confirmar(msg){ return window.confirm(msg); }
+/* Modal de solo lectura (detalle) — sin botón Guardar */
+function modalInfo({ titulo, cuerpo }){
+  let m = el('modalRoot');
+  if(!m){ m = document.createElement('div'); m.id='modalRoot'; document.body.appendChild(m); }
+  m.innerHTML = `
+    <div class="modal open">
+      <div class="modal-bg" data-cerrar></div>
+      <div class="modal-card">
+        <div class="modal-head"><h3>${esc(titulo)}</h3><button class="modal-close" data-cerrar>&times;</button></div>
+        <div class="modal-body">${cuerpo}</div>
+        <div class="modal-foot"><button class="btn btn-gold" data-cerrar>Cerrar</button></div>
+      </div>
+    </div>`;
+  const cerrar = ()=>{ m.innerHTML=''; };
+  m.querySelectorAll('[data-cerrar]').forEach(b=> b.addEventListener('click', cerrar));
+  return { cerrar };
+}
+/* Lista de citas para los detalles (reusa estilos del expediente) */
+function listaCitasHTML(lista){
+  if(!lista || !lista.length) return '<div class="empty" style="padding:20px"><p>Sin registros en este periodo.</p></div>';
+  return '<div class="exp-hist">'+lista.slice().sort((a,b)=> (a.fecha+(a.horaInicio||'')).localeCompare(b.fecha+(b.horaInicio||''))).map(c=>`
+    <div class="exp-row">
+      <div class="exp-fh"><b>${fechaCorta(c.fecha)}</b><span>${esc((c.horaInicio||'').slice(0,5))}</span></div>
+      <div class="exp-si"><div class="t-strong">${esc(c.clienteNombre||'Cliente')}</div><div class="t-sub">${esc(c.servicioNombre||'')}${c.profesionalNombre?' · '+esc(c.profesionalNombre):''}${c.precio?' · '+money(c.precio):''}</div></div>
+      <span class="badge-e ${ESTADOS[c.estado]?.cls||''}">${ESTADOS[c.estado]?.label||c.estado}</span>
+    </div>`).join('')+'</div>';
+}
 
 /* ============================================================
  * Fechas, estados de cita y utilidades de datos
@@ -339,8 +366,8 @@ function barChart(data, opts){
     const colX = pad + i*bw, x = colX + bw*0.18, y = h-18-bh, ww = bw*0.64;
     const val = opts.money ? money(d.value) : d.value;
     const tip = opts.money ? `${esc(d.label)}: ${val}` : `${esc(d.label)}: ${val}${esc(unidad)}`;
-    return `<g class="bc-col">
-      <title>${tip}</title>
+    return `<g class="bc-col" data-bar="${i}">
+      <title>${tip} — toca para ver el detalle</title>
       <rect x="${colX}" y="${pad-12}" width="${bw}" height="${h-pad}" fill="transparent"></rect>
       <rect class="bc-bar" x="${x}" y="${y}" width="${ww}" height="${bh}" rx="5" fill="url(#gBar)"></rect>
       ${d.value?`<text x="${x+ww/2}" y="${y-5}" text-anchor="middle" class="bc-val">${val}</text>`:''}
@@ -352,6 +379,16 @@ function barChart(data, opts){
       <stop offset="0" stop-color="#DCC68C"></stop><stop offset="1" stop-color="#A6863F"></stop></linearGradient></defs>
     ${bars}</svg>`;
 }
+/* Cablea clic en barras verticales: onClick(indice) */
+function wireBarras(contId, onClick){
+  const cont=el(contId); if(!cont) return;
+  cont.querySelectorAll('.bc-col').forEach(g=>{ g.style.cursor='pointer'; g.onclick=()=>{ const i=Number(g.getAttribute('data-bar')); if(!isNaN(i)) onClick(i); }; });
+}
+/* Cablea clic en filas de ranking: onClick(clave) */
+function wireRank(contId, onClick){
+  const cont=el(contId); if(!cont) return;
+  cont.querySelectorAll('.rank-row[data-rk]').forEach(r=>{ const k=r.getAttribute('data-rk'); if(k==='') return; r.onclick=()=>onClick(k); });
+}
 /* Barras horizontales (ranking) */
 function rankBars(data, opts){
   opts = opts||{};
@@ -362,7 +399,7 @@ function rankBars(data, opts){
     const val = opts.money?money(d.value):d.value;
     const tip = opts.money ? `${d.label}: ${val}` : `${d.label}: ${val}${unidad}`;
     return `
-    <div class="rank-row" title="${esc(tip)}">
+    <div class="rank-row${opts.click?' rank-click':''}" data-rk="${d.key!=null?esc(String(d.key)):''}" title="${esc(tip)}">
       <span class="rank-lbl">${esc(d.label)}</span>
       <span class="rank-bar"><i style="width:${Math.round(100*d.value/max)}%"></i></span>
       <span class="rank-val">${val}</span>
@@ -421,15 +458,22 @@ async function vistaDashboard(v){
 
   // Citas por mes (6 meses)
   const meses6=[]; for(let i=5;i>=0;i--){ const d=new Date(anioAct,mesAct-i,1); meses6.push({ y:d.getFullYear(), m:d.getMonth() }); }
-  const citasMes = meses6.map(mm=>({ label:MESES[mm.m], value: vivas.filter(c=>{const[a,m]=c.fecha.split('-').map(Number); return a===mm.y && (m-1)===mm.m;}).length }));
+  const enMes6 = (c,mm)=>{ const[a,m]=c.fecha.split('-').map(Number); return a===mm.y && (m-1)===mm.m; };
+  const citasMes = meses6.map(mm=>({ label:MESES[mm.m], value: vivas.filter(c=>enMes6(c,mm)).length }));
   el('chCitas').innerHTML = barChart(citasMes, { ref:'citas' });
+  wireBarras('chCitas', (i)=>{ const mm=meses6[i]; const lista=vivas.filter(c=>enMes6(c,mm));
+    modalInfo({ titulo:`Citas · ${MESES_L[mm.m]} ${mm.y}`, cuerpo:`<p class="hint" style="margin-top:0">${lista.length} cita${lista.length===1?'':'s'} (sin canceladas ni inasistencias).</p>`+listaCitasHTML(lista) }); });
   // Ingresos por mes
-  const ingMes = meses6.map(mm=>({ label:MESES[mm.m], value: citas.filter(c=>c.estado==='finalizada').filter(c=>{const[a,m]=c.fecha.split('-').map(Number); return a===mm.y && (m-1)===mm.m;}).reduce((s,c)=>s+(Number(c.precio)||0),0) }));
+  const ingMes = meses6.map(mm=>({ label:MESES[mm.m], value: citas.filter(c=>c.estado==='finalizada'&&enMes6(c,mm)).reduce((s,c)=>s+(Number(c.precio)||0),0) }));
   el('chIngresos').innerHTML = barChart(ingMes, { money:true });
+  wireBarras('chIngresos', (i)=>{ const mm=meses6[i]; const lista=citas.filter(c=>c.estado==='finalizada'&&enMes6(c,mm)); const tot=lista.reduce((s,c)=>s+(Number(c.precio)||0),0);
+    modalInfo({ titulo:`Ingresos · ${MESES_L[mm.m]} ${mm.y}`, cuerpo:`<p class="hint" style="margin-top:0">Total: <b>${money(tot)}</b> · ${lista.length} servicio${lista.length===1?'':'s'} finalizado${lista.length===1?'':'s'}.</p>`+listaCitasHTML(lista) }); });
   // Servicios más solicitados (top 5)
   const cuenta={}; vivas.forEach(c=>{ const n=c.servicioNombre||'—'; cuenta[n]=(cuenta[n]||0)+1; });
-  const topServ = Object.entries(cuenta).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value).slice(0,5);
-  el('chServicios').innerHTML = rankBars(topServ, { ref:'veces' });
+  const topServ = Object.entries(cuenta).map(([label,value])=>({label,value,key:label})).sort((a,b)=>b.value-a.value).slice(0,5);
+  el('chServicios').innerHTML = rankBars(topServ, { ref:'veces', click:true });
+  wireRank('chServicios', (k)=>{ const lista=vivas.filter(c=>(c.servicioNombre||'—')===k);
+    modalInfo({ titulo:`Servicio · ${k}`, cuerpo:`<p class="hint" style="margin-top:0">${lista.length} cita${lista.length===1?'':'s'} de este servicio.</p>`+listaCitasHTML(lista) }); });
   // Próximas citas
   const prox = citas.filter(c=> c.fecha>=hoy && c.estado!=='cancelada' && c.estado!=='no_asistio')
     .sort((a,b)=> (a.fecha+a.horaInicio).localeCompare(b.fecha+b.horaInicio)).slice(0,6);
@@ -1125,18 +1169,26 @@ async function vistaReportes(v){
     const porMes={};
     fin.forEach(c=>{ const [a,m]=c.fecha.split('-'); const key=a+'-'+m; porMes[key]=(porMes[key]||0)+(Number(c.precio)||0); });
     const keys=Object.keys(porMes).sort();
-    const ingData = keys.map(k=>({ label:MESES[Number(k.split('-')[1])-1], value:porMes[k] }));
+    const ingData = keys.map(k=>({ label:MESES[Number(k.split('-')[1])-1], value:porMes[k], key:k }));
     el('repIng').innerHTML = ingData.length ? barChart(ingData,{money:true}) : '<div class="empty" style="padding:24px"><p>Sin ingresos en el periodo.</p></div>';
+    wireBarras('repIng', (i)=>{ const k=ingData[i].key; const lista=fin.filter(c=>{const[a,m]=c.fecha.split('-');return (a+'-'+m)===k;}); const tot=lista.reduce((s,c)=>s+(Number(c.precio)||0),0);
+      modalInfo({ titulo:`Ingresos · ${MESES_L[Number(k.split('-')[1])-1]} ${k.split('-')[0]}`, cuerpo:`<p class="hint" style="margin-top:0">Total: <b>${money(tot)}</b> · ${lista.length} servicio${lista.length===1?'':'s'}.</p>`+listaCitasHTML(lista) }); });
 
     // servicios por ingresos
     const serv={}; fin.forEach(c=>{ const n=c.servicioNombre||'—'; serv[n]=(serv[n]||0)+(Number(c.precio)||0); });
-    el('repServ').innerHTML = rankBars(Object.entries(serv).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value).slice(0,6),{money:true});
+    el('repServ').innerHTML = rankBars(Object.entries(serv).map(([label,value])=>({label,value,key:label})).sort((a,b)=>b.value-a.value).slice(0,6),{money:true,click:true});
+    wireRank('repServ', (k)=>{ const lista=fin.filter(c=>(c.servicioNombre||'—')===k); const tot=lista.reduce((s,c)=>s+(Number(c.precio)||0),0);
+      modalInfo({ titulo:`Servicio · ${k}`, cuerpo:`<p class="hint" style="margin-top:0">${lista.length} servicio${lista.length===1?'':'s'} · ${money(tot)} en el periodo.</p>`+listaCitasHTML(lista) }); });
     // profesionales por ingresos
     const prof={}; fin.forEach(c=>{ const n=c.profesionalNombre||'—'; prof[n]=(prof[n]||0)+(Number(c.precio)||0); });
-    el('repProf').innerHTML = rankBars(Object.entries(prof).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value),{money:true});
+    el('repProf').innerHTML = rankBars(Object.entries(prof).map(([label,value])=>({label,value,key:label})).sort((a,b)=>b.value-a.value),{money:true,click:true});
+    wireRank('repProf', (k)=>{ const lista=fin.filter(c=>(c.profesionalNombre||'—')===k); const tot=lista.reduce((s,c)=>s+(Number(c.precio)||0),0);
+      modalInfo({ titulo:`Profesional · ${k}`, cuerpo:`<p class="hint" style="margin-top:0">${lista.length} servicio${lista.length===1?'':'s'} · ${money(tot)} en el periodo.</p>`+listaCitasHTML(lista) }); });
     // resumen por estado
     const est={}; enRango.forEach(c=>{ est[c.estado]=(est[c.estado]||0)+1; });
-    el('repEstados').innerHTML = rankBars(Object.entries(est).map(([k,value])=>({label:ESTADOS[k]?.label||k,value})).sort((a,b)=>b.value-a.value), { ref:'citas' });
+    el('repEstados').innerHTML = rankBars(Object.entries(est).map(([k,value])=>({label:ESTADOS[k]?.label||k,value,key:k})).sort((a,b)=>b.value-a.value), { ref:'citas', click:true });
+    wireRank('repEstados', (k)=>{ const lista=enRango.filter(c=>c.estado===k);
+      modalInfo({ titulo:`Estado · ${ESTADOS[k]?.label||k}`, cuerpo:`<p class="hint" style="margin-top:0">${lista.length} cita${lista.length===1?'':'s'} en el periodo.</p>`+listaCitasHTML(lista) }); });
 
     el('repCsv').onclick = ()=> exportarCSV(fin, r);
   }
@@ -1163,64 +1215,165 @@ function exportarCSV(citas, r){
  * ============================================================ */
 let pagFecha = '';
 const METODOS = { efectivo:'Efectivo', tarjeta:'Tarjeta', transferencia:'Transferencia', otro:'Otro' };
+const MET_IC = {
+  efectivo:'M3 7h18v10H3zM3 11h18M7 15h3',
+  tarjeta:'M3 7h18v10H3zM3 11h18M7 15h4',
+  transferencia:'M7 11l-4 4 4 4M3 15h12M17 13l4-4-4-4M21 9H9',
+  otro:'M12 8v4l3 2M21 12a9 9 0 11-9-9'
+};
+function metodoBotones(sel){
+  return `<div class="met-group" id="metGroup">`+Object.entries(METODOS).map(([k,l])=>`
+    <button type="button" class="met-pill${sel===k?' on':''}" data-m="${k}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${MET_IC[k]}"/></svg>
+      <span>${l}</span></button>`).join('')+`</div>`;
+}
+function wireMetodo(onPick, inicial){
+  let m = inicial || 'efectivo';
+  const g = el('metGroup'); if(!g) return ()=>m;
+  g.querySelectorAll('.met-pill').forEach(btn=> btn.onclick=()=>{
+    m = btn.getAttribute('data-m');
+    g.querySelectorAll('.met-pill').forEach(b=> b.classList.toggle('on', b===btn));
+    onPick && onPick(m);
+  });
+  return ()=>m;
+}
+/* Cobrar una cita (o editar su cobro): marca finalizada + método + monto en un paso */
+function cobrarCita(cita, onOk){
+  let getM;
+  const yaCobrada = cita.estado==='finalizada';
+  modal({
+    titulo: (yaCobrada?'Editar cobro · ':'Cobrar · ')+(cita.clienteNombre||'Cliente'),
+    textoGuardar: yaCobrada?'Guardar cambios':'Confirmar cobro',
+    cuerpo:`
+      <div class="cobro-resumen">
+        <div class="t-strong">${esc(cita.servicioNombre||'Servicio')}</div>
+        <div class="t-sub">${esc(cita.profesionalNombre||'')}${cita.profesionalNombre?' · ':''}${fechaCorta(cita.fecha)}${cita.horaInicio?' · '+esc((cita.horaInicio||'').slice(0,5)):''}</div>
+      </div>
+      <div class="field"><label>Monto a cobrar (COP)</label><input type="number" id="cb_monto" min="0" value="${Number(cita.precio)||0}"></div>
+      <label class="lbl">Método de pago</label>
+      ${metodoBotones(cita.metodoPago||'efectivo')}`,
+    guardar: async ()=>{
+      const monto=Number(el('cb_monto').value)||0; const metodo=getM();
+      await fb.updateDoc(fb.doc(fb.db,'citas',cita.id), { estado:'finalizada', metodoPago:metodo, precio:monto });
+      const c=(cacheCitas||[]).find(x=>x.id===cita.id); if(c){ c.estado='finalizada'; c.metodoPago=metodo; c.precio=monto; }
+      await auditar(yaCobrada?'editar':'cobrar','pago',`${cita.clienteNombre} · ${money(monto)} · ${METODOS[metodo]}`);
+      toast(yaCobrada?'Cobro actualizado':'Cobro registrado','ok'); onOk&&onOk();
+    }
+  });
+  getM = wireMetodo(null, cita.metodoPago||'efectivo');
+}
+/* Cobro rápido: venta directa (walk-in) sin cita previa */
+function cobroRapido(fecha, onOk){
+  let getM;
+  const servOpts='<option value="">Elige un servicio…</option>'+cacheServicios.filter(s=>s.activo!==false)
+    .map(s=>`<option value="${s.id}" data-precio="${s.precio||0}">${esc(s.nombre)}</option>`).join('');
+  modal({
+    titulo:'Cobro rápido',
+    textoGuardar:'Registrar cobro',
+    cuerpo:`
+      <div class="grid2">
+        <div class="field full"><label>Cliente *</label><select id="cr_cli"><option value="">Cargando…</option></select></div>
+        <div class="field full"><label>Servicio *</label><select id="cr_serv">${servOpts}</select></div>
+        <div class="field"><label>Monto (COP) *</label><input type="number" id="cr_monto" min="0" value="0"></div>
+        <div class="field"><label>Fecha</label><input type="date" id="cr_fecha" value="${esc(fecha||hoyISO())}"></div>
+      </div>
+      <label class="lbl">Método de pago</label>
+      ${metodoBotones('efectivo')}
+      <p class="hint">Se registra como un servicio finalizado y suma a la caja del día.</p>`,
+    guardar: async ()=>{
+      const cliId=el('cr_cli').value, servId=el('cr_serv').value, monto=Number(el('cr_monto').value)||0, f=el('cr_fecha').value||hoyISO();
+      if(!cliId||!servId){ toast('Elige cliente y servicio.','bad'); return false; }
+      const cli=(window.__cli||[]).find(c=>c.id===cliId)||{}; const serv=cacheServicios.find(s=>s.id===servId)||{};
+      const data={ fecha:f, horaInicio:'', horaFin:'', duracionMin:serv.duracionMin||0,
+        servicioId:servId, servicioNombre:serv.nombre||'', profesionalId:'', profesionalNombre:'',
+        clienteId:cliId, clienteNombre:((cli.nombres||'')+' '+(cli.apellidos||'')).trim(),
+        precio:monto, estado:'finalizada', metodoPago:getM(), observaciones:'Cobro rápido', creadaEn:fb.serverTimestamp() };
+      const r=await fb.addDoc(fb.collection(fb.db,'citas'), data);
+      if(cacheCitas) cacheCitas.push({id:r.id,...data});
+      await auditar('cobrar','pago',`Cobro rápido · ${data.clienteNombre} · ${money(monto)}`);
+      toast('Cobro registrado','ok'); onOk&&onOk();
+    }
+  });
+  getM = wireMetodo(null, 'efectivo');
+  const ss=el('cr_serv'); if(ss) ss.onchange=()=>{ const o=ss.selectedOptions[0]; if(o&&o.dataset.precio) el('cr_monto').value=o.dataset.precio; };
+  (async()=>{ try{
+    if(!window.__cli){ const cs=await fb.getDocs(fb.collection(fb.db,'clientes')); window.__cli=cs.docs.map(d=>({id:d.id,...d.data()})).filter(c=>c.activo!==false); }
+    const sel=el('cr_cli'); if(sel) sel.innerHTML='<option value="">Elige un cliente…</option>'+window.__cli.sort((a,b)=>(a.nombres||'').localeCompare(b.nombres||'')).map(c=>`<option value="${c.id}">${esc(((c.nombres||'')+' '+(c.apellidos||'')).trim())}</option>`).join('');
+  }catch(_){ const sel=el('cr_cli'); if(sel) sel.innerHTML='<option value="">No se pudieron cargar</option>'; } })();
+}
 async function vistaPagos(v){
   if(!pagFecha) pagFecha = hoyISO();
+  const puede = ['admin','recepcion'].includes(perfil.rol);
   v.innerHTML = `
     <div class="panel">
       <div class="panel-head">
         <h3>Pagos y caja</h3><div class="spacer"></div>
         <input type="date" id="pagDia" value="${pagFecha}" class="ag-filtro" style="max-width:170px">
+        ${puede?'<button class="btn btn-gold btn-sm" id="pagRapido">+ Cobro rápido</button>':''}
       </div>
       <div class="kpi-grid" id="pagKpis" style="margin:4px 0 0"><div class="loading" style="grid-column:1/-1">Cargando…</div></div>
     </div>
+    <div class="panel" id="pagPorCobrar"></div>
     <div class="panel">
       <div class="panel-head"><h3>Cobros del día</h3><span class="t-sub" id="pagSub"></span></div>
-      <div class="table-wrap"><table>
-        <thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Profesional</th><th>Método</th><th style="text-align:right">Monto</th></tr></thead>
-        <tbody id="pagBody"><tr><td colspan="6" class="loading">Cargando…</td></tr></tbody>
-      </table></div>
+      <div id="pagCobrados"></div>
     </div>`;
   let citas=[];
   try{ await asegurarCatalogos(); citas = await cargarCitas(true); }
-  catch(ex){ el('pagBody').innerHTML = `<tr><td colspan="6" class="empty">No se pudieron cargar.<br><small>${esc(ex.message)}</small></td></tr>`; return; }
+  catch(ex){ el('pagKpis').innerHTML = `<div class="empty" style="grid-column:1/-1">No se pudieron cargar.<br><small>${esc(ex.message)}</small></div>`; return; }
+  const recargar = ()=>{ pintar(); };
 
   function pintar(){
-    const hoy=pagFecha;
-    const [ay,am]=hoy.split('-');
+    const hoy=pagFecha; const [ay,am]=hoy.split('-');
     const finMes = citas.filter(c=> c.estado==='finalizada' && c.fecha.startsWith(ay+'-'+am));
     const finDia = citas.filter(c=> c.estado==='finalizada' && c.fecha===hoy).sort((a,b)=>(a.horaInicio||'').localeCompare(b.horaInicio||''));
+    const porCobrar = citas.filter(c=> c.fecha===hoy && (c.estado==='pendiente'||c.estado==='confirmada'||c.estado==='en_atencion')).sort((a,b)=>(a.horaInicio||'').localeCompare(b.horaInicio||''));
     const totalDia = finDia.reduce((s,c)=>s+(Number(c.precio)||0),0);
     const totalMes = finMes.reduce((s,c)=>s+(Number(c.precio)||0),0);
+    const pendiente = porCobrar.reduce((s,c)=>s+(Number(c.precio)||0),0);
     const porMetodo={}; finDia.forEach(c=>{ const m=c.metodoPago||'sin'; porMetodo[m]=(porMetodo[m]||0)+(Number(c.precio)||0); });
     const efe=porMetodo.efectivo||0, tar=(porMetodo.tarjeta||0)+(porMetodo.transferencia||0);
     const kpis=[
       { k:'Caja del día', v:money(totalDia), ic:'M3 7h18v10H3zM3 11h18M7 15h4' },
       { k:'Cobros del día', v:finDia.length, ic:'M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11' },
+      { k:'Por cobrar hoy', v:money(pendiente), ic:'M12 8v4l3 2M21 12a9 9 0 11-9-9' },
       { k:'Efectivo', v:money(efe), ic:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
       { k:'Tarjeta / transf.', v:money(tar), ic:'M3 7h18v10H3zM3 11h18' },
       { k:'Total del mes', v:money(totalMes), ic:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4' }
     ];
-    el('pagKpis').innerHTML = kpis.map(d=>`<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v" style="font-size:1.4rem">${d.v}</div><div class="k">${d.k}</div></div>`).join('');
+    el('pagKpis').innerHTML = kpis.map(d=>`<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v" style="font-size:1.35rem">${d.v}</div><div class="k">${d.k}</div></div>`).join('');
     el('pagSub').textContent = fechaLarga(hoy);
-    const puede = ['admin','recepcion'].includes(perfil.rol);
-    el('pagBody').innerHTML = finDia.length ? finDia.map(c=>`
-      <tr>
-        <td>${esc((c.horaInicio||'').slice(0,5))}</td>
-        <td class="t-strong">${esc(c.clienteNombre||'Cliente')}</td>
-        <td>${esc(c.servicioNombre||'')}</td>
-        <td>${esc(c.profesionalNombre||'')}</td>
-        <td>${puede?`<select class="met-sel ag-filtro" data-met="${c.id}" style="max-width:150px"><option value="">— sin registrar —</option>${Object.entries(METODOS).map(([k,l])=>`<option value="${k}" ${c.metodoPago===k?'selected':''}>${l}</option>`).join('')}</select>`:esc(METODOS[c.metodoPago]||'—')}</td>
-        <td style="text-align:right" class="t-strong">${money(c.precio)}</td>
-      </tr>`).join('') : `<tr><td colspan="6"><div class="empty" style="padding:24px"><p>No hay cobros finalizados este día.</p></div></td></tr>`;
-    el('pagBody').querySelectorAll('[data-met]').forEach(s=> s.onchange=async()=>{
-      const id=s.getAttribute('data-met'); const val=s.value;
-      try{ await fb.updateDoc(fb.doc(fb.db,'citas',id), { metodoPago: val });
-        const c=(cacheCitas||[]).find(x=>x.id===id); if(c) c.metodoPago=val;
-        toast('Método de pago registrado','ok'); pintar();
-      }catch(ex){ toast('No se pudo guardar: '+ex.message,'bad'); }
-    });
+
+    // --- Por cobrar (citas del día aún sin finalizar) ---
+    const pc = el('pagPorCobrar');
+    if(porCobrar.length && puede){
+      pc.style.display='';
+      pc.innerHTML = `<div class="panel-head"><h3>Por cobrar</h3><span class="t-sub">${porCobrar.length} cita${porCobrar.length===1?'':'s'} de hoy lista${porCobrar.length===1?'':'s'} para cobrar</span></div>
+        <div class="cobro-list">`+porCobrar.map(c=>`
+          <div class="cobro-card">
+            <span class="cobro-h">${esc((c.horaInicio||'').slice(0,5))||'—'}</span>
+            <span class="cobro-info"><span class="t-strong">${esc(c.clienteNombre||'Cliente')}</span><span class="t-sub">${esc(c.servicioNombre||'')}${c.profesionalNombre?' · '+esc(c.profesionalNombre):''}</span></span>
+            <span class="cobro-monto">${money(c.precio)}</span>
+            <button class="btn btn-gold btn-sm" data-cobrar="${c.id}">Cobrar</button>
+          </div>`).join('')+`</div>`;
+      pc.querySelectorAll('[data-cobrar]').forEach(b=> b.onclick=()=> cobrarCita(citas.find(x=>x.id===b.getAttribute('data-cobrar')), recargar));
+    } else { pc.style.display='none'; pc.innerHTML=''; }
+
+    // --- Cobrados (finalizadas del día) ---
+    el('pagCobrados').innerHTML = finDia.length ? `<div class="cobro-list">`+finDia.map(c=>`
+        <div class="cobro-card cobrado">
+          <span class="cobro-h">${esc((c.horaInicio||'').slice(0,5))||'—'}</span>
+          <span class="cobro-info"><span class="t-strong">${esc(c.clienteNombre||'Cliente')}</span><span class="t-sub">${esc(c.servicioNombre||'')}</span></span>
+          <span class="met-badge ${c.metodoPago?('m-'+c.metodoPago):'m-sin'}">${c.metodoPago?METODOS[c.metodoPago]:'Sin método'}</span>
+          <span class="cobro-monto">${money(c.precio)}</span>
+          ${puede?`<button class="icon-btn" data-edit="${c.id}" title="Editar cobro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>`:''}
+        </div>`).join('')+`</div>`
+      : `<div class="empty" style="padding:26px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 7h18v10H3zM3 11h18M7 15h4"/></svg><p>Aún no hay cobros este día.</p>${puede?'<button class="btn btn-gold btn-sm" id="pagRapido2">+ Registrar un cobro</button>':''}</div>`;
+    el('pagCobrados').querySelectorAll('[data-edit]').forEach(b=> b.onclick=()=> cobrarCita(citas.find(x=>x.id===b.getAttribute('data-edit')), recargar));
+    const r2=el('pagRapido2'); if(r2) r2.onclick=()=> cobroRapido(pagFecha, recargar);
   }
   el('pagDia').onchange = (e)=>{ pagFecha=e.target.value||hoyISO(); pintar(); };
+  const pr=el('pagRapido'); if(pr) pr.onclick=()=> cobroRapido(pagFecha, recargar);
   pintar();
 }
 
