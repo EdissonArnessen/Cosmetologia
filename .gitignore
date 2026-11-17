@@ -1,1 +1,15 @@
-index.backup.html
+# Caché y registros locales de Firebase (no deben subirse)
+.firebase/
+firebase-debug.log
+firestore-debug.log
+*-debug.log
+
+# Credenciales / llaves (NUNCA subir al repositorio)
+*serviceaccount*.json
+*service-account*.json
+*-adminsdk-*.json
+sa.json
+serviceAccount*.json
+
+# Dependencias
+node_modules/
