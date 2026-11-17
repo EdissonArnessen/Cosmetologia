@@ -1,7 +1,7 @@
 /* Service Worker — Tatiana Hernández · Estética Integral
    Hace que el sitio abra rápido y funcione incluso sin conexión.
    Al publicar una versión nueva, sube el número de CACHE (v1 -> v2 ...). */
-const CACHE = 'th-estetica-v7';
+const CACHE = 'th-estetica-v8';
 const CORE = [
   './',
   './index.html',
@@ -42,6 +42,10 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
+
+  // El panel de administración NUNCA se cachea: siempre carga fresco desde la red.
+  const url = new URL(req.url);
+  if (url.pathname.indexOf('/admin') > -1) return;
 
   // Navegaciones (abrir la página): intenta la red y, si falla, sirve la copia guardada.
   if (req.mode === 'navigate') {
