@@ -34,15 +34,44 @@ button{font-family:inherit}
 .hidden{display:none !important}
 .script{font-family:'Cormorant Garamond',serif;font-style:italic}
 
-/* ======================= LOGIN ======================= */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.login-card{width:min(420px,100%);background:var(--card);border:1px solid var(--line);
-  border-radius:24px;box-shadow:var(--shadow);padding:40px 34px;text-align:center}
-.login-logo{font-family:'Cormorant Garamond',serif;font-size:2.4rem;color:var(--cocoa);line-height:1;letter-spacing:.04em}
-.login-logo b{color:var(--gold-deep)}
-.login-sub{font-size:.68rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold-deep);margin:6px 0 22px}
-.login-title{font-size:1.5rem;margin-bottom:4px}
-.login-hint{font-size:.9rem;color:var(--taupe);margin-bottom:22px}
+/* ======================= LOGIN (vidrio / glassmorphism) ======================= */
+.login-wrap{position:relative;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:22px;overflow:hidden}
+.login-bg{position:absolute;inset:0;background:url('../img/espacio.jpg') center/cover no-repeat;transform:scale(1.08);
+  filter:blur(3px) brightness(.6) saturate(1.05);z-index:0}
+.login-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(59,42,30,.5),rgba(40,28,18,.74))}
+.login-wrap .blob{position:absolute;border-radius:50%;filter:blur(44px);opacity:.5;z-index:1;pointer-events:none}
+.login-wrap .b1{width:320px;height:320px;top:-80px;right:-60px;background:radial-gradient(circle,rgba(220,198,140,.9),transparent 70%);animation:blob1 15s ease-in-out infinite}
+.login-wrap .b2{width:280px;height:280px;bottom:-70px;left:-50px;background:radial-gradient(circle,rgba(194,160,90,.85),transparent 70%);animation:blob2 17s ease-in-out infinite}
+@keyframes blob1{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,42px)}}
+@keyframes blob2{0%,100%{transform:translate(0,0)}50%{transform:translate(42px,-30px)}}
+.glass-card{position:relative;z-index:2;width:min(410px,100%);padding:38px 32px 34px;text-align:center;border-radius:26px;
+  background:rgba(255,250,242,.14);backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);
+  border:1px solid rgba(255,255,255,.4);box-shadow:0 30px 70px -24px rgba(20,12,6,.8),inset 0 1px 1px rgba(255,255,255,.4);
+  animation:cardIn .6s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+.gc-logo{font-family:'Cormorant Garamond',serif;font-size:2.6rem;color:#fff;line-height:1;letter-spacing:.04em;text-shadow:0 2px 14px rgba(0,0,0,.45)}
+.gc-logo b{color:var(--gold-light)}
+.gc-sub{font-size:.62rem;letter-spacing:.36em;text-transform:uppercase;color:var(--gold-light);margin:6px 0 20px}
+.glass-card h1{font-size:1.75rem;color:#fff;margin-bottom:3px;text-shadow:0 2px 12px rgba(0,0,0,.45)}
+.gc-hint{font-size:.88rem;color:rgba(255,255,255,.82);margin-bottom:22px;line-height:1.4}
+.in{position:relative;margin-bottom:13px}
+.in>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--gold-deep);pointer-events:none}
+.in input{width:100%;padding:13px 44px;border-radius:13px;border:1px solid rgba(255,255,255,.55);
+  background:rgba(255,255,255,.93);color:var(--cocoa);font-size:.95rem;font-family:inherit}
+.in input::placeholder{color:#9a8a73}
+.in input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(194,160,90,.3);background:#fff}
+.in .eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:none;background:transparent;
+  cursor:pointer;color:var(--taupe);display:flex;align-items:center;justify-content:center}
+.in .eye svg{width:18px;height:18px}
+.gc-row{display:flex;align-items:center;justify-content:space-between;margin:2px 2px 16px;font-size:.82rem;color:rgba(255,255,255,.9)}
+.gc-row label{display:flex;align-items:center;gap:7px;cursor:pointer}
+.gc-row input{width:auto;accent-color:var(--gold)}
+.gc-btn{width:100%;padding:14px;border:none;border-radius:40px;cursor:pointer;font-family:'Jost',sans-serif;font-weight:600;
+  font-size:.9rem;letter-spacing:.06em;color:#fff;background:linear-gradient(120deg,#8a5a3c,#C2A05A 55%,#DCC68C);background-size:200% auto;
+  box-shadow:0 16px 30px -12px rgba(166,134,63,.9);transition:transform .25s,box-shadow .25s,background-position .5s;margin-top:2px}
+.gc-btn:hover{transform:translateY(-2px);background-position:right center;box-shadow:0 22px 40px -12px rgba(166,134,63,1)}
+.gc-btn[disabled]{opacity:.6;cursor:not-allowed;transform:none}
+.glass-card .err-msg{color:#ffd9d2;font-weight:500;text-shadow:0 1px 6px rgba(0,0,0,.5)}
 .field{display:flex;flex-direction:column;gap:6px;text-align:left;margin-bottom:16px}
 .field label{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep);font-weight:500}
 input,select,textarea{
