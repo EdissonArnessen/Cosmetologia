@@ -18,8 +18,11 @@
       "package-lock.json",
       "index.backup.html"
     ],
-    "cleanUrls": true,
-    "trailingSlash": false,
+    "cleanUrls": false,
+    "trailingSlash": true,
+    "redirects": [
+      { "source": "/admin", "destination": "/admin/", "type": 301 }
+    ],
     "headers": [
       {
         "source": "**/*.@(js|css|woff2|png|jpg|jpeg|svg|webp|mp4)",
