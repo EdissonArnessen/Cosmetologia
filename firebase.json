@@ -19,10 +19,6 @@
       "index.backup.html"
     ],
     "cleanUrls": false,
-    "trailingSlash": true,
-    "redirects": [
-      { "source": "/admin", "destination": "/admin/", "type": 301 }
-    ],
     "headers": [
       {
         "source": "**/*.@(js|css|woff2|png|jpg|jpeg|svg|webp|mp4)",
