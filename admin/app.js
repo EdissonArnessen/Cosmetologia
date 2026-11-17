@@ -160,8 +160,7 @@ function mostrarBootstrap(u){
   bc.classList.remove('hidden');
   const nombreSug = (u.email||'').toLowerCase().startsWith('yulieth') ? 'Yuliet Tatiana Hernández' : '';
   bc.innerHTML = `
-    <div class="gc-logo">t<b>h</b></div>
-    <div class="gc-sub">Estética Integral</div>
+    <img class="gc-logo-img" src="../img/logo-th.png" alt="Tatiana Hernández · Estética Integral">
     <h1>¡Hola, administradora!</h1>
     <p class="gc-hint">Es tu primer ingreso con <b>${esc(u.email)}</b>.<br>Crea tu acceso para continuar.</p>
     <div class="in">
@@ -203,7 +202,7 @@ function mostrarApp(){
  * ============================================================ */
 const MENU = [
   { id:'dashboard',    label:'Dashboard',          roles:['admin','recepcion','profesional'], icon:'M3 13h8V3H3zM13 21h8V11h-8zM13 3v6h8V3zM3 21h8v-6H3z' },
-  { id:'agenda',       label:'Agenda',             roles:['admin','recepcion','profesional'], icon:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4', soon:true },
+  { id:'agenda',       label:'Agenda',             roles:['admin','recepcion','profesional'], icon:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4' },
   { id:'clientes',     label:'Clientes',           roles:['admin','recepcion'],               icon:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8' },
   { id:'profesionales',label:'Profesionales',      roles:['admin'],                           icon:'M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M11 11a4 4 0 100-8 4 4 0 000 8M21 21v-2a4 4 0 00-3-3.8' },
   { id:'servicios',    label:'Servicios',          roles:['admin'],                           icon:'M4 7l8-4 8 4-8 4zM4 7v10l8 4 8-4V7' },
@@ -211,7 +210,7 @@ const MENU = [
   { id:'pagos',        label:'Pagos y caja',       roles:['admin','recepcion'],               icon:'M3 7h18v10H3zM3 11h18M7 15h4', soon:true },
   { id:'reportes',     label:'Reportes',           roles:['admin'],                           icon:'M4 20V9M10 20V4M16 20v-7M22 20H2', soon:true },
   { id:'usuarios',     label:'Usuarios',           roles:['admin'],                           icon:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8M20 8v6M23 11h-6' },
-  { id:'configuracion',label:'Configuración',      roles:['admin'],                           icon:'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.4H9.4l-.3 2.4a7 7 0 00-1.7 1l-2.3-1-2 3.4L5 11a7 7 0 000 2l-2 1.6 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.4h4.2l.3-2.4a7 7 0 001.7-1l2.3 1 2-3.4-2-1.6a7 7 0 00.1-1z', soon:true }
+  { id:'configuracion',label:'Configuración',      roles:['admin'],                           icon:'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.4H9.4l-.3 2.4a7 7 0 00-1.7 1l-2.3-1-2 3.4L5 11a7 7 0 000 2l-2 1.6 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.4h4.2l.3-2.4a7 7 0 001.7-1l2.3 1 2-3.4-2-1.6a7 7 0 00.1-1z' }
 ];
 function permitido(id){ const m = MENU.find(x=>x.id===id); return m && m.roles.includes(perfil.rol); }
 function construirMenu(){
@@ -241,8 +240,8 @@ function irA(id){
   el('viewTitle').textContent = titulos[id] || id;
   const v = el('view'); v.innerHTML = '<div class="loading">Cargando…</div>';
   ({
-    dashboard: vistaDashboard, clientes: vistaClientes, profesionales: vistaProfesionales,
-    servicios: vistaServicios, usuarios: vistaUsuarios
+    dashboard: vistaDashboard, agenda: vistaAgenda, clientes: vistaClientes, profesionales: vistaProfesionales,
+    servicios: vistaServicios, usuarios: vistaUsuarios, configuracion: vistaConfiguracion
   }[id] || vistaProximamente)(v);
 }
 function vistaProximamente(v){
@@ -294,7 +293,69 @@ function modal({ titulo, cuerpo, guardar, textoGuardar='Guardar' }){
 async function confirmar(msg){ return window.confirm(msg); }
 
 /* ============================================================
- * DASHBOARD
+ * Fechas, estados de cita y utilidades de datos
+ * ============================================================ */
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MESES_L = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const ESTADOS = {
+  pendiente:   { label:'Pendiente',   cls:'e-pend' },
+  confirmada:  { label:'Confirmada',  cls:'e-conf' },
+  en_atencion: { label:'En atención', cls:'e-aten' },
+  finalizada:  { label:'Finalizada',  cls:'e-fin' },
+  cancelada:   { label:'Cancelada',   cls:'e-canc' },
+  no_asistio:  { label:'No asistió',  cls:'e-no' }
+};
+function hoyISO(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function isoDe(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function mmHHaMin(h){ const [a,b]=(h||'0:0').split(':').map(Number); return a*60+(b||0); }
+function minAHHMM(m){ return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
+let cacheCitas = null;
+async function cargarCitas(forzar){
+  if(cacheCitas && !forzar) return cacheCitas;
+  const snap = await fb.getDocs(fb.collection(fb.db,'citas'));
+  cacheCitas = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+  return cacheCitas;
+}
+async function asegurarCatalogos(){
+  if(!cacheServicios.length){ try{ const s=await fb.getDocs(fb.collection(fb.db,'servicios')); cacheServicios=s.docs.map(d=>({id:d.id,...d.data()})); }catch(_){} }
+  if(!cacheProfesionales.length){ try{ const p=await fb.getDocs(fb.collection(fb.db,'profesionales')); cacheProfesionales=p.docs.map(d=>({id:d.id,...d.data()})); }catch(_){} }
+}
+
+/* Gráfica de barras verticales (SVG, sin librerías) */
+function barChart(data, opts){
+  opts = opts||{};
+  const w=opts.w||520, h=opts.h||170, pad=28, n=data.length||1;
+  const max = Math.max(1, ...data.map(d=>d.value));
+  const bw = (w-pad*2)/n;
+  const bars = data.map((d,i)=>{
+    const bh = Math.round((h-pad-18) * d.value / max);
+    const x = pad + i*bw + bw*0.18, y = h-18-bh, ww = bw*0.64;
+    const val = opts.money ? money(d.value) : d.value;
+    return `<g>
+      <rect x="${x}" y="${y}" width="${ww}" height="${bh}" rx="5" fill="url(#gBar)"></rect>
+      ${d.value?`<text x="${x+ww/2}" y="${y-5}" text-anchor="middle" class="bc-val">${val}</text>`:''}
+      <text x="${x+ww/2}" y="${h-5}" text-anchor="middle" class="bc-lbl">${esc(d.label)}</text>
+    </g>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" class="chart" preserveAspectRatio="xMidYMid meet">
+    <defs><linearGradient id="gBar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#DCC68C"></stop><stop offset="1" stop-color="#A6863F"></stop></linearGradient></defs>
+    ${bars}</svg>`;
+}
+/* Barras horizontales (ranking) */
+function rankBars(data){
+  const max = Math.max(1, ...data.map(d=>d.value));
+  if(!data.length) return '<div class="empty" style="padding:24px"><p>Sin datos todavía.</p></div>';
+  return '<div class="rank">'+data.map(d=>`
+    <div class="rank-row">
+      <span class="rank-lbl">${esc(d.label)}</span>
+      <span class="rank-bar"><i style="width:${Math.round(100*d.value/max)}%"></i></span>
+      <span class="rank-val">${d.value}</span>
+    </div>`).join('')+'</div>';
+}
+
+/* ============================================================
+ * DASHBOARD (inteligente)
  * ============================================================ */
 async function vistaDashboard(v){
   v.innerHTML = `
@@ -302,29 +363,62 @@ async function vistaDashboard(v){
       <h2>Bienvenida a tu <span>espacio de bienestar</span></h2>
       <p>Un lugar donde la belleza, la armonía y la tranquilidad se encuentran.</p>
     </div>
-    <div class="kpi-grid" id="kpis"></div>
-    <div class="panel"><div class="panel-head"><h3>Próximas citas</h3></div>
-      <div class="empty">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 5h18v16H3zM3 9h18M8 3v4M16 3v4"/></svg>
-        <p>El calendario de citas llega en la Fase 2 (módulo Agenda).</p>
-      </div>
+    <div class="kpi-grid" id="kpis"><div class="loading" style="grid-column:1/-1">Cargando indicadores…</div></div>
+    <div class="dash-2col">
+      <div class="panel"><div class="panel-head"><h3>Citas por mes</h3><span class="t-sub">últimos 6 meses</span></div><div class="panel-pad" id="chCitas"></div></div>
+      <div class="panel"><div class="panel-head"><h3>Servicios más solicitados</h3></div><div class="panel-pad" id="chServicios"></div></div>
+    </div>
+    <div class="dash-2col">
+      <div class="panel"><div class="panel-head"><h3>Ingresos por mes</h3><span class="t-sub">citas finalizadas</span></div><div class="panel-pad" id="chIngresos"></div></div>
+      <div class="panel"><div class="panel-head"><h3>Próximas citas</h3></div><div id="proxCitas"></div></div>
     </div>`;
-  const defs = [
-    { k:'Clientes activos', col:'clientes', filtro:c=>c.activo!==false, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8' },
-    { k:'Profesionales',    col:'profesionales', filtro:p=>p.activo!==false, ic:'M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M11 11a4 4 0 100-8 4 4 0 000 8' },
-    { k:'Servicios activos',col:'servicios', filtro:s=>s.activo!==false, ic:'M4 7l8-4 8 4-8 4zM4 7v10l8 4 8-4V7' }
+  let citas=[], clientes=[];
+  try{
+    await asegurarCatalogos();
+    citas = await cargarCitas(true);
+    const cs = await fb.getDocs(fb.collection(fb.db,'clientes')); clientes = cs.docs.map(d=>d.data());
+  }catch(ex){ el('kpis').innerHTML = `<div class="empty" style="grid-column:1/-1">No se pudieron cargar los datos.<br><small>${esc(ex.message)}</small></div>`; return; }
+
+  const hoy = hoyISO();
+  const ahora = new Date(); const mesAct = ahora.getMonth(), anioAct = ahora.getFullYear();
+  const enMesActual = (iso)=>{ const [a,m]=iso.split('-').map(Number); return a===anioAct && (m-1)===mesAct; };
+  const vivas = citas.filter(c=> c.estado!=='cancelada' && c.estado!=='no_asistio');
+  const kpis = [
+    { k:'Citas hoy',         v: citas.filter(c=>c.fecha===hoy && c.estado!=='cancelada').length, ic:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4' },
+    { k:'Pendientes',        v: citas.filter(c=>c.estado==='pendiente').length, ic:'M12 8v4l3 2M21 12a9 9 0 11-9-9' },
+    { k:'Confirmadas',       v: citas.filter(c=>c.estado==='confirmada').length, ic:'M20 6L9 17l-5-5' },
+    { k:'Atendidas (mes)',   v: citas.filter(c=>c.estado==='finalizada' && enMesActual(c.fecha)).length, ic:'M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11' },
+    { k:'Canceladas (mes)',  v: citas.filter(c=>c.estado==='cancelada' && enMesActual(c.fecha)).length, ic:'M18 6L6 18M6 6l12 12' },
+    { k:'Clientes nuevos (mes)', v: clientes.filter(c=> c.fechaRegistro && enMesActual(c.fechaRegistro)).length, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8M19 8v6M22 11h-6' },
+    { k:'Ingresos del mes',  v: money(citas.filter(c=>c.estado==='finalizada' && enMesActual(c.fecha)).reduce((s,c)=>s+(Number(c.precio)||0),0)), ic:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6', txt:true },
+    { k:'Clientes activos',  v: clientes.filter(c=>c.activo!==false).length, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8' }
   ];
-  const cont = el('kpis');
-  cont.innerHTML = defs.map(d=>`<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v" id="kpi-${d.col}">—</div><div class="k">${d.k}</div></div>`).join('')
-    + `<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v16H3zM3 9h18M8 3v4M16 3v4"/></svg></div><div class="v">—</div><div class="k">Citas hoy · Fase 2</div></div>`;
-  for(const d of defs){
-    try{
-      const snap = await fb.getDocs(fb.collection(fb.db, d.col));
-      const n = snap.docs.map(x=>x.data()).filter(d.filtro).length;
-      const cell = el('kpi-'+d.col); if(cell) cell.textContent = n;
-    }catch(_){ const cell = el('kpi-'+d.col); if(cell) cell.textContent='—'; }
-  }
+  el('kpis').innerHTML = kpis.map(d=>`<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v"${d.txt?' style="font-size:1.5rem"':''}>${d.v}</div><div class="k">${d.k}</div></div>`).join('');
+
+  // Citas por mes (6 meses)
+  const meses6=[]; for(let i=5;i>=0;i--){ const d=new Date(anioAct,mesAct-i,1); meses6.push({ y:d.getFullYear(), m:d.getMonth() }); }
+  const citasMes = meses6.map(mm=>({ label:MESES[mm.m], value: vivas.filter(c=>{const[a,m]=c.fecha.split('-').map(Number); return a===mm.y && (m-1)===mm.m;}).length }));
+  el('chCitas').innerHTML = barChart(citasMes);
+  // Ingresos por mes
+  const ingMes = meses6.map(mm=>({ label:MESES[mm.m], value: citas.filter(c=>c.estado==='finalizada').filter(c=>{const[a,m]=c.fecha.split('-').map(Number); return a===mm.y && (m-1)===mm.m;}).reduce((s,c)=>s+(Number(c.precio)||0),0) }));
+  el('chIngresos').innerHTML = barChart(ingMes, { money:true });
+  // Servicios más solicitados (top 5)
+  const cuenta={}; vivas.forEach(c=>{ const n=c.servicioNombre||'—'; cuenta[n]=(cuenta[n]||0)+1; });
+  const topServ = Object.entries(cuenta).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value).slice(0,5);
+  el('chServicios').innerHTML = rankBars(topServ);
+  // Próximas citas
+  const prox = citas.filter(c=> c.fecha>=hoy && c.estado!=='cancelada' && c.estado!=='no_asistio')
+    .sort((a,b)=> (a.fecha+a.horaInicio).localeCompare(b.fecha+b.horaInicio)).slice(0,6);
+  el('proxCitas').innerHTML = prox.length ? '<div class="prox-list">'+prox.map(c=>`
+    <div class="prox-item">
+      <div class="prox-fh"><b>${fechaCorta(c.fecha)}</b><span>${esc(c.horaInicio||'')}</span></div>
+      <div class="prox-info"><div class="t-strong">${esc(c.clienteNombre||'Cliente')}</div><div class="t-sub">${esc(c.servicioNombre||'')} · ${esc(c.profesionalNombre||'')}</div></div>
+      <span class="badge-e ${ESTADOS[c.estado]?.cls||''}">${ESTADOS[c.estado]?.label||c.estado}</span>
+    </div>`).join('')+'</div>'
+    : `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 5h18v16H3zM3 9h18M8 3v4M16 3v4"/></svg><p>No hay próximas citas.</p><button class="btn btn-gold btn-sm" id="irAgenda">Ir a la agenda</button></div>`;
+  const ia=el('irAgenda'); if(ia) ia.onclick=()=>irA('agenda');
 }
+function fechaCorta(iso){ if(!iso) return ''; const [a,m,d]=iso.split('-').map(Number); return d+' '+MESES[m-1]; }
 
 /* ============================================================
  * CLIENTES
@@ -654,6 +748,269 @@ function formUsuario(){
       finally{ try{ await fb._app.deleteApp(sec); }catch(_){ } }
     }
   });
+}
+
+/* ============================================================
+ * AGENDA (calendario tipo Outlook: mes + día)
+ * ============================================================ */
+let agMes = null;      // Date del primer día del mes mostrado
+let agSel = null;      // día seleccionado (ISO)
+let agProf = '';       // filtro por profesional (id)
+async function vistaAgenda(v){
+  if(!agMes){ const n=new Date(); agMes=new Date(n.getFullYear(), n.getMonth(), 1); }
+  if(!agSel) agSel = hoyISO();
+  v.innerHTML = `
+    <div class="panel">
+      <div class="panel-head ag-head">
+        <div class="ag-nav">
+          <button class="icon-btn" id="agPrev" title="Mes anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <h3 id="agTitulo"></h3>
+          <button class="icon-btn" id="agNext" title="Mes siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+          <button class="btn btn-ghost btn-sm" id="agHoy">Hoy</button>
+        </div>
+        <div class="spacer"></div>
+        <select id="agFiltro" class="ag-filtro"><option value="">Todos los profesionales</option></select>
+        <button class="btn btn-gold btn-sm" id="agNueva">+ Nueva cita</button>
+      </div>
+      <div class="cal" id="cal"></div>
+    </div>
+    <div class="panel" id="diaPanel"></div>`;
+  try{ await asegurarCatalogos(); await cargarCitas(true); }
+  catch(ex){ el('cal').innerHTML = `<div class="empty" style="padding:30px">No se pudieron cargar las citas.<br><small>${esc(ex.message)}</small></div>`; return; }
+  // filtro profesionales
+  el('agFiltro').innerHTML = '<option value="">Todos los profesionales</option>' +
+    cacheProfesionales.filter(p=>p.activo!==false).map(p=>`<option value="${p.id}" ${agProf===p.id?'selected':''}>${esc(p.nombre)}</option>`).join('');
+  el('agFiltro').onchange = (e)=>{ agProf=e.target.value; pintarCalendario(); pintarDia(); };
+  el('agPrev').onclick = ()=>{ agMes=new Date(agMes.getFullYear(), agMes.getMonth()-1, 1); pintarCalendario(); };
+  el('agNext').onclick = ()=>{ agMes=new Date(agMes.getFullYear(), agMes.getMonth()+1, 1); pintarCalendario(); };
+  el('agHoy').onclick = ()=>{ const n=new Date(); agMes=new Date(n.getFullYear(),n.getMonth(),1); agSel=hoyISO(); pintarCalendario(); pintarDia(); };
+  el('agNueva').onclick = ()=> formCita(null, agSel);
+  pintarCalendario(); pintarDia();
+}
+function citasDe(iso){
+  return (cacheCitas||[]).filter(c=> c.fecha===iso && (!agProf || c.profesionalId===agProf))
+    .sort((a,b)=> (a.horaInicio||'').localeCompare(b.horaInicio||''));
+}
+function pintarCalendario(){
+  const y=agMes.getFullYear(), m=agMes.getMonth();
+  el('agTitulo').textContent = MESES_L[m]+' '+y;
+  const primero=new Date(y,m,1); let dow=(primero.getDay()+6)%7; // Lun=0
+  const diasMes=new Date(y,m+1,0).getDate();
+  const hoy=hoyISO();
+  let cells='';
+  const cab=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<dow;i++) cells+='<div class="cal-cell out"></div>';
+  for(let d=1; d<=diasMes; d++){
+    const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const cs=citasDe(iso);
+    const chips=cs.slice(0,3).map(c=>`<span class="cal-chip ${ESTADOS[c.estado]?.cls||''}">${esc((c.horaInicio||'').slice(0,5))} ${esc((c.clienteNombre||'').split(' ')[0])}</span>`).join('');
+    const mas = cs.length>3 ? `<span class="cal-mas">+${cs.length-3} más</span>` : '';
+    const cnt = cs.length ? `<span class="cal-count">${cs.length}</span>` : '';
+    cells+=`<div class="cal-cell${iso===hoy?' hoy':''}${iso===agSel?' sel':''}" data-dia="${iso}">
+      <span class="cal-num">${d}</span>${cnt}${chips}${mas}</div>`;
+  }
+  el('cal').innerHTML = `<div class="cal-grid cal-cab">${cab}</div><div class="cal-grid">${cells}</div>`;
+  el('cal').querySelectorAll('[data-dia]').forEach(c=> c.onclick=()=>{ agSel=c.getAttribute('data-dia'); pintarCalendario(); pintarDia(); });
+}
+function pintarDia(){
+  const cs=citasDe(agSel);
+  const dp=el('diaPanel');
+  dp.innerHTML = `<div class="panel-head"><h3>${fechaLarga(agSel)}</h3><div class="spacer"></div>
+      <button class="btn btn-gold btn-sm" id="diaNueva">+ Cita este día</button></div>
+    <div id="diaLista"></div>`;
+  el('diaNueva').onclick=()=> formCita(null, agSel);
+  el('diaLista').innerHTML = cs.length ? '<div class="dia-list">'+cs.map(c=>`
+    <button class="dia-item" data-cita="${c.id}">
+      <span class="dia-hora">${esc((c.horaInicio||'').slice(0,5))}<small>${esc((c.horaFin||'').slice(0,5))}</small></span>
+      <span class="dia-info"><span class="t-strong">${esc(c.clienteNombre||'Cliente')}</span><span class="t-sub">${esc(c.servicioNombre||'')} · ${esc(c.profesionalNombre||'')}</span></span>
+      <span class="badge-e ${ESTADOS[c.estado]?.cls||''}">${ESTADOS[c.estado]?.label||c.estado}</span>
+    </button>`).join('')+'</div>'
+    : `<div class="empty" style="padding:28px"><p>No hay citas este día.</p></div>`;
+  el('diaLista').querySelectorAll('[data-cita]').forEach(b=> b.onclick=()=>{ const c=(cacheCitas||[]).find(x=>x.id===b.getAttribute('data-cita')); if(c) formCita(c, c.fecha); });
+}
+function fechaLarga(iso){ if(!iso) return ''; const [a,m,d]=iso.split('-').map(Number); const dt=new Date(a,m-1,d); const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']; return `${dias[dt.getDay()]} ${d} de ${MESES_L[m-1]}, ${a}`; }
+
+function formCita(cita, fechaDefault){
+  const e = cita||{};
+  const puede = ['admin','recepcion'].includes(perfil.rol);
+  const servActivos = cacheServicios.filter(s=>s.activo!==false);
+  const cliActivos = []; // se cargan abajo
+  const estOpts = Object.entries(ESTADOS).map(([k,o])=>`<option value="${k}" ${e.estado===k?'selected':''}>${o.label}</option>`).join('');
+  const servOpts = '<option value="">Elige un servicio…</option>'+servActivos.map(s=>`<option value="${s.id}" ${e.servicioId===s.id?'selected':''}>${esc(s.nombre)}</option>`).join('');
+  modal({
+    titulo: cita?'Editar cita':'Nueva cita',
+    textoGuardar: cita?'Guardar cambios':'Crear cita',
+    cuerpo:`
+      <div class="grid2">
+        <div class="field full"><label>Servicio *</label><select id="ci_serv">${servOpts}</select></div>
+        <div class="field full"><label>Profesional responsable *</label><select id="ci_prof"><option value="">Primero elige el servicio…</option></select><p class="hint" id="ci_profHint"></p></div>
+        <div class="field full"><label>Cliente *</label><select id="ci_cli"><option value="">Cargando clientes…</option></select></div>
+        <div class="field"><label>Fecha *</label><input type="date" id="ci_fecha" value="${esc(e.fecha||fechaDefault||hoyISO())}" min="${hoyISO()}"></div>
+        <div class="field"><label>Hora inicio *</label><input type="time" id="ci_hora" value="${esc(e.horaInicio||'09:00')}" step="900"></div>
+        <div class="field"><label>Duración (min)</label><input type="number" id="ci_dur" min="15" step="5" value="${esc(e.duracionMin||60)}"></div>
+        <div class="field"><label>Precio (COP)</label><input type="number" id="ci_precio" min="0" value="${esc(e.precio||0)}"></div>
+        <div class="field full"><label>Estado</label><select id="ci_estado">${estOpts||''}</select></div>
+        <div class="field full"><label>Observaciones</label><textarea id="ci_obs" rows="2">${esc(e.observaciones)}</textarea></div>
+      </div>
+      <p class="hint">Un profesional no puede tener dos citas a la misma hora. El sistema lo valida automáticamente.</p>`,
+    guardar: async ()=>{
+      const servId=el('ci_serv').value, profId=el('ci_prof').value, cliId=el('ci_cli').value;
+      const fecha=el('ci_fecha').value, hora=el('ci_hora').value, dur=Number(el('ci_dur').value)||60;
+      if(!servId||!profId||!cliId||!fecha||!hora){ toast('Completa servicio, profesional, cliente, fecha y hora.','bad'); return false; }
+      const serv=cacheServicios.find(s=>s.id===servId)||{};
+      const prof=cacheProfesionales.find(p=>p.id===profId)||{};
+      const cli=(window.__cli||[]).find(c=>c.id===cliId)||{};
+      const ini=mmHHaMin(hora), fin=ini+dur;
+      const citas=await cargarCitas();
+      const choca=citas.some(c=> c.id!==(cita?.id) && c.profesionalId===profId && c.fecha===fecha
+        && c.estado!=='cancelada' && c.estado!=='no_asistio'
+        && (mmHHaMin(c.horaInicio) < fin && mmHHaMin(c.horaFin) > ini));
+      if(choca){ toast('Ese profesional ya tiene una cita que se cruza en ese horario.','bad'); return false; }
+      const data = {
+        fecha, horaInicio:hora, horaFin:minAHHMM(fin), duracionMin:dur,
+        servicioId:servId, servicioNombre:serv.nombre||'',
+        profesionalId:profId, profesionalNombre:prof.nombre||'',
+        clienteId:cliId, clienteNombre:((cli.nombres||'')+' '+(cli.apellidos||'')).trim(),
+        precio:Number(el('ci_precio').value)||0, estado:el('ci_estado').value||'pendiente',
+        observaciones:el('ci_obs').value.trim()
+      };
+      if(cita){ await fb.updateDoc(fb.doc(fb.db,'citas',cita.id), data); await auditar('editar','cita',`${data.clienteNombre} · ${fecha} ${hora}`); toast('Cita actualizada','ok'); }
+      else { data.creadaEn=fb.serverTimestamp(); await fb.addDoc(fb.collection(fb.db,'citas'), data); await auditar('crear','cita',`${data.clienteNombre} · ${fecha} ${hora}`); toast('Cita creada','ok'); }
+      cacheCitas=null; irA('agenda');
+    }
+  });
+  // Poblar profesionales según servicio + clientes + prefill
+  const selServ=el('ci_serv'), selProf=el('ci_prof');
+  function pintarProfes(){
+    const sid=selServ.value;
+    const aptos=cacheProfesionales.filter(p=>p.activo!==false && (p.serviciosHabilitados||[]).includes(sid));
+    if(!sid){ selProf.innerHTML='<option value="">Primero elige el servicio…</option>'; el('ci_profHint').textContent=''; return; }
+    if(!aptos.length){ selProf.innerHTML='<option value="">Sin profesionales habilitados</option>'; el('ci_profHint').textContent='Asigna este servicio a un profesional en el módulo Profesionales.'; return; }
+    selProf.innerHTML=aptos.map(p=>`<option value="${p.id}" ${e.profesionalId===p.id?'selected':''}>${esc(p.nombre)}</option>`).join('');
+    el('ci_profHint').textContent='';
+  }
+  selServ.addEventListener('change', ()=>{
+    const s=cacheServicios.find(x=>x.id===selServ.value);
+    if(s){ if(s.duracionMin) el('ci_dur').value=s.duracionMin; if(s.precio) el('ci_precio').value=s.precio; }
+    pintarProfes();
+  });
+  pintarProfes();
+  // clientes
+  (async()=>{
+    try{
+      if(!window.__cli){ const cs=await fb.getDocs(fb.collection(fb.db,'clientes')); window.__cli=cs.docs.map(d=>({id:d.id,...d.data()})).filter(c=>c.activo!==false); }
+      const sel=el('ci_cli'); if(!sel) return;
+      sel.innerHTML='<option value="">Elige un cliente…</option>'+window.__cli.sort((a,b)=>(a.nombres||'').localeCompare(b.nombres||'')).map(c=>`<option value="${c.id}" ${e.clienteId===c.id?'selected':''}>${esc(((c.nombres||'')+' '+(c.apellidos||'')).trim())}</option>`).join('');
+    }catch(_){ const sel=el('ci_cli'); if(sel) sel.innerHTML='<option value="">No se pudieron cargar</option>'; }
+  })();
+}
+
+/* ============================================================
+ * CONFIGURACIÓN (+ datos de ejemplo)
+ * ============================================================ */
+async function vistaConfiguracion(v){
+  v.innerHTML = `
+    <div class="panel">
+      <div class="panel-head"><h3>Configuración</h3></div>
+      <div class="panel-pad">
+        <div class="cfg-row">
+          <div>
+            <b>Datos de ejemplo</b>
+            <p class="t-sub">Crea 30 clientes y ~40 citas repartidas en los últimos 3 meses para ver el dashboard y la agenda con información. Ideal para probar y afinar.</p>
+          </div>
+          <button class="btn btn-gold btn-sm" id="btnSeed">Cargar datos de ejemplo</button>
+        </div>
+        <div class="cfg-row">
+          <div><b>Horario de atención</b><p class="t-sub">9:00 a.m. – 6:00 p.m. (se configurará por profesional en una próxima fase).</p></div>
+        </div>
+        <div class="cfg-row">
+          <div><b>Proyecto</b><p class="t-sub">Firebase · tatianahernandez-40b70 · Plan Spark (gratuito)</p></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint" id="seedMsg"></p>`;
+  el('btnSeed').onclick = sembrarEjemplo;
+}
+
+async function sembrarEjemplo(){
+  if(!await confirmar('¿Crear 30 clientes y ~40 citas de ejemplo de los últimos 3 meses?')) return;
+  const btn=el('btnSeed'); btn.disabled=true; btn.textContent='Generando…';
+  const msg=el('seedMsg'); const set=(t)=>{ if(msg) msg.textContent=t; };
+  try{
+    await asegurarCatalogos();
+    // 1) Servicios con precio
+    let servs = cacheServicios.filter(s=>s.activo!==false);
+    if(servs.length < 3){
+      const base=[
+        {nombre:'Masajes relajantes',categoria:CATEGORIAS[0],precio:90000,duracionMin:60},
+        {nombre:'Masaje descontracturante',categoria:CATEGORIAS[1],precio:100000,duracionMin:60},
+        {nombre:'Tratamiento de bienestar avanzado',categoria:CATEGORIAS[2],precio:140000,duracionMin:75},
+        {nombre:'Limpieza facial profunda',categoria:CATEGORIAS[3],precio:120000,duracionMin:60},
+        {nombre:'Estética avanzada y armonía facial',categoria:CATEGORIAS[4],precio:250000,duracionMin:60}
+      ];
+      servs=[];
+      for(const s of base){ const r=await fb.addDoc(fb.collection(fb.db,'servicios'),{...s,prepMin:0,limpiezaMin:10,activo:true,creadoEn:fb.serverTimestamp()}); servs.push({id:r.id,...s}); }
+      cacheServicios=servs;
+    }
+    // 2) Profesionales (al menos 2) con todos los servicios habilitados
+    let profs=cacheProfesionales.filter(p=>p.activo!==false);
+    if(profs.length < 2){
+      const nuevos=[
+        {nombre:'Yuliet Tatiana Hernández',especialidad:'Cosmetología y estética'},
+        {nombre:'Valentina Osorio',especialidad:'Masajes y bienestar'}
+      ];
+      const allServ=servs.map(s=>s.id);
+      for(const p of nuevos){ const r=await fb.addDoc(fb.collection(fb.db,'profesionales'),{...p,serviciosHabilitados:allServ,diasDisponibles:['Lun','Mar','Mié','Jue','Vie','Sáb'],horaInicio:'09:00',horaFin:'18:00',activo:true,creadoEn:fb.serverTimestamp()}); profs.push({id:r.id,...p,serviciosHabilitados:allServ}); }
+      cacheProfesionales=profs;
+    } else { profs.forEach(p=>{ if(!(p.serviciosHabilitados||[]).length) p.serviciosHabilitados=servs.map(s=>s.id); }); }
+
+    // 3) 30 clientes
+    const nombres=['Ana','María','Valentina','Camila','Daniela','Laura','Sofía','Isabella','Juliana','Carolina','Paula','Andrea','Natalia','Luisa','Manuela','Gabriela','Sara','Mariana','Catalina','Alejandra','Diana','Lina','Tatiana','Juliana','Ángela','Carmen','Patricia','Lucía','Verónica','Adriana'];
+    const apellidos=['Pérez','Gómez','Rodríguez','Ramírez','López','Martínez','García','Hernández','Ríos','Mesa','Cardona','Osorio','Castaño','Vélez','Arango','Restrepo','Giraldo','Quintero','Zapata','Muñoz'];
+    const clientesIds=[];
+    for(let i=0;i<30;i++){
+      const nom=nombres[i%nombres.length], ape=apellidos[i%apellidos.length]+' '+apellidos[(i*3+1)%apellidos.length];
+      const dreg=new Date(); dreg.setDate(dreg.getDate()-Math.floor(Math.random()*90));
+      const r=await fb.addDoc(fb.collection(fb.db,'clientes'),{
+        nombres:nom, apellidos:ape, identificacion:String(1000000000+Math.floor(Math.random()*8999999)),
+        telefono:'3'+String(100000000+Math.floor(Math.random()*899999999)), whatsapp:'', email:(nom+'.'+ape.split(' ')[0]).toLowerCase().replace(/[^a-z.]/g,'')+'@correo.com',
+        fechaNacimiento:'', observaciones:'', activo:true, fechaRegistro:isoDe(dreg), creadoEn:fb.serverTimestamp()
+      });
+      clientesIds.push({id:r.id,nombres:nom,apellidos:ape});
+      set('Creando clientes… '+(i+1)+'/30');
+    }
+    // 4) ~40 citas en 90 días
+    const estadosPasado=['finalizada','finalizada','finalizada','cancelada','no_asistio'];
+    const estadosFuturo=['confirmada','pendiente','confirmada'];
+    const horas=['09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00'];
+    const total=40;
+    for(let i=0;i<total;i++){
+      const off=Math.floor(Math.random()*110)-90; // -90..+20 días
+      const dt=new Date(); dt.setDate(dt.getDate()+off);
+      if(dt.getDay()===0) dt.setDate(dt.getDate()+1); // evitar domingo
+      const fecha=isoDe(dt);
+      const serv=servs[Math.floor(Math.random()*servs.length)];
+      const aptos=profs.filter(p=>(p.serviciosHabilitados||[]).includes(serv.id)); const prof=(aptos.length?aptos:profs)[Math.floor(Math.random()*(aptos.length||profs.length))];
+      const cli=clientesIds[Math.floor(Math.random()*clientesIds.length)];
+      const hora=horas[Math.floor(Math.random()*horas.length)];
+      const dur=serv.duracionMin||60;
+      const estado= off<0 ? estadosPasado[Math.floor(Math.random()*estadosPasado.length)] : (off===0?'confirmada':estadosFuturo[Math.floor(Math.random()*estadosFuturo.length)]);
+      // evitar cruce simple (mismo prof, misma fecha+hora)
+      const dup=(cacheCitas||[]).some(c=>c.profesionalId===prof.id&&c.fecha===fecha&&c.horaInicio===hora);
+      if(dup) continue;
+      const cita={ fecha, horaInicio:hora, horaFin:minAHHMM(mmHHaMin(hora)+dur), duracionMin:dur,
+        servicioId:serv.id, servicioNombre:serv.nombre, profesionalId:prof.id, profesionalNombre:prof.nombre,
+        clienteId:cli.id, clienteNombre:(cli.nombres+' '+cli.apellidos), precio:serv.precio||0, estado, observaciones:'', creadaEn:fb.serverTimestamp() };
+      const r=await fb.addDoc(fb.collection(fb.db,'citas'),cita);
+      if(!cacheCitas) cacheCitas=[]; cacheCitas.push({id:r.id,...cita});
+      set('Creando citas… '+(i+1)+'/'+total);
+    }
+    await auditar('sembrar','ejemplo','30 clientes + citas');
+    cacheCitas=null; window.__cli=null;
+    toast('¡Datos de ejemplo creados! 🌿','ok');
+    set('Listo. Revisa el Dashboard y la Agenda.');
+    irA('dashboard');
+  }catch(ex){ console.error(ex); toast('No se pudo generar: '+(ex.message||''),'bad'); set('Error: '+(ex.message||'')); btn.disabled=false; btn.textContent='Cargar datos de ejemplo'; }
 }
 
 /* ============================================================

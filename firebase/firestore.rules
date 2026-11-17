@@ -107,15 +107,17 @@ service cloud.firestore {
     //  (Se reconciliará con el módulo de Agenda del panel en la Fase 2.)
     // ================================================================
     match /citas/{citaId} {
-      allow read:   if (signedIn() && resource.data.userId == request.auth.uid) || esStaff();
-      allow create: if signedIn()
-                    && request.resource.data.userId == request.auth.uid
-                    && request.resource.data.estado == 'confirmada'
-                    && request.resource.data.horarioId is string;
-      allow update: if (signedIn() && resource.data.userId == request.auth.uid
-                        && request.resource.data.userId == resource.data.userId)
-                    || esStaff();
-      allow delete: if false;
+      // Staff del panel gestiona la agenda; las clientas públicas solo sus propias citas.
+      allow read:   if esPanel() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if esStaff()
+                    || (signedIn()
+                        && request.resource.data.userId == request.auth.uid
+                        && request.resource.data.estado == 'confirmada'
+                        && request.resource.data.horarioId is string);
+      allow update: if esStaff()
+                    || (signedIn() && resource.data.userId == request.auth.uid
+                        && request.resource.data.userId == resource.data.userId);
+      allow delete: if esAdmin();
     }
 
     match /horarios/{horarioId} {
