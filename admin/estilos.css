@@ -308,3 +308,15 @@ tr:hover td{background:rgba(220,198,140,.08)}
 .cal-count{display:none;align-self:flex-start;margin-top:2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;
   background:linear-gradient(120deg,var(--gold),var(--gold-deep));color:#fff;font-size:.66rem;font-weight:600;
   align-items:center;justify-content:center}
+
+/* ======================= LOGO INTEGRADO ======================= */
+.sb-brand{background:linear-gradient(135deg,#f4edde,#e9dcc6);border-bottom:none;border-radius:14px;
+  padding:12px 12px;margin:0 2px 16px;box-shadow:inset 0 1px 1px rgba(255,255,255,.7)}
+.sb-brand img.sb-logo{width:100%;max-width:100%;border-radius:8px;box-shadow:none;animation:logoIn .7s ease}
+.gc-logo-img{width:230px;max-width:82%;border-radius:12px;box-shadow:0 12px 26px -14px rgba(0,0,0,.55);animation:logoIn .7s ease}
+/* saludo personalizado del dashboard */
+.welcome .wl-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.welcome .wl-date{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);
+  background:rgba(194,160,90,.14);padding:4px 12px;border-radius:30px}
+.welcome .wl-insight{margin-top:8px;color:var(--cocoa-soft);font-size:.96rem}
+.welcome .wl-insight b{color:var(--gold-deep)}
