@@ -768,6 +768,7 @@ async function vistaAgenda(v){
   if(!agMes){ const n=new Date(); agMes=new Date(n.getFullYear(), n.getMonth(), 1); }
   if(!agSel) agSel = hoyISO();
   v.innerHTML = `
+    <div id="recordatorioCard"></div>
     <div class="panel">
       <div class="panel-head ag-head">
         <div class="ag-nav">
@@ -783,21 +784,46 @@ async function vistaAgenda(v){
       <div class="cal" id="cal"></div>
     </div>
     <div class="panel" id="diaPanel"></div>`;
-  try{ await asegurarCatalogos(); await cargarCitas(true); }
+  try{
+    await asegurarCatalogos(); await cargarCitas(true);
+    if(!window.__cliMap){ const cs=await fb.getDocs(fb.collection(fb.db,'clientes')); window.__cliMap={}; cs.docs.forEach(d=>{ const x=d.data(); window.__cliMap[d.id]=x.telefono||x.whatsapp||''; }); }
+  }
   catch(ex){ el('cal').innerHTML = `<div class="empty" style="padding:30px">No se pudieron cargar las citas.<br><small>${esc(ex.message)}</small></div>`; return; }
   // filtro profesionales
   el('agFiltro').innerHTML = '<option value="">Todos los profesionales</option>' +
     cacheProfesionales.filter(p=>p.activo!==false).map(p=>`<option value="${p.id}" ${agProf===p.id?'selected':''}>${esc(p.nombre)}</option>`).join('');
-  el('agFiltro').onchange = (e)=>{ agProf=e.target.value; pintarCalendario(); pintarDia(); };
+  el('agFiltro').onchange = (e)=>{ agProf=e.target.value; pintarRecordatorio(); pintarCalendario(); pintarDia(); };
   el('agPrev').onclick = ()=>{ agMes=new Date(agMes.getFullYear(), agMes.getMonth()-1, 1); pintarCalendario(); };
   el('agNext').onclick = ()=>{ agMes=new Date(agMes.getFullYear(), agMes.getMonth()+1, 1); pintarCalendario(); };
   el('agHoy').onclick = ()=>{ const n=new Date(); agMes=new Date(n.getFullYear(),n.getMonth(),1); agSel=hoyISO(); pintarCalendario(); pintarDia(); };
   el('agNueva').onclick = ()=> formCita(null, agSel);
-  pintarCalendario(); pintarDia();
+  pintarRecordatorio(); pintarCalendario(); pintarDia();
 }
 function citasDe(iso){
   return (cacheCitas||[]).filter(c=> c.fecha===iso && (!agProf || c.profesionalId===agProf))
     .sort((a,b)=> (a.horaInicio||'').localeCompare(b.horaInicio||''));
+}
+/* Tarjeta de "Próximo recordatorio" (para una mejor atención) */
+function pintarRecordatorio(){
+  const cont=el('recordatorioCard'); if(!cont) return;
+  const hoy=hoyISO(); const ahora=new Date(); const hm=ahora.getHours()*60+ahora.getMinutes();
+  const prox=(cacheCitas||[])
+    .filter(c=> (!agProf||c.profesionalId===agProf) && (c.estado==='pendiente'||c.estado==='confirmada')
+      && (c.fecha>hoy || (c.fecha===hoy && mmHHaMin(c.horaInicio)>=hm)))
+    .sort((a,b)=> (a.fecha+a.horaInicio).localeCompare(b.fecha+b.horaInicio))[0];
+  if(!prox){ cont.innerHTML=''; return; }
+  const tel=((window.__cliMap||{})[prox.clienteId]||'').replace(/\D/g,'');
+  const telE = tel ? (tel.length===10 ? '57'+tel : tel) : '';
+  const msg=encodeURIComponent(`Hola ${prox.clienteNombre}, te recordamos tu cita en Tatiana Hernández · Estética Integral el ${fechaCorta(prox.fecha)} a las ${(prox.horaInicio||'').slice(0,5)} para ${prox.servicioNombre||'tu servicio'}. ¡Te esperamos! 🌿`);
+  cont.innerHTML=`<div class="rec-card">
+    <div class="rec-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+    <div class="rec-body">
+      <div class="rec-top">Próximo recordatorio</div>
+      <div class="rec-main"><b>${esc(prox.clienteNombre||'Cliente')}</b> · ${esc(prox.servicioNombre||'')}</div>
+      <div class="rec-sub">${fechaLarga(prox.fecha)} · ${esc((prox.horaInicio||'').slice(0,5))} · ${esc(prox.profesionalNombre||'')}</div>
+    </div>
+    ${telE?`<a class="btn btn-gold btn-sm rec-wa" href="https://wa.me/${telE}?text=${msg}" target="_blank" rel="noopener">Recordar por WhatsApp</a>`:''}
+  </div>`;
 }
 function pintarCalendario(){
   const y=agMes.getFullYear(), m=agMes.getMonth();
@@ -811,11 +837,11 @@ function pintarCalendario(){
   for(let d=1; d<=diasMes; d++){
     const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const cs=citasDe(iso);
-    const chips=cs.slice(0,3).map(c=>`<span class="cal-chip ${ESTADOS[c.estado]?.cls||''}">${esc((c.horaInicio||'').slice(0,5))} ${esc((c.clienteNombre||'').split(' ')[0])}</span>`).join('');
-    const mas = cs.length>3 ? `<span class="cal-mas">+${cs.length-3} más</span>` : '';
+    const dots = cs.slice(0,4).map(c=>`<i class="cal-dot ${ESTADOS[c.estado]?.cls||''}"></i>`).join('');
+    const dotsWrap = cs.length ? `<span class="cal-dots">${dots}</span>` : '';
     const cnt = cs.length ? `<span class="cal-count">${cs.length}</span>` : '';
     cells+=`<div class="cal-cell${iso===hoy?' hoy':''}${iso===agSel?' sel':''}" data-dia="${iso}">
-      <span class="cal-num">${d}</span>${cnt}${chips}${mas}</div>`;
+      <span class="cal-num">${d}</span>${cnt}${dotsWrap}</div>`;
   }
   el('cal').innerHTML = `<div class="cal-grid cal-cab">${cab}</div><div class="cal-grid">${cells}</div>`;
   el('cal').querySelectorAll('[data-dia]').forEach(c=> c.onclick=()=>{ agSel=c.getAttribute('data-dia'); pintarCalendario(); pintarDia(); });
@@ -823,17 +849,17 @@ function pintarCalendario(){
 function pintarDia(){
   const cs=citasDe(agSel);
   const dp=el('diaPanel');
-  dp.innerHTML = `<div class="panel-head"><h3>${fechaLarga(agSel)}</h3><div class="spacer"></div>
+  dp.innerHTML = `<div class="panel-head"><h3>${fechaLarga(agSel)}</h3><span class="t-sub" style="margin-left:6px">${cs.length} cita${cs.length===1?'':'s'}</span><div class="spacer"></div>
       <button class="btn btn-gold btn-sm" id="diaNueva">+ Cita este día</button></div>
     <div id="diaLista"></div>`;
   el('diaNueva').onclick=()=> formCita(null, agSel);
-  el('diaLista').innerHTML = cs.length ? '<div class="dia-list">'+cs.map(c=>`
-    <button class="dia-item" data-cita="${c.id}">
-      <span class="dia-hora">${esc((c.horaInicio||'').slice(0,5))}<small>${esc((c.horaFin||'').slice(0,5))}</small></span>
-      <span class="dia-info"><span class="t-strong">${esc(c.clienteNombre||'Cliente')}</span><span class="t-sub">${esc(c.servicioNombre||'')} · ${esc(c.profesionalNombre||'')}</span></span>
+  el('diaLista').innerHTML = cs.length ? '<div class="ev-list">'+cs.map(c=>`
+    <button class="ev-card ${ESTADOS[c.estado]?.cls||''}" data-cita="${c.id}">
+      <span class="ev-time">${esc((c.horaInicio||'').slice(0,5))}<small>${esc((c.horaFin||'').slice(0,5))}</small></span>
+      <span class="ev-body"><span class="t-strong">${esc(c.clienteNombre||'Cliente')}</span><span class="t-sub">${esc(c.servicioNombre||'')} · ${esc(c.profesionalNombre||'')}</span></span>
       <span class="badge-e ${ESTADOS[c.estado]?.cls||''}">${ESTADOS[c.estado]?.label||c.estado}</span>
     </button>`).join('')+'</div>'
-    : `<div class="empty" style="padding:28px"><p>No hay citas este día.</p></div>`;
+    : `<div class="empty" style="padding:28px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 5h18v16H3zM3 9h18M8 3v4M16 3v4"/></svg><p>No hay citas este día.</p></div>`;
   el('diaLista').querySelectorAll('[data-cita]').forEach(b=> b.onclick=()=>{ const c=(cacheCitas||[]).find(x=>x.id===b.getAttribute('data-cita')); if(c) formCita(c, c.fecha); });
 }
 function fechaLarga(iso){ if(!iso) return ''; const [a,m,d]=iso.split('-').map(Number); const dt=new Date(a,m-1,d); const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']; return `${dias[dt.getDay()]} ${d} de ${MESES_L[m-1]}, ${a}`; }
