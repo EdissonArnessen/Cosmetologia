@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
+<script>(function(){try{if(location.hostname.indexOf('github.io')>-1){var p=location.pathname.replace(/^\/Cosmetologia/,'');location.replace('https://tatianahernandez.web.app'+(p||'/')+location.search+location.hash);}}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
 <!-- ===================== SEGURIDAD ===================== -->
@@ -20,7 +21,7 @@
 <meta name="author" content="Tatiana Hernández" />
 <meta name="robots" content="index, follow, max-image-preview:large" />
 <!-- ⚠️ Cambia esta URL por la de tu sitio publicado (ver GUIA-PUBLICACION.md) -->
-<link rel="canonical" href="https://edissonarnessen.github.io/Cosmetologia/" />
+<link rel="canonical" href="https://tatianahernandez.web.app/" />
 
 <!-- ===================== PWA / INSTALABLE ===================== -->
 <meta name="theme-color" content="#C2A05A" />
@@ -43,7 +44,7 @@
 <meta property="og:locale" content="es_CO" />
 <meta property="og:site_name" content="Tatiana Hernández · Estética Integral" />
 <meta property="og:image" content="assets/icon-512.png" />
-<meta property="og:url" content="https://edissonarnessen.github.io/Cosmetologia/" />
+<meta property="og:url" content="https://tatianahernandez.web.app/" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Tatiana Hernández · Estética Integral" />
 <meta name="twitter:description" content="Bienestar · Armonía · Equilibrio. Agenda tu ritual de cuidado." />
@@ -57,7 +58,7 @@
   "name": "Tatiana Hernández · Estética Integral",
   "description": "Centro de estética y bienestar: masajes, limpieza facial profunda, tratamientos avanzados y armonía facial.",
   "image": "assets/icon-512.png",
-  "url": "https://edissonarnessen.github.io/Cosmetologia/",
+  "url": "https://tatianahernandez.web.app/",
   "telephone": "+573145435927",
   "priceRange": "$$",
   "areaServed": { "@type": "Country", "name": "Colombia" },
@@ -568,34 +569,29 @@
   @keyframes viewIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
   /* ---------- BARRA INFERIOR (móvil, efecto 3D) ---------- */
+  /* Barra flotante tipo "píldora": inactivo = icono; activo = píldora dorada con etiqueta */
   .tabbar{
-    position:fixed;bottom:0;left:0;right:0;z-index:110;display:flex;
-    background:linear-gradient(180deg,#FCF8F0 0%,#EFE4D2 100%);
-    border-top:1px solid rgba(255,255,255,.8);
-    padding:10px 8px calc(10px + env(safe-area-inset-bottom));
-    box-shadow:0 -14px 34px -20px rgba(59,42,30,.55), inset 0 1px 0 rgba(255,255,255,.9);
-    border-radius:22px 22px 0 0;
+    position:fixed;left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:110;
+    display:flex;justify-content:space-around;align-items:center;gap:4px;
+    background:rgba(252,248,240,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.75);padding:7px;border-radius:34px;
+    box-shadow:0 20px 44px -18px rgba(59,42,30,.6), inset 0 1px 0 rgba(255,255,255,.9);
   }
   .tabbar a{
-    flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
-    font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;font-weight:500;
-    color:var(--taupe);padding:8px 2px;border-radius:16px;position:relative;
-    transition:color .25s,transform .2s cubic-bezier(.3,1.4,.5,1),background .3s,box-shadow .3s;
+    display:flex;flex-direction:row;align-items:center;justify-content:center;gap:0;
+    color:var(--cocoa-soft);font-weight:600;font-size:.76rem;letter-spacing:.02em;
+    padding:11px;border-radius:30px;position:relative;overflow:hidden;white-space:nowrap;
+    transition:color .25s,background .35s,padding .35s,gap .35s,transform .2s cubic-bezier(.3,1.4,.5,1);
   }
-  .tabbar a svg{width:23px;height:23px;transition:transform .3s}
-  .tabbar a:active{transform:scale(.9)}
-  /* Estado activo: pastilla dorada elevada en 3D */
+  .tabbar a span{max-width:0;opacity:0;overflow:hidden;transition:max-width .35s ease,opacity .25s}
+  .tabbar a svg{width:23px;height:23px;flex-shrink:0;transition:transform .3s}
+  .tabbar a:active{transform:scale(.92)}
   .tabbar a.active{
-    color:#fff;
-    background:linear-gradient(150deg,var(--gold-light) 0%,var(--gold) 45%,var(--gold-deep) 100%);
-    box-shadow:0 9px 18px -6px rgba(166,134,63,.7), inset 0 1px 1px rgba(255,255,255,.55), inset 0 -3px 4px rgba(120,90,40,.4);
-    transform:translateY(-9px);
+    color:#fff;gap:8px;padding:11px 18px;
+    background:linear-gradient(120deg,var(--gold-light) 0%,var(--gold) 55%,var(--gold-deep) 100%);
+    box-shadow:0 10px 20px -8px rgba(166,134,63,.8), inset 0 1px 1px rgba(255,255,255,.5);
   }
-  .tabbar a.active svg{transform:scale(1.14)}
-  .tabbar a.active::after{
-    content:"";position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);
-    width:5px;height:5px;border-radius:50%;background:var(--gold-deep);box-shadow:0 2px 5px rgba(166,134,63,.6);
-  }
+  .tabbar a.active span{max-width:110px;opacity:1}
   @media(min-width:861px){.tabbar{display:none}}
 
   /* ---------- LOGO (vectorial, escalable) ---------- */
