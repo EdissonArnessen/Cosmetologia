@@ -160,7 +160,7 @@ function mostrarBootstrap(u){
   bc.classList.remove('hidden');
   const nombreSug = (u.email||'').toLowerCase().startsWith('yulieth') ? 'Yuliet Tatiana Hernández' : '';
   bc.innerHTML = `
-    <div class="brandmark brandmark-lg"><span class="bm-mono">th</span><span class="bm-name"><b>Tatiana Hernández</b><span>Estética Integral</span></span></div>
+    <img class="gc-logo-img" src="../img/logo-th.png" alt="Tatiana Hernández · Estética Integral">
     <h1>¡Hola, administradora!</h1>
     <p class="gc-hint">Es tu primer ingreso con <b>${esc(u.email)}</b>.<br>Crea tu acceso para continuar.</p>
     <div class="in">
@@ -206,9 +206,9 @@ const MENU = [
   { id:'clientes',     label:'Clientes',           roles:['admin','recepcion'],               icon:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8' },
   { id:'profesionales',label:'Profesionales',      roles:['admin'],                           icon:'M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M11 11a4 4 0 100-8 4 4 0 000 8M21 21v-2a4 4 0 00-3-3.8' },
   { id:'servicios',    label:'Servicios',          roles:['admin'],                           icon:'M4 7l8-4 8 4-8 4zM4 7v10l8 4 8-4V7' },
-  { id:'fichas',       label:'Fichas de atención', roles:['admin','profesional'],             icon:'M6 3h9l5 5v13H6zM14 3v5h5M9 13h6M9 17h4', soon:true },
-  { id:'pagos',        label:'Pagos y caja',       roles:['admin','recepcion'],               icon:'M3 7h18v10H3zM3 11h18M7 15h4', soon:true },
-  { id:'reportes',     label:'Reportes',           roles:['admin'],                           icon:'M4 20V9M10 20V4M16 20v-7M22 20H2', soon:true },
+  { id:'fichas',       label:'Fichas de atención', roles:['admin','profesional'],             icon:'M6 3h9l5 5v13H6zM14 3v5h5M9 13h6M9 17h4' },
+  { id:'pagos',        label:'Pagos y caja',       roles:['admin','recepcion'],               icon:'M3 7h18v10H3zM3 11h18M7 15h4' },
+  { id:'reportes',     label:'Reportes',           roles:['admin'],                           icon:'M4 20V9M10 20V4M16 20v-7M22 20H2' },
   { id:'usuarios',     label:'Usuarios',           roles:['admin'],                           icon:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8M20 8v6M23 11h-6' },
   { id:'configuracion',label:'Configuración',      roles:['admin'],                           icon:'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.4H9.4l-.3 2.4a7 7 0 00-1.7 1l-2.3-1-2 3.4L5 11a7 7 0 000 2l-2 1.6 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.4h4.2l.3-2.4a7 7 0 001.7-1l2.3 1 2-3.4-2-1.6a7 7 0 00.1-1z' }
 ];
@@ -241,7 +241,8 @@ function irA(id){
   const v = el('view'); v.innerHTML = '<div class="loading">Cargando…</div>';
   ({
     dashboard: vistaDashboard, agenda: vistaAgenda, clientes: vistaClientes, profesionales: vistaProfesionales,
-    servicios: vistaServicios, usuarios: vistaUsuarios, configuracion: vistaConfiguracion
+    servicios: vistaServicios, fichas: vistaFichas, pagos: vistaPagos, reportes: vistaReportes,
+    usuarios: vistaUsuarios, configuracion: vistaConfiguracion
   }[id] || vistaProximamente)(v);
 }
 function vistaProximamente(v){
@@ -343,14 +344,15 @@ function barChart(data, opts){
     ${bars}</svg>`;
 }
 /* Barras horizontales (ranking) */
-function rankBars(data){
+function rankBars(data, opts){
+  opts = opts||{};
   const max = Math.max(1, ...data.map(d=>d.value));
   if(!data.length) return '<div class="empty" style="padding:24px"><p>Sin datos todavía.</p></div>';
   return '<div class="rank">'+data.map(d=>`
     <div class="rank-row">
       <span class="rank-lbl">${esc(d.label)}</span>
       <span class="rank-bar"><i style="width:${Math.round(100*d.value/max)}%"></i></span>
-      <span class="rank-val">${d.value}</span>
+      <span class="rank-val">${opts.money?money(d.value):d.value}</span>
     </div>`).join('')+'</div>';
 }
 
@@ -385,16 +387,17 @@ async function vistaDashboard(v){
   const enMesActual = (iso)=>{ const [a,m]=iso.split('-').map(Number); return a===anioAct && (m-1)===mesAct; };
   const vivas = citas.filter(c=> c.estado!=='cancelada' && c.estado!=='no_asistio');
   const kpis = [
-    { k:'Citas hoy',         v: citas.filter(c=>c.fecha===hoy && c.estado!=='cancelada').length, ic:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4' },
-    { k:'Pendientes',        v: citas.filter(c=>c.estado==='pendiente').length, ic:'M12 8v4l3 2M21 12a9 9 0 11-9-9' },
-    { k:'Confirmadas',       v: citas.filter(c=>c.estado==='confirmada').length, ic:'M20 6L9 17l-5-5' },
-    { k:'Atendidas (mes)',   v: citas.filter(c=>c.estado==='finalizada' && enMesActual(c.fecha)).length, ic:'M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11' },
-    { k:'Canceladas (mes)',  v: citas.filter(c=>c.estado==='cancelada' && enMesActual(c.fecha)).length, ic:'M18 6L6 18M6 6l12 12' },
-    { k:'Clientes nuevos (mes)', v: clientes.filter(c=> c.fechaRegistro && enMesActual(c.fechaRegistro)).length, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8M19 8v6M22 11h-6' },
-    { k:'Ingresos del mes',  v: money(citas.filter(c=>c.estado==='finalizada' && enMesActual(c.fecha)).reduce((s,c)=>s+(Number(c.precio)||0),0)), ic:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6', txt:true },
-    { k:'Clientes activos',  v: clientes.filter(c=>c.activo!==false).length, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8' }
+    { k:'Citas hoy',         v: citas.filter(c=>c.fecha===hoy && c.estado!=='cancelada').length, ic:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4', go:'agenda', hint:'Citas programadas para el día de hoy. Toca para abrir la agenda.' },
+    { k:'Pendientes',        v: citas.filter(c=>c.estado==='pendiente').length, ic:'M12 8v4l3 2M21 12a9 9 0 11-9-9', go:'agenda', hint:'Citas aún por confirmar. Toca para revisarlas en la agenda.' },
+    { k:'Confirmadas',       v: citas.filter(c=>c.estado==='confirmada').length, ic:'M20 6L9 17l-5-5', go:'agenda', hint:'Citas confirmadas por el cliente. Toca para ver la agenda.' },
+    { k:'Atendidas (mes)',   v: citas.filter(c=>c.estado==='finalizada' && enMesActual(c.fecha)).length, ic:'M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11', go:'agenda', hint:'Servicios finalizados este mes. Toca para ver el detalle.' },
+    { k:'Canceladas (mes)',  v: citas.filter(c=>c.estado==='cancelada' && enMesActual(c.fecha)).length, ic:'M18 6L6 18M6 6l12 12', go:'agenda', hint:'Citas canceladas este mes. Toca para revisarlas.' },
+    { k:'Clientes nuevos (mes)', v: clientes.filter(c=> c.fechaRegistro && enMesActual(c.fechaRegistro)).length, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8M19 8v6M22 11h-6', go:'clientes', hint:'Clientes registrados este mes. Toca para ir a Clientes.' },
+    { k:'Ingresos del mes',  v: money(citas.filter(c=>c.estado==='finalizada' && enMesActual(c.fecha)).reduce((s,c)=>s+(Number(c.precio)||0),0)), ic:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6', txt:true, go:'agenda', hint:'Ingresos de las citas finalizadas este mes.' },
+    { k:'Clientes activos',  v: clientes.filter(c=>c.activo!==false).length, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8', go:'clientes', hint:'Clientes activos en total. Toca para ver sus expedientes.' }
   ];
-  el('kpis').innerHTML = kpis.map(d=>`<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v"${d.txt?' style="font-size:1.5rem"':''}>${d.v}</div><div class="k">${d.k}</div></div>`).join('');
+  el('kpis').innerHTML = kpis.map(d=>`<button type="button" class="kpi kpi-link" data-ir="${d.go||''}" title="${esc(d.hint||d.k)}" aria-label="${esc(d.k+'. '+(d.hint||''))}"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v"${d.txt?' style="font-size:1.5rem"':''}>${d.v}</div><div class="k">${d.k}</div><span class="kpi-hint">${esc(d.hint||'')}</span></button>`).join('');
+  el('kpis').querySelectorAll('.kpi-link[data-ir]').forEach(b=>{ const t=b.getAttribute('data-ir'); if(t) b.onclick=()=>irA(t); });
   // Dato inteligente del día
   const nHoy = citas.filter(c=>c.fecha===hoy && c.estado!=='cancelada').length;
   const nPend = citas.filter(c=>c.estado==='pendiente').length;
@@ -446,28 +449,31 @@ async function vistaClientes(v){
         <tbody id="cliBody"><tr><td colspan="6" class="loading">Cargando…</td></tr></tbody>
       </table></div>
     </div>`;
-  let datos = [];
+  let datos = [], citasTodas = [];
   try{
     const snap = await fb.getDocs(fb.collection(fb.db,'clientes'));
     datos = snap.docs.map(d=>({id:d.id, ...d.data()}));
     datos.sort((a,b)=>(a.nombres||'').localeCompare(b.nombres||''));
   }catch(ex){ el('cliBody').innerHTML = `<tr><td colspan="6" class="empty">No se pudieron cargar los clientes.<br><small>${esc(ex.message)}</small></td></tr>`; return; }
+  try{ await asegurarCatalogos(); citasTodas = await cargarCitas(true); }catch(_){ citasTodas = []; }
 
   function pintar(lista){
     const body = el('cliBody');
     if(!lista.length){ body.innerHTML = `<tr><td colspan="6"><div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg><p>Aún no hay clientes registrados.</p></div></td></tr>`; return; }
     body.innerHTML = lista.map(c=>`
       <tr>
-        <td><div class="t-strong">${esc((c.nombres||'')+' '+(c.apellidos||''))}</div>${c.fechaNacimiento?`<div class="t-sub">Nac.: ${esc(c.fechaNacimiento)}</div>`:''}</td>
+        <td><button class="link-cli" data-exp="${c.id}" title="Ver expediente"><span class="t-strong">${esc((c.nombres||'')+' '+(c.apellidos||''))}</span></button>${c.fechaNacimiento?`<div class="t-sub">Nac.: ${esc(c.fechaNacimiento)}</div>`:''}</td>
         <td>${esc(c.identificacion||'—')}</td>
         <td>${esc(c.telefono||'—')}</td>
         <td>${esc(c.email||'—')}</td>
         <td><span class="badge ${c.activo===false?'off':'on'}">${c.activo===false?'Inactivo':'Activo'}</span></td>
         <td><div class="row-actions">
+          <button class="icon-btn" data-exp="${c.id}" title="Ver expediente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h10l6 6v10a0 0 0 01 0 0H4zM14 4v6h6"/><path d="M8 14h8M8 17h5"/></svg></button>
           ${puedeEditar?`<button class="icon-btn" data-edit="${c.id}" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></button>`:''}
           ${puedeEditar?`<button class="icon-btn" data-toggle="${c.id}" title="Activar/Inactivar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 6L6 18M6 6l12 12"/></svg></button>`:''}
         </div></td>
       </tr>`).join('');
+    body.querySelectorAll('[data-exp]').forEach(b=> b.onclick=()=> verExpediente(datos.find(x=>x.id===b.getAttribute('data-exp')), citasTodas));
     body.querySelectorAll('[data-edit]').forEach(b=> b.onclick=()=> formCliente(datos.find(x=>x.id===b.getAttribute('data-edit')), recargar));
     body.querySelectorAll('[data-toggle]').forEach(b=> b.onclick=()=> toggleCliente(datos.find(x=>x.id===b.getAttribute('data-toggle')), recargar));
   }
@@ -518,6 +524,104 @@ async function toggleCliente(c, onOk){
   await fb.updateDoc(fb.doc(fb.db,'clientes',c.id), { activo:nuevo });
   await auditar(nuevo?'activar':'inactivar','cliente',`${c.nombres} ${c.apellidos}`);
   toast(nuevo?'Cliente activado':'Cliente inactivado','ok'); onOk && onOk();
+}
+
+/* ---- Expediente del cliente: historial + plan sugerido inteligente ---- */
+function diasEntre(isoA, isoB){ return Math.round((new Date(isoB)-new Date(isoA))/86400000); }
+function cadenciaDe(nombre){
+  const n=(nombre||'').toLowerCase();
+  if(n.includes('masaje')) return { sem:2, txt:'cada 2 semanas' };
+  if(n.includes('bienestar')) return { sem:3, txt:'cada 3 semanas' };
+  if(n.includes('limpieza')||n.includes('facial')) return { sem:4, txt:'cada 4 semanas' };
+  if(n.includes('armon')||n.includes('estética')||n.includes('estetica')||n.includes('avanzad')) return { sem:5, txt:'cada 4 a 6 semanas' };
+  return { sem:4, txt:'cada 4 semanas' };
+}
+function sumarSemanas(iso, sem){ const d=iso?new Date(iso):new Date(); d.setDate(d.getDate()+sem*7); return isoDe(d); }
+
+function verExpediente(cli, todasCitas){
+  if(!cli) return;
+  const nombre = ((cli.nombres||'')+' '+(cli.apellidos||'')).trim();
+  const mias = (todasCitas||[]).filter(c=> c.clienteId===cli.id)
+    .sort((a,b)=> (b.fecha+(b.horaInicio||'')).localeCompare(a.fecha+(a.horaInicio||'')));
+  const hoy = hoyISO();
+  const final = mias.filter(c=> c.estado==='finalizada');
+  const futuras = mias.filter(c=> c.fecha>=hoy && (c.estado==='pendiente'||c.estado==='confirmada'))
+    .sort((a,b)=> (a.fecha+a.horaInicio).localeCompare(b.fecha+b.horaInicio));
+  const noAsistio = mias.filter(c=> c.estado==='no_asistio').length;
+  const gastado = final.reduce((s,c)=> s+(Number(c.precio)||0), 0);
+  const ultima = final[0]; // ya viene ordenado desc
+  const prox = futuras[0];
+  const diasUlt = ultima ? diasEntre(ultima.fecha, hoy) : null;
+
+  // frecuencia de servicios
+  const freq = {}; final.forEach(c=>{ const n=c.servicioNombre||'Servicio'; if(!freq[n]) freq[n]={n, veces:0, id:c.servicioId}; freq[n].veces++; });
+  const ranking = Object.values(freq).sort((a,b)=> b.veces-a.veces);
+  const favorito = ranking[0];
+
+  // ---- recomendaciones inteligentes ----
+  const recs = [];
+  let sugServId = favorito?.id || (cacheServicios[0]||{}).id || '';
+  let sugFecha = sumarSemanas(ultima?ultima.fecha:hoy, favorito?cadenciaDe(favorito.n).sem:4);
+  if(sugFecha < hoy) sugFecha = hoy;
+
+  if(!final.length){
+    recs.push(`Es un cliente ${mias.length?'sin servicios finalizados aún':'nuevo'}. Agenda una <b>valoración inicial</b> (limpieza facial o diagnóstico) para conocer sus necesidades y personalizar su plan.`);
+  } else {
+    const cad = cadenciaDe(favorito.n);
+    recs.push(`Su servicio preferido es <b>${esc(favorito.n)}</b> (${favorito.veces} ${favorito.veces===1?'vez':'veces'}). Recomendación: mantener sesiones <b>${cad.txt}</b> — próxima ideal el <b>${fechaCorta(sugFecha)}</b>.`);
+    if(ranking.length>=2) recs.push(`También ha realizado ${ranking.slice(1,3).map(r=>'<b>'+esc(r.n)+'</b>').join(' y ')}. Considera un <b>plan combinado</b> (facial + bienestar) para resultados integrales.`);
+    const precioRef = Number((cacheServicios.find(s=>s.id===favorito.id)||{}).precio)|| (ultima?Number(ultima.precio):0) || 0;
+    if(precioRef){ const paq=Math.round(precioRef*4*0.9/1000)*1000; recs.push(`<b>Plan sugerido:</b> paquete de <b>4 sesiones</b> de ${esc(favorito.n)} por aprox. <b>${money(paq)}</b> (ahorro del 10% frente a $${(precioRef*4).toLocaleString('es-CO')}).`); }
+  }
+  if(diasUlt!=null && diasUlt>60) recs.push(`⚠️ Han pasado <b>${diasUlt} días</b> desde su última visita. Es buen momento para <b>reactivarla</b> con un mensaje o una promoción.`);
+  if(noAsistio>=2) recs.push(`Registra <b>${noAsistio} inasistencias</b>. Conviene <b>confirmar por WhatsApp</b> el día anterior a cada cita.`);
+  if(!prox && final.length) recs.push(`No tiene próximas citas agendadas — un buen momento para proponerle la siguiente sesión.`);
+
+  const chips = `
+    <div class="exp-chips">
+      <div class="exp-chip"><span class="v">${final.length}</span><span class="k">Servicios realizados</span></div>
+      <div class="exp-chip"><span class="v">${money(gastado)}</span><span class="k">Inversión total</span></div>
+      <div class="exp-chip"><span class="v">${ultima?fechaCorta(ultima.fecha):'—'}</span><span class="k">Última visita</span></div>
+      <div class="exp-chip"><span class="v">${prox?fechaCorta(prox.fecha):'Sin agendar'}</span><span class="k">Próxima cita</span></div>
+    </div>`;
+
+  const histHTML = mias.length ? '<div class="exp-hist">'+mias.map(c=>`
+    <div class="exp-row">
+      <div class="exp-fh"><b>${fechaCorta(c.fecha)}</b><span>${esc((c.horaInicio||'').slice(0,5))}</span></div>
+      <div class="exp-si"><div class="t-strong">${esc(c.servicioNombre||'Servicio')}</div><div class="t-sub">${esc(c.profesionalNombre||'')}${c.precio?` · ${money(c.precio)}`:''}</div></div>
+      <span class="badge-e ${ESTADOS[c.estado]?.cls||''}">${ESTADOS[c.estado]?.label||c.estado}</span>
+    </div>`).join('')+'</div>'
+    : `<div class="empty" style="padding:20px"><p>Este cliente aún no tiene citas registradas.</p></div>`;
+
+  const telRaw = (cli.whatsapp||cli.telefono||'').replace(/\D/g,'');
+  const telE = telRaw ? (telRaw.length===10?'57'+telRaw:telRaw) : '';
+  const waMsg = encodeURIComponent(`Hola ${cli.nombres||''}, te saludamos de Tatiana Hernández · Estética Integral 🌿. Queremos agendar tu próxima sesión${favorito?` de ${favorito.n}`:''}. ¿Qué día te queda bien?`);
+
+  modal({
+    titulo:`Expediente · ${nombre}`,
+    textoGuardar:'Agendar próxima cita',
+    cuerpo:`
+      <div class="exp">
+        ${chips}
+        <div class="exp-grid">
+          <div class="exp-col">
+            <h4 class="exp-h">Historial de atenciones</h4>
+            ${histHTML}
+          </div>
+          <div class="exp-col">
+            <div class="plan-card">
+              <div class="plan-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.3L21 9l-5 4.3L17.5 20 12 16.3 6.5 20 8 13.3 3 9l6.6-.7z"/></svg><span>Plan sugerido para ${esc(cli.nombres||'la clienta')}</span></div>
+              <ul class="plan-list">${recs.map(r=>`<li>${r}</li>`).join('')}</ul>
+              ${telE?`<a class="btn btn-ghost btn-sm" href="https://wa.me/${telE}?text=${waMsg}" target="_blank" rel="noopener" style="margin-top:4px">Invitar por WhatsApp</a>`:''}
+            </div>
+          </div>
+        </div>
+      </div>`,
+    guardar: async ()=>{
+      setTimeout(()=> formCita(null, sugFecha, { clienteId: cli.id, servicioId: sugServId }), 0);
+      return true;
+    }
+  });
 }
 
 /* ============================================================
@@ -840,8 +944,9 @@ function pintarCalendario(){
     const dots = cs.slice(0,4).map(c=>`<i class="cal-dot ${ESTADOS[c.estado]?.cls||''}"></i>`).join('');
     const dotsWrap = cs.length ? `<span class="cal-dots">${dots}</span>` : '';
     const cnt = cs.length ? `<span class="cal-count">${cs.length}</span>` : '';
-    cells+=`<div class="cal-cell${iso===hoy?' hoy':''}${iso===agSel?' sel':''}" data-dia="${iso}">
-      <span class="cal-num">${d}</span>${cnt}${dotsWrap}</div>`;
+    const esHoy = iso===hoy;
+    cells+=`<div class="cal-cell${esHoy?' hoy':''}${iso===agSel?' sel':''}" data-dia="${iso}">
+      <span class="cal-num">${d}</span>${esHoy?'<span class="cal-hoy">HOY</span>':''}${cnt}${dotsWrap}</div>`;
   }
   el('cal').innerHTML = `<div class="cal-grid cal-cab">${cab}</div><div class="cal-grid">${cells}</div>`;
   el('cal').querySelectorAll('[data-dia]').forEach(c=> c.onclick=()=>{ agSel=c.getAttribute('data-dia'); pintarCalendario(); pintarDia(); });
@@ -864,8 +969,8 @@ function pintarDia(){
 }
 function fechaLarga(iso){ if(!iso) return ''; const [a,m,d]=iso.split('-').map(Number); const dt=new Date(a,m-1,d); const dias=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']; return `${dias[dt.getDay()]} ${d} de ${MESES_L[m-1]}, ${a}`; }
 
-function formCita(cita, fechaDefault){
-  const e = cita||{};
+function formCita(cita, fechaDefault, prefill){
+  const e = cita || prefill || {};
   const puede = ['admin','recepcion'].includes(perfil.rol);
   const servActivos = cacheServicios.filter(s=>s.activo!==false);
   const cliActivos = []; // se cargan abajo
@@ -928,7 +1033,8 @@ function formCita(cita, fechaDefault){
     if(s){ if(s.duracionMin) el('ci_dur').value=s.duracionMin; if(s.precio) el('ci_precio').value=s.precio; }
     pintarProfes();
   });
-  pintarProfes();
+  if((prefill&&prefill.servicioId) && selServ){ selServ.dispatchEvent(new Event('change')); }
+  else pintarProfes();
   // clientes
   (async()=>{
     try{
@@ -937,6 +1043,252 @@ function formCita(cita, fechaDefault){
       sel.innerHTML='<option value="">Elige un cliente…</option>'+window.__cli.sort((a,b)=>(a.nombres||'').localeCompare(b.nombres||'')).map(c=>`<option value="${c.id}" ${e.clienteId===c.id?'selected':''}>${esc(((c.nombres||'')+' '+(c.apellidos||'')).trim())}</option>`).join('');
     }catch(_){ const sel=el('ci_cli'); if(sel) sel.innerHTML='<option value="">No se pudieron cargar</option>'; }
   })();
+}
+
+/* ============================================================
+ * REPORTES (inteligencia del negocio)
+ * ============================================================ */
+let repPeriodo = 'mes';
+function rangoPeriodo(p){
+  const n=new Date(); const y=n.getFullYear(), m=n.getMonth();
+  if(p==='mes')      return { desde:isoDe(new Date(y,m,1)),   hasta:isoDe(new Date(y,m+1,0)),  label:'Este mes' };
+  if(p==='anterior') return { desde:isoDe(new Date(y,m-1,1)), hasta:isoDe(new Date(y,m,0)),    label:'Mes anterior' };
+  if(p==='90d'){ const d=new Date(n); d.setDate(d.getDate()-90); return { desde:isoDe(d), hasta:isoDe(n), label:'Últimos 90 días' }; }
+  return { desde:isoDe(new Date(y,0,1)), hasta:isoDe(new Date(y,11,31)), label:'Año '+y };
+}
+async function vistaReportes(v){
+  v.innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Reportes</h3><div class="spacer"></div>
+        <select id="repSel" class="ag-filtro">
+          <option value="mes">Este mes</option>
+          <option value="anterior">Mes anterior</option>
+          <option value="90d">Últimos 90 días</option>
+          <option value="anio">Este año</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="repCsv">⬇ Exportar CSV</button>
+      </div>
+      <p class="hint" id="repRango" style="margin:0 2px 2px"></p>
+    </div>
+    <div class="kpi-grid" id="repKpis"><div class="loading" style="grid-column:1/-1">Cargando…</div></div>
+    <div class="dash-2col">
+      <div class="panel"><div class="panel-head"><h3>Ingresos por mes</h3><span class="t-sub">finalizadas</span></div><div class="panel-pad" id="repIng"></div></div>
+      <div class="panel"><div class="panel-head"><h3>Servicios por ingresos</h3></div><div class="panel-pad" id="repServ"></div></div>
+    </div>
+    <div class="dash-2col">
+      <div class="panel"><div class="panel-head"><h3>Profesionales por ingresos</h3></div><div class="panel-pad" id="repProf"></div></div>
+      <div class="panel"><div class="panel-head"><h3>Resumen por estado</h3></div><div class="panel-pad" id="repEstados"></div></div>
+    </div>`;
+  let citas=[];
+  try{ await asegurarCatalogos(); citas = await cargarCitas(true); }
+  catch(ex){ el('repKpis').innerHTML = `<div class="empty" style="grid-column:1/-1">No se pudieron cargar los datos.<br><small>${esc(ex.message)}</small></div>`; return; }
+
+  function pintar(){
+    const r = rangoPeriodo(repPeriodo);
+    el('repRango').textContent = `${r.label} · del ${fechaCorta(r.desde)} al ${fechaCorta(r.hasta)}`;
+    const enRango = citas.filter(c=> c.fecha>=r.desde && c.fecha<=r.hasta);
+    const fin = enRango.filter(c=> c.estado==='finalizada');
+    const canc = enRango.filter(c=> c.estado==='cancelada').length;
+    const noA = enRango.filter(c=> c.estado==='no_asistio').length;
+    const ingresos = fin.reduce((s,c)=> s+(Number(c.precio)||0), 0);
+    const ticket = fin.length ? Math.round(ingresos/fin.length) : 0;
+    const clientes = new Set(fin.map(c=>c.clienteId)).size;
+    const totalGest = enRango.length;
+    const tasaCanc = totalGest ? Math.round(100*(canc+noA)/totalGest) : 0;
+    const kpis = [
+      { k:'Ingresos', v:money(ingresos), txt:true, ic:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
+      { k:'Servicios finalizados', v:fin.length, ic:'M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11' },
+      { k:'Ticket promedio', v:money(ticket), txt:true, ic:'M3 7h18v10H3zM3 11h18M7 15h4' },
+      { k:'Clientes atendidos', v:clientes, ic:'M16 21v-2a4 4 0 00-8 0v2M12 11a4 4 0 100-8 4 4 0 000 8' },
+      { k:'Cancelaciones', v:canc, ic:'M18 6L6 18M6 6l12 12' },
+      { k:'Inasistencias', v:noA, ic:'M12 8v4M12 16h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3L13.7 4a2 2 0 00-3.4 0z' },
+      { k:'Tasa de cancelación', v:tasaCanc+'%', txt:true, ic:'M3 3v18h18M7 14l4-4 4 4 5-6' },
+      { k:'Citas gestionadas', v:totalGest, ic:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4' }
+    ];
+    el('repKpis').innerHTML = kpis.map(d=>`<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v"${d.txt?' style="font-size:1.5rem"':''}>${d.v}</div><div class="k">${d.k}</div></div>`).join('');
+
+    // ingresos por mes dentro del rango
+    const porMes={};
+    fin.forEach(c=>{ const [a,m]=c.fecha.split('-'); const key=a+'-'+m; porMes[key]=(porMes[key]||0)+(Number(c.precio)||0); });
+    const keys=Object.keys(porMes).sort();
+    const ingData = keys.map(k=>({ label:MESES[Number(k.split('-')[1])-1], value:porMes[k] }));
+    el('repIng').innerHTML = ingData.length ? barChart(ingData,{money:true}) : '<div class="empty" style="padding:24px"><p>Sin ingresos en el periodo.</p></div>';
+
+    // servicios por ingresos
+    const serv={}; fin.forEach(c=>{ const n=c.servicioNombre||'—'; serv[n]=(serv[n]||0)+(Number(c.precio)||0); });
+    el('repServ').innerHTML = rankBars(Object.entries(serv).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value).slice(0,6),{money:true});
+    // profesionales por ingresos
+    const prof={}; fin.forEach(c=>{ const n=c.profesionalNombre||'—'; prof[n]=(prof[n]||0)+(Number(c.precio)||0); });
+    el('repProf').innerHTML = rankBars(Object.entries(prof).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value),{money:true});
+    // resumen por estado
+    const est={}; enRango.forEach(c=>{ est[c.estado]=(est[c.estado]||0)+1; });
+    el('repEstados').innerHTML = rankBars(Object.entries(est).map(([k,value])=>({label:ESTADOS[k]?.label||k,value})).sort((a,b)=>b.value-a.value));
+
+    el('repCsv').onclick = ()=> exportarCSV(fin, r);
+  }
+  el('repSel').value = repPeriodo;
+  el('repSel').onchange = (e)=>{ repPeriodo=e.target.value; pintar(); };
+  pintar();
+}
+function exportarCSV(citas, r){
+  const cab = ['Fecha','Hora','Cliente','Servicio','Profesional','Estado','Precio'];
+  const filas = citas.sort((a,b)=>(a.fecha+a.horaInicio).localeCompare(b.fecha+b.horaInicio))
+    .map(c=> [c.fecha, (c.horaInicio||''), (c.clienteNombre||''), (c.servicioNombre||''), (c.profesionalNombre||''), (ESTADOS[c.estado]?.label||c.estado), (Number(c.precio)||0)]);
+  const total = citas.reduce((s,c)=>s+(Number(c.precio)||0),0);
+  filas.push([]); filas.push(['','','','','','TOTAL', total]);
+  const csv = [cab, ...filas].map(f=> f.map(x=>{ const s=String(x==null?'':x); return /[",;\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }).join(';')).join('\r\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download=`reporte_${repPeriodo}_${r.desde}_a_${r.hasta}.csv`; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 100);
+  toast('Reporte exportado','ok');
+}
+
+/* ============================================================
+ * PAGOS Y CAJA
+ * ============================================================ */
+let pagFecha = '';
+const METODOS = { efectivo:'Efectivo', tarjeta:'Tarjeta', transferencia:'Transferencia', otro:'Otro' };
+async function vistaPagos(v){
+  if(!pagFecha) pagFecha = hoyISO();
+  v.innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Pagos y caja</h3><div class="spacer"></div>
+        <input type="date" id="pagDia" value="${pagFecha}" class="ag-filtro" style="max-width:170px">
+      </div>
+      <div class="kpi-grid" id="pagKpis" style="margin:4px 0 0"><div class="loading" style="grid-column:1/-1">Cargando…</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Cobros del día</h3><span class="t-sub" id="pagSub"></span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Profesional</th><th>Método</th><th style="text-align:right">Monto</th></tr></thead>
+        <tbody id="pagBody"><tr><td colspan="6" class="loading">Cargando…</td></tr></tbody>
+      </table></div>
+    </div>`;
+  let citas=[];
+  try{ await asegurarCatalogos(); citas = await cargarCitas(true); }
+  catch(ex){ el('pagBody').innerHTML = `<tr><td colspan="6" class="empty">No se pudieron cargar.<br><small>${esc(ex.message)}</small></td></tr>`; return; }
+
+  function pintar(){
+    const hoy=pagFecha;
+    const [ay,am]=hoy.split('-');
+    const finMes = citas.filter(c=> c.estado==='finalizada' && c.fecha.startsWith(ay+'-'+am));
+    const finDia = citas.filter(c=> c.estado==='finalizada' && c.fecha===hoy).sort((a,b)=>(a.horaInicio||'').localeCompare(b.horaInicio||''));
+    const totalDia = finDia.reduce((s,c)=>s+(Number(c.precio)||0),0);
+    const totalMes = finMes.reduce((s,c)=>s+(Number(c.precio)||0),0);
+    const porMetodo={}; finDia.forEach(c=>{ const m=c.metodoPago||'sin'; porMetodo[m]=(porMetodo[m]||0)+(Number(c.precio)||0); });
+    const efe=porMetodo.efectivo||0, tar=(porMetodo.tarjeta||0)+(porMetodo.transferencia||0);
+    const kpis=[
+      { k:'Caja del día', v:money(totalDia), ic:'M3 7h18v10H3zM3 11h18M7 15h4' },
+      { k:'Cobros del día', v:finDia.length, ic:'M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11' },
+      { k:'Efectivo', v:money(efe), ic:'M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
+      { k:'Tarjeta / transf.', v:money(tar), ic:'M3 7h18v10H3zM3 11h18' },
+      { k:'Total del mes', v:money(totalMes), ic:'M3 5h18v16H3zM3 9h18M8 3v4M16 3v4' }
+    ];
+    el('pagKpis').innerHTML = kpis.map(d=>`<div class="kpi"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="${d.ic}"/></svg></div><div class="v" style="font-size:1.4rem">${d.v}</div><div class="k">${d.k}</div></div>`).join('');
+    el('pagSub').textContent = fechaLarga(hoy);
+    const puede = ['admin','recepcion'].includes(perfil.rol);
+    el('pagBody').innerHTML = finDia.length ? finDia.map(c=>`
+      <tr>
+        <td>${esc((c.horaInicio||'').slice(0,5))}</td>
+        <td class="t-strong">${esc(c.clienteNombre||'Cliente')}</td>
+        <td>${esc(c.servicioNombre||'')}</td>
+        <td>${esc(c.profesionalNombre||'')}</td>
+        <td>${puede?`<select class="met-sel ag-filtro" data-met="${c.id}" style="max-width:150px"><option value="">— sin registrar —</option>${Object.entries(METODOS).map(([k,l])=>`<option value="${k}" ${c.metodoPago===k?'selected':''}>${l}</option>`).join('')}</select>`:esc(METODOS[c.metodoPago]||'—')}</td>
+        <td style="text-align:right" class="t-strong">${money(c.precio)}</td>
+      </tr>`).join('') : `<tr><td colspan="6"><div class="empty" style="padding:24px"><p>No hay cobros finalizados este día.</p></div></td></tr>`;
+    el('pagBody').querySelectorAll('[data-met]').forEach(s=> s.onchange=async()=>{
+      const id=s.getAttribute('data-met'); const val=s.value;
+      try{ await fb.updateDoc(fb.doc(fb.db,'citas',id), { metodoPago: val });
+        const c=(cacheCitas||[]).find(x=>x.id===id); if(c) c.metodoPago=val;
+        toast('Método de pago registrado','ok'); pintar();
+      }catch(ex){ toast('No se pudo guardar: '+ex.message,'bad'); }
+    });
+  }
+  el('pagDia').onchange = (e)=>{ pagFecha=e.target.value||hoyISO(); pintar(); };
+  pintar();
+}
+
+/* ============================================================
+ * FICHAS DE ATENCIÓN (historia clínica por servicio)
+ * ============================================================ */
+async function vistaFichas(v){
+  v.innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Fichas de atención</h3><div class="spacer"></div>
+        <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          <input id="fiBuscar" placeholder="Buscar cliente o servicio"></div>
+      </div>
+      <p class="hint" style="margin:0 2px 2px">Registro de cada atención realizada: observaciones, productos usados y recomendaciones.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Fecha</th><th>Cliente</th><th>Servicio</th><th>Profesional</th><th>Ficha</th><th></th></tr></thead>
+        <tbody id="fiBody"><tr><td colspan="6" class="loading">Cargando…</td></tr></tbody>
+      </table></div>
+    </div>`;
+  let citas=[], fichas={};
+  try{
+    await asegurarCatalogos(); citas = await cargarCitas(true);
+    const fs = await fb.getDocs(fb.collection(fb.db,'fichas')); fs.docs.forEach(d=> fichas[d.id]={id:d.id,...d.data()});
+  }catch(ex){ el('fiBody').innerHTML = `<tr><td colspan="6" class="empty">No se pudieron cargar.<br><small>${esc(ex.message)}</small></td></tr>`; return; }
+  const atenciones = citas.filter(c=> c.estado==='finalizada' || c.estado==='en_atencion')
+    .sort((a,b)=> (b.fecha+(b.horaInicio||'')).localeCompare(a.fecha+(a.horaInicio||'')));
+
+  function pintar(lista){
+    const body=el('fiBody');
+    body.innerHTML = lista.length ? lista.map(c=>{
+      const tiene = !!fichas[c.id];
+      return `<tr>
+        <td>${fechaCorta(c.fecha)} <span class="t-sub">${esc((c.horaInicio||'').slice(0,5))}</span></td>
+        <td class="t-strong">${esc(c.clienteNombre||'Cliente')}</td>
+        <td>${esc(c.servicioNombre||'')}</td>
+        <td>${esc(c.profesionalNombre||'')}</td>
+        <td>${tiene?'<span class="badge on">Registrada</span>':'<span class="badge off">Pendiente</span>'}</td>
+        <td><div class="row-actions"><button class="btn btn-ghost btn-sm" data-ficha="${c.id}">${tiene?'Ver / editar':'Crear ficha'}</button></div></td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="6"><div class="empty" style="padding:24px"><p>Aún no hay atenciones finalizadas para documentar.</p></div></td></tr>`;
+    body.querySelectorAll('[data-ficha]').forEach(b=> b.onclick=()=> formFicha(citas.find(x=>x.id===b.getAttribute('data-ficha')), fichas[b.getAttribute('data-ficha')], ()=>irA('fichas')));
+  }
+  pintar(atenciones);
+  el('fiBuscar').addEventListener('input', e=>{
+    const q=e.target.value.toLowerCase().trim();
+    pintar(!q?atenciones:atenciones.filter(c=> (`${c.clienteNombre||''} ${c.servicioNombre||''} ${c.profesionalNombre||''}`).toLowerCase().includes(q)));
+  });
+}
+function formFicha(cita, ficha, onOk){
+  if(!cita) return;
+  const e = ficha||{};
+  modal({
+    titulo:`Ficha · ${cita.clienteNombre||'Cliente'}`,
+    textoGuardar:'Guardar ficha',
+    cuerpo:`
+      <p class="hint" style="margin-top:0">${esc(cita.servicioNombre||'')} · ${fechaCorta(cita.fecha)} · ${esc(cita.profesionalNombre||'')}</p>
+      <div class="grid2">
+        <div class="field full"><label>Motivo / estado inicial</label><textarea id="fi_motivo" rows="2">${esc(e.motivo)}</textarea></div>
+        <div class="field full"><label>Procedimiento y observaciones</label><textarea id="fi_obs" rows="3">${esc(e.observaciones)}</textarea></div>
+        <div class="field full"><label>Productos / insumos usados</label><textarea id="fi_prod" rows="2">${esc(e.productos)}</textarea></div>
+        <div class="field full"><label>Recomendaciones para casa</label><textarea id="fi_rec" rows="2">${esc(e.recomendaciones)}</textarea></div>
+        <div class="field"><label>Próxima sesión sugerida</label><input type="date" id="fi_prox" value="${esc(e.proximaSugerida)}"></div>
+        <div class="field"><label>Piel / sensibilidad / alergias</label><input id="fi_piel" value="${esc(e.piel)}"></div>
+      </div>`,
+    guardar: async ()=>{
+      const data = {
+        citaId: cita.id, clienteId: cita.clienteId||'', clienteNombre: cita.clienteNombre||'',
+        servicioNombre: cita.servicioNombre||'', profesionalNombre: cita.profesionalNombre||'',
+        profesionalUid: perfil.id, fecha: cita.fecha,
+        motivo: el('fi_motivo').value.trim(), observaciones: el('fi_obs').value.trim(),
+        productos: el('fi_prod').value.trim(), recomendaciones: el('fi_rec').value.trim(),
+        proximaSugerida: el('fi_prox').value, piel: el('fi_piel').value.trim(),
+        actualizadoEn: fb.serverTimestamp()
+      };
+      if(ficha){ await fb.updateDoc(fb.doc(fb.db,'fichas',cita.id), data); }
+      else { data.creadoEn = fb.serverTimestamp(); await fb.setDoc(fb.doc(fb.db,'fichas',cita.id), data); }
+      await auditar(ficha?'editar':'crear','ficha',`${cita.clienteNombre} · ${cita.servicioNombre}`);
+      toast('Ficha guardada','ok'); onOk && onOk();
+    }
+  });
 }
 
 /* ============================================================
