@@ -37,23 +37,11 @@ service cloud.firestore {
     function esPanel()      { return (esAdmin() || esRecepcion() || esProfesional()); } // cualquier usuaria del panel
 
     // ============================ USUARIOS ============================
-    // Administradoras autorizadas para crear su propio acceso en el primer ingreso.
-    function correoBootstrap() {
-      return signedIn() && request.auth.token.email != null
-        && request.auth.token.email.lower() in [
-          'yuliethhernandezrtpo1991@gmail.com',
-          'biohazaa@gmail.com'
-        ];
-    }
+    // El PRIMER administrador se crea desde la consola de Firebase (ver guía).
+    // Luego, solo un admin crea/edita usuarios del panel.
     match /usuarios/{uid} {
-      allow read: if esAdmin() || (signedIn() && request.auth.uid == uid);
-      // Crear: un admin crea a cualquiera; o una administradora autorizada crea
-      // SU PROPIO documento como 'admin' (solo su UID, solo esos correos).
-      allow create: if esAdmin()
-        || (correoBootstrap()
-            && request.auth.uid == uid
-            && request.resource.data.rol == 'admin');
-      allow update, delete: if esAdmin();
+      allow read:   if esAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create, update, delete: if esAdmin();
     }
 
     // ============================ CLIENTES ============================
