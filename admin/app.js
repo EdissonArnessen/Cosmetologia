@@ -162,7 +162,7 @@ function mostrarBootstrap(u){
   bc.innerHTML = `
     <div class="logo-plate">
       <div class="wordmark wordmark-lg">
-        <span class="wm-th">th<svg class="wm-swash" viewBox="0 0 100 14" aria-hidden="true"><path d="M3 6 Q50 15 97 5"/></svg></span>
+        <span class="wm-th">th<svg class="wm-swash" viewBox="0 0 100 14" aria-hidden="true" fill="none"><path d="M3 6 Q50 15 97 5" fill="none" stroke="#A6863F" stroke-width="2.4" stroke-linecap="round"/></svg></span>
         <span class="wm-txt"><b>Tatiana Hernández</b><small>Estética Integral</small></span>
       </div>
     </div>
@@ -333,12 +333,16 @@ function barChart(data, opts){
   const w=opts.w||520, h=opts.h||170, pad=28, n=data.length||1;
   const max = Math.max(1, ...data.map(d=>d.value));
   const bw = (w-pad*2)/n;
+  const unidad = opts.ref ? ' '+opts.ref : '';
   const bars = data.map((d,i)=>{
     const bh = Math.round((h-pad-18) * d.value / max);
-    const x = pad + i*bw + bw*0.18, y = h-18-bh, ww = bw*0.64;
+    const colX = pad + i*bw, x = colX + bw*0.18, y = h-18-bh, ww = bw*0.64;
     const val = opts.money ? money(d.value) : d.value;
-    return `<g>
-      <rect x="${x}" y="${y}" width="${ww}" height="${bh}" rx="5" fill="url(#gBar)"></rect>
+    const tip = opts.money ? `${esc(d.label)}: ${val}` : `${esc(d.label)}: ${val}${esc(unidad)}`;
+    return `<g class="bc-col">
+      <title>${tip}</title>
+      <rect x="${colX}" y="${pad-12}" width="${bw}" height="${h-pad}" fill="transparent"></rect>
+      <rect class="bc-bar" x="${x}" y="${y}" width="${ww}" height="${bh}" rx="5" fill="url(#gBar)"></rect>
       ${d.value?`<text x="${x+ww/2}" y="${y-5}" text-anchor="middle" class="bc-val">${val}</text>`:''}
       <text x="${x+ww/2}" y="${h-5}" text-anchor="middle" class="bc-lbl">${esc(d.label)}</text>
     </g>`;
@@ -353,12 +357,16 @@ function rankBars(data, opts){
   opts = opts||{};
   const max = Math.max(1, ...data.map(d=>d.value));
   if(!data.length) return '<div class="empty" style="padding:24px"><p>Sin datos todavía.</p></div>';
-  return '<div class="rank">'+data.map(d=>`
-    <div class="rank-row">
+  const unidad = opts.ref ? ' '+opts.ref : '';
+  return '<div class="rank">'+data.map(d=>{
+    const val = opts.money?money(d.value):d.value;
+    const tip = opts.money ? `${d.label}: ${val}` : `${d.label}: ${val}${unidad}`;
+    return `
+    <div class="rank-row" title="${esc(tip)}">
       <span class="rank-lbl">${esc(d.label)}</span>
       <span class="rank-bar"><i style="width:${Math.round(100*d.value/max)}%"></i></span>
-      <span class="rank-val">${opts.money?money(d.value):d.value}</span>
-    </div>`).join('')+'</div>';
+      <span class="rank-val">${val}</span>
+    </div>`;}).join('')+'</div>';
 }
 
 /* ============================================================
@@ -414,14 +422,14 @@ async function vistaDashboard(v){
   // Citas por mes (6 meses)
   const meses6=[]; for(let i=5;i>=0;i--){ const d=new Date(anioAct,mesAct-i,1); meses6.push({ y:d.getFullYear(), m:d.getMonth() }); }
   const citasMes = meses6.map(mm=>({ label:MESES[mm.m], value: vivas.filter(c=>{const[a,m]=c.fecha.split('-').map(Number); return a===mm.y && (m-1)===mm.m;}).length }));
-  el('chCitas').innerHTML = barChart(citasMes);
+  el('chCitas').innerHTML = barChart(citasMes, { ref:'citas' });
   // Ingresos por mes
   const ingMes = meses6.map(mm=>({ label:MESES[mm.m], value: citas.filter(c=>c.estado==='finalizada').filter(c=>{const[a,m]=c.fecha.split('-').map(Number); return a===mm.y && (m-1)===mm.m;}).reduce((s,c)=>s+(Number(c.precio)||0),0) }));
   el('chIngresos').innerHTML = barChart(ingMes, { money:true });
   // Servicios más solicitados (top 5)
   const cuenta={}; vivas.forEach(c=>{ const n=c.servicioNombre||'—'; cuenta[n]=(cuenta[n]||0)+1; });
   const topServ = Object.entries(cuenta).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value).slice(0,5);
-  el('chServicios').innerHTML = rankBars(topServ);
+  el('chServicios').innerHTML = rankBars(topServ, { ref:'veces' });
   // Próximas citas
   const prox = citas.filter(c=> c.fecha>=hoy && c.estado!=='cancelada' && c.estado!=='no_asistio')
     .sort((a,b)=> (a.fecha+a.horaInicio).localeCompare(b.fecha+b.horaInicio)).slice(0,6);
@@ -1128,7 +1136,7 @@ async function vistaReportes(v){
     el('repProf').innerHTML = rankBars(Object.entries(prof).map(([label,value])=>({label,value})).sort((a,b)=>b.value-a.value),{money:true});
     // resumen por estado
     const est={}; enRango.forEach(c=>{ est[c.estado]=(est[c.estado]||0)+1; });
-    el('repEstados').innerHTML = rankBars(Object.entries(est).map(([k,value])=>({label:ESTADOS[k]?.label||k,value})).sort((a,b)=>b.value-a.value));
+    el('repEstados').innerHTML = rankBars(Object.entries(est).map(([k,value])=>({label:ESTADOS[k]?.label||k,value})).sort((a,b)=>b.value-a.value), { ref:'citas' });
 
     el('repCsv').onclick = ()=> exportarCSV(fin, r);
   }
