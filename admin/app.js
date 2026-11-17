@@ -160,7 +160,7 @@ function mostrarBootstrap(u){
   bc.classList.remove('hidden');
   const nombreSug = (u.email||'').toLowerCase().startsWith('yulieth') ? 'Yuliet Tatiana Hernández' : '';
   bc.innerHTML = `
-    <img class="gc-logo-img" src="../img/logo-th.png" alt="Tatiana Hernández · Estética Integral">
+    <div class="brandmark brandmark-lg"><span class="bm-mono">th</span><span class="bm-name"><b>Tatiana Hernández</b><span>Estética Integral</span></span></div>
     <h1>¡Hola, administradora!</h1>
     <p class="gc-hint">Es tu primer ingreso con <b>${esc(u.email)}</b>.<br>Crea tu acceso para continuar.</p>
     <div class="in">
