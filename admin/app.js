@@ -1002,11 +1002,22 @@ function pintarCalendario(){
     const dotsWrap = cs.length ? `<span class="cal-dots">${dots}</span>` : '';
     const cnt = cs.length ? `<span class="cal-count">${cs.length}</span>` : '';
     const esHoy = iso===hoy;
-    cells+=`<div class="cal-cell${esHoy?' hoy':''}${iso===agSel?' sel':''}" data-dia="${iso}">
-      <span class="cal-num">${d}</span>${esHoy?'<span class="cal-hoy">HOY</span>':''}${cnt}${dotsWrap}</div>`;
+    // Reseña: primera(s) cita(s) visible + tooltip con el resumen del día
+    const reseña = cs.length ? cs.slice(0,5).map(c=>`${(c.horaInicio||'').slice(0,5)} · ${c.clienteNombre||'Cliente'} — ${c.servicioNombre||''}`).join('\n')+(cs.length>5?`\n+${cs.length-5} más`:'') : '';
+    const titleAttr = reseña ? ` title="${esc(reseña)}"` : '';
+    const mini = cs.length ? `<span class="cal-mini"><b>${esc((cs[0].horaInicio||'').slice(0,5))}</b> ${esc((cs[0].clienteNombre||'').split(' ')[0])}</span>${cs.length>1?`<span class="cal-mini mini-mas">+${cs.length-1} más</span>`:''}` : '';
+    cells+=`<div class="cal-cell${esHoy?' hoy':''}${iso===agSel?' sel':''}" data-dia="${iso}"${titleAttr}>
+      <span class="cal-num">${d}</span>${esHoy?'<span class="cal-hoy">HOY</span>':''}${cnt}${mini}${dotsWrap}</div>`;
   }
   el('cal').innerHTML = `<div class="cal-grid cal-cab">${cab}</div><div class="cal-grid">${cells}</div>`;
-  el('cal').querySelectorAll('[data-dia]').forEach(c=> c.onclick=()=>{ agSel=c.getAttribute('data-dia'); pintarCalendario(); pintarDia(); });
+  el('cal').querySelectorAll('[data-dia]').forEach(c=> c.onclick=()=>{ agSel=c.getAttribute('data-dia'); pintarCalendario(); pintarDia(); irADia(); });
+}
+/* Lleva el foco al panel del día (sin tener que bajar con scroll) y lo resalta */
+function irADia(){
+  const dp=el('diaPanel'); if(!dp) return;
+  try{ dp.scrollIntoView({ behavior:'smooth', block:'start' }); }catch(_){ dp.scrollIntoView(); }
+  dp.classList.remove('panel-flash'); void dp.offsetWidth; dp.classList.add('panel-flash');
+  setTimeout(()=>dp.classList.remove('panel-flash'), 1400);
 }
 function pintarDia(){
   const cs=citasDe(agSel);

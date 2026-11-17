@@ -455,3 +455,12 @@ button.kpi{font-family:inherit;text-align:left;width:100%;display:block}
 .met-badge.m-otro,.met-badge.m-sin{background:rgba(140,117,88,.14);color:var(--taupe);border-color:var(--line-strong)}
 @media(max-width:560px){ .cobro-card{flex-wrap:wrap} .cobro-info{flex:1 1 60%} .cobro-card .btn{width:100%;justify-content:center} }
 .rank-click{cursor:pointer}
+
+/* ======================= AGENDA: reseña en celdas + salto al día ======================= */
+.cal-mini{display:block;width:100%;font-family:'Jost',sans-serif;font-size:.6rem;line-height:1.25;color:var(--cocoa-soft);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px;padding:0 1px}
+.cal-mini b{color:var(--gold-deep);font-weight:700}
+.cal-mini.mini-mas{color:var(--taupe);font-size:.56rem;font-style:italic}
+@media(max-width:860px){ .cal-mini{display:none} }
+@keyframes panelFlash{0%{box-shadow:0 0 0 0 rgba(220,198,140,.0)}30%{box-shadow:0 0 0 4px rgba(220,198,140,.45)}100%{box-shadow:0 0 0 0 rgba(220,198,140,0)}}
+.panel-flash{animation:panelFlash 1.4s ease}
