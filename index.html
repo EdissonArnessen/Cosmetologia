@@ -217,7 +217,7 @@
 
   /* ---------- HERO ---------- */
   .hero{
-    min-height:92vh;display:flex;align-items:center;position:relative;overflow:hidden;
+    min-height:92vh;min-height:92svh;display:flex;align-items:center;position:relative;overflow:hidden;
     background:
       radial-gradient(circle at 80% 20%,rgba(220,198,140,.35),transparent 45%),
       linear-gradient(160deg,#F7F1E6 0%,#EFE3CE 55%,#E6D6BA 100%);
@@ -231,6 +231,7 @@
   .hero .eyebrow{display:block;margin-bottom:22px}
   .hero h1{font-size:clamp(2.8rem,7vw,5.4rem);font-weight:500}
   .hero h1 em{font-style:normal}
+  .hero .h1-propo{font-size:clamp(2rem,5vw,3.4rem)}
   .hero .script{display:block;font-size:clamp(3rem,9vw,6.4rem);line-height:.8;margin:6px 0 4px}
   .hero p.lead{font-size:1.18rem;max-width:520px;margin:26px 0 36px;color:var(--cocoa-soft)}
   .hero-cta{display:flex;gap:16px;flex-wrap:wrap}
@@ -710,9 +711,31 @@
     .gtile.tall{grid-row:auto;aspect-ratio:3/4}
     .form-card{padding:30px 22px}
     .hero-badges{display:none}
-    .hero-inner{padding:60px 0}
+    .hero{align-items:center}
+    .hero-inner{padding:18px 0 104px;max-width:100%}
+    .hero .eyebrow{margin-bottom:14px}
+    .hero h1{font-size:clamp(2.1rem,8.2vw,3rem);line-height:1.1}
+    .hero .script{font-size:clamp(2.4rem,12vw,3.4rem);line-height:.86;margin:4px 0 2px}
+    .hero .h1-propo{font-size:clamp(1.5rem,6.4vw,2rem)}
+    .hero p.lead{font-size:1.02rem;margin:14px 0 24px;max-width:100%}
     body{padding-bottom:78px}
     .fab-stack{bottom:94px}
+  }
+  /* Vertical con altura suficiente: el hero llena la pantalla (descontando el header),
+     con espacio inferior para que la barra flotante no tape los botones. Así cabe sin scroll. */
+  @media(max-width:860px) and (min-height:600px){
+    .hero{min-height:calc(100vh - 60px);min-height:calc(100svh - 60px)}
+  }
+  /* Pantallas muy bajas (p. ej. teléfono apaisado): se compacta y fluye con scroll natural. */
+  @media(max-width:860px) and (max-height:599px){
+    .hero{min-height:auto;align-items:flex-start}
+    .hero-inner{padding:16px 0 90px}
+    .hero .eyebrow{margin-bottom:8px}
+    .hero h1{font-size:clamp(1.7rem,6.6vw,2.3rem)}
+    .hero .script{font-size:clamp(1.9rem,8.5vw,2.6rem)}
+    .hero .h1-propo{font-size:clamp(1.3rem,5vw,1.7rem)}
+    .hero p.lead{font-size:.95rem;margin:9px 0 16px;line-height:1.5}
+    .hero-cta .btn{padding:12px 22px}
   }
   @media(prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -1206,7 +1229,7 @@
       <span class="eyebrow" data-i18n="hero.eyebrow">Bienestar · Armonía · Equilibrio</span>
       <h1 data-i18n="hero.h1a">Tu bienestar<br>es mi <em>prioridad</em>,</h1>
       <span class="script metal-text" data-i18n="hero.h1b">y tu equilibrio</span>
-      <h1 style="font-size:clamp(2rem,5vw,3.4rem)" data-i18n="hero.h1c">mi propósito.</h1>
+      <h1 class="h1-propo" data-i18n="hero.h1c">mi propósito.</h1>
       <p class="lead" data-i18n="hero.lead">Te invito a vivir una experiencia sensorial y de bienestar: equilibrio de las emociones y calma profunda.</p>
       <div class="hero-cta">
         <a data-nav="agenda" class="btn btn-gold" data-i18n="hero.cta1">Agenda tu ritual</a>
