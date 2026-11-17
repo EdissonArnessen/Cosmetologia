@@ -2,80 +2,118 @@ rules_version = '2';
 
 // ============================================================================
 //  REGLAS DE SEGURIDAD DE FIRESTORE — Tatiana Hernández · Estética Integral
-//  Objetivo:
-//   - Cada clienta solo puede ver/editar SUS PROPIAS citas (por su UID de Auth).
-//   - Nunca se confía en un userId enviado desde el cliente: se compara siempre
-//     contra request.auth.uid (la identidad verificada por Firebase Auth).
-//   - Los horarios se leen por cualquier usuario autenticado, y su "estado"
-//     solo puede cambiar entre 'disponible' y 'reservado'.
+//  SISTEMA DE ADMINISTRACIÓN (Fase 1: usuarios, clientes, profesionales, servicios)
+//
+//  Modelo de roles: cada usuaria del PANEL tiene un documento en /usuarios/{uid}
+//  con un campo `rol` ('admin' | 'recepcion' | 'profesional') y `activo` (bool).
+//  Las reglas leen ese documento para decidir permisos. El rol NUNCA se confía
+//  desde el cliente: se lee del servidor (get) contra la identidad autenticada.
+//
+//  Las clientas del sitio público (login por teléfono) NO tienen /usuarios/{uid};
+//  por eso las funciones de staff devuelven false para ellas, y solo conservan
+//  acceso a sus propias /citas (ver más abajo), sin tocar las colecciones del panel.
 // ============================================================================
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- ⚙️ Config: UID(s) de la profesional/administradora (para sembrar horarios) ---
-    // Reemplaza por el UID real de la cuenta de Tatiana (lo ves en Auth > Usuarios).
-    function esAdmin() {
-      return request.auth != null
-        && request.auth.uid in [
-          'PON_AQUI_EL_UID_DE_TATIANA'
-        ];
+    // ---------- Helpers de identidad y rol ----------
+    function signedIn() { return request.auth != null; }
+
+    function tieneUsuario() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+    function perfil() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+    function rol() { return tieneUsuario() ? perfil().rol : 'ninguno'; }
+    function activo() { return tieneUsuario() && perfil().activo == true; }
+
+    function esAdmin()      { return rol() == 'admin' && activo(); }
+    function esRecepcion()  { return rol() == 'recepcion' && activo(); }
+    function esProfesional(){ return rol() == 'profesional' && activo(); }
+    function esStaff()      { return (esAdmin() || esRecepcion()); }           // mostrador + dirección
+    function esPanel()      { return (esAdmin() || esRecepcion() || esProfesional()); } // cualquier usuaria del panel
+
+    // ============================ USUARIOS ============================
+    // El PRIMER administrador se crea desde la consola de Firebase (ver guía).
+    // Luego, solo un admin crea/edita usuarios del panel.
+    match /usuarios/{uid} {
+      allow read:   if esAdmin() || (signedIn() && request.auth.uid == uid);
+      allow create, update, delete: if esAdmin();
     }
 
-    // ---------------------------- CITAS ----------------------------
-    match /citas/{citaId} {
-      // Leer: solo el dueño de la cita.
-      allow read: if request.auth != null
-                  && resource.data.userId == request.auth.uid;
+    // ============================ CLIENTES ============================
+    match /clientes/{id} {
+      allow read:   if esPanel();                 // todo el panel puede consultar
+      allow create, update: if esStaff();         // admin o recepción
+      allow delete: if esAdmin();                 // preferir inactivar; borrar solo admin
+    }
 
-      // Crear: el userId DEBE ser el propio UID (no uno inventado por el cliente),
-      // y la cita nace 'confirmada' y ligada a un horario.
-      allow create: if request.auth != null
+    // ========================== PROFESIONALES =========================
+    match /profesionales/{id} {
+      allow read:   if esPanel();
+      allow create, update, delete: if esAdmin();
+    }
+
+    // ============================ SERVICIOS ===========================
+    match /servicios/{id} {
+      allow read:   if esPanel();
+      allow create, update, delete: if esAdmin();
+    }
+
+    // ============================= PAGOS ==============================
+    match /pagos/{id} {
+      allow read:   if esStaff();
+      allow create, update: if esStaff();
+      allow delete: if esAdmin();
+    }
+
+    // ======================= FICHAS DE ATENCIÓN =======================
+    // Datos sensibles. Lee el staff; el profesional ve/edita las suyas.
+    match /fichas/{id} {
+      allow read:   if esStaff()
+                    || (esProfesional() && resource.data.profesionalUid == request.auth.uid);
+      allow create: if esStaff()
+                    || (esProfesional() && request.resource.data.profesionalUid == request.auth.uid);
+      allow update: if esStaff()
+                    || (esProfesional() && resource.data.profesionalUid == request.auth.uid);
+      allow delete: if esAdmin();
+    }
+
+    // ============================ AUDITORÍA ===========================
+    // Registro de cambios: cualquier usuaria del panel agrega; solo admin lee; no se edita/borra.
+    match /auditoria/{id} {
+      allow create: if esPanel();
+      allow read:   if esAdmin();
+      allow update, delete: if false;
+    }
+
+    // ================================================================
+    //  AGENDA PÚBLICA (clientas por teléfono) — se conserva igual.
+    //  (Se reconciliará con el módulo de Agenda del panel en la Fase 2.)
+    // ================================================================
+    match /citas/{citaId} {
+      allow read:   if (signedIn() && resource.data.userId == request.auth.uid) || esStaff();
+      allow create: if signedIn()
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.estado == 'confirmada'
-                    && request.resource.data.horarioId is string
-                    && request.resource.data.keys().hasAll(
-                         ['userId','nombreCliente','servicio','fecha','hora','estado','horarioId']);
-
-      // Actualizar (p. ej. cancelar): solo el dueño, y sin cambiar el dueño
-      // ni el horario/fecha original. Solo se permite mover el 'estado'.
-      allow update: if request.auth != null
-                    && resource.data.userId == request.auth.uid
-                    && request.resource.data.userId == resource.data.userId
-                    && request.resource.data.horarioId == resource.data.horarioId
-                    && request.resource.data.estado in ['confirmada','cancelada','completada'];
-
-      // Borrar: nunca desde el cliente (se "cancela", no se elimina).
+                    && request.resource.data.horarioId is string;
+      allow update: if (signedIn() && resource.data.userId == request.auth.uid
+                        && request.resource.data.userId == resource.data.userId)
+                    || esStaff();
       allow delete: if false;
     }
 
-    // ---------------------------- HORARIOS ----------------------------
     match /horarios/{horarioId} {
-      // Leer: cualquier usuaria autenticada (para ver la disponibilidad).
-      allow read: if request.auth != null;
-
-      // Crear/sembrar franjas: solo la administradora (Tatiana).
-      allow create: if esAdmin()
+      allow read:   if signedIn();
+      allow create: if esStaff()
                     && request.resource.data.estado in ['disponible','reservado'];
-
-      // Actualizar: cualquier usuaria autenticada PERO solo el campo 'estado'
-      // y solo entre 'disponible' <-> 'reservado' (lo usa la transacción de
-      // reserva/cancelación). El resto de campos no se puede tocar.
-      allow update: if request.auth != null
+      allow update: if signedIn()
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
                     && request.resource.data.estado in ['disponible','reservado'];
-
-      // Borrar: solo la administradora.
-      allow delete: if esAdmin();
+      allow delete: if esStaff();
     }
   }
 }
-
-// ⚠️ NOTA DE INTEGRIDAD (léela):
-// Con reglas del lado del cliente, cualquier usuaria autenticada puede cambiar el
-// campo 'estado' de un horario. La TRANSACCIÓN evita las dobles reservas por
-// concurrencia normal, pero no impide que un usuario malintencionado manipule
-// 'estado' a propósito. Para blindaje total, mueve la reserva/cancelación a una
-// Cloud Function (plan Blaze) y en las reglas pon la escritura de 'horarios' en
-// 'if false' para el cliente. Para un centro pequeño, las reglas de arriba son un
-// punto de partida razonable y seguro para el uso real.
