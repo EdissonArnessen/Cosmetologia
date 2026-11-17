@@ -1,0 +1,30 @@
+{
+  "hosting": {
+    "site": "tatianahernandez",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "firebase/**",
+      ".github/**",
+      "**/*.md",
+      "package.json",
+      "package-lock.json",
+      "index.backup.html"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "headers": [
+      {
+        "source": "**/*.@(js|css|woff2|png|jpg|jpeg|svg|webp|mp4)",
+        "headers": [ { "key": "Cache-Control", "value": "public, max-age=604800" } ]
+      },
+      {
+        "source": "/sw.js",
+        "headers": [ { "key": "Cache-Control", "value": "no-cache" } ]
+      }
+    ]
+  }
+}

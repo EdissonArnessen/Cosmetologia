@@ -1,0 +1,41 @@
+name: Deploy a Firebase Hosting
+
+# Publica el sitio (página pública + panel admin) en Firebase Hosting
+# cada vez que se sube un cambio a la rama main.
+#
+# Requisito (una sola vez): crear el secreto FIREBASE_SERVICE_ACCOUNT en
+# GitHub → Settings → Secrets and variables → Actions, pegando el JSON de la
+# clave privada de la cuenta de servicio de Firebase. Mientras no exista el
+# secreto, este flujo NO falla: simplemente no publica.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar secreto
+        id: chk
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -n "$SA" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; echo "::notice::Falta el secreto FIREBASE_SERVICE_ACCOUNT; no se publica todavía."; fi
+
+      - name: Obtener el código
+        if: steps.chk.outputs.ok == 'true'
+        uses: actions/checkout@v4
+
+      - name: Publicar en Firebase Hosting
+        if: steps.chk.outputs.ok == 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: tatianahernandez-40b70
