@@ -900,22 +900,28 @@
   @media(max-width:640px){ .stats-grid{grid-template-columns:repeat(2,1fr);gap:14px} }
 
   /* ===== Antes / Después deslizable ===== */
-  .ba{position:relative;width:100%;max-width:760px;margin:0 auto 8px;aspect-ratio:16/10;border-radius:20px;overflow:hidden;
+  .ba{position:relative;width:100%;max-width:620px;margin:0 auto 10px;aspect-ratio:4/3;border-radius:20px;overflow:hidden;
     box-shadow:var(--shadow);border:1px solid var(--line);touch-action:pan-y}
-  .ba-img{position:absolute;inset:0;background-size:cover;background-position:center}
-  .ba-after{background:linear-gradient(135deg,#F6E9D2 0%,#EAD09F 55%,#DFC188 100%)}
-  .ba-before{background:linear-gradient(135deg,#D2CBC1 0%,#B4A99A 55%,#9E9385 100%);clip-path:polygon(0 0,50% 0,50% 100%,0 100%)}
+  .ba-img{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat}
+  .ba-after{background-color:#EAD09F}
+  .ba-before{background-color:#B4A99A;clip-path:polygon(0 0,50% 0,50% 100%,0 100%)}
   .ba-tag{position:absolute;top:14px;font-family:'Jost',sans-serif;font-size:.68rem;font-weight:600;letter-spacing:.14em;
-    text-transform:uppercase;color:#fff;background:rgba(59,42,30,.5);padding:5px 12px;border-radius:20px;backdrop-filter:blur(3px)}
+    text-transform:uppercase;color:#fff;background:rgba(59,42,30,.55);padding:6px 14px;border-radius:20px;backdrop-filter:blur(3px);z-index:4}
   .ba-tag-after{right:14px}
   .ba-tag-before{left:14px}
-  .ba-line{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;transform:translateX(-1px);box-shadow:0 0 12px rgba(0,0,0,.35);pointer-events:none}
-  .ba-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;
-    background:var(--metal);color:var(--cocoa);display:flex;align-items:center;justify-content:center;font-size:1rem;
-    box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}
-  .ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize}
-  .ba-note{text-align:center;font-size:.82rem;color:var(--taupe);margin:0 auto 6px;max-width:640px}
+  .ba-caption{position:absolute;left:0;right:0;bottom:0;z-index:4;text-align:center;padding:26px 14px 12px;
+    font-family:'Jost',sans-serif;font-size:.84rem;font-weight:600;letter-spacing:.04em;color:#fff;
+    background:linear-gradient(to top,rgba(32,22,13,.72),transparent)}
+  .ba-line{position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff;transform:translateX(-1.5px);box-shadow:0 0 14px rgba(0,0,0,.4);pointer-events:none;z-index:3}
+  .ba-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;
+    background:var(--metal);color:var(--cocoa);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;
+    box-shadow:0 6px 18px -5px rgba(0,0,0,.6);animation:baPulse 2.4s ease-in-out infinite}
+  @keyframes baPulse{0%,100%{box-shadow:0 6px 18px -5px rgba(0,0,0,.6),0 0 0 0 rgba(220,198,140,.5)}50%{box-shadow:0 6px 18px -5px rgba(0,0,0,.6),0 0 0 10px rgba(220,198,140,0)}}
+  .ba.nudge .ba-grip{animation:none}
+  .ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;z-index:5}
+  .ba-note{text-align:center;font-size:.86rem;color:var(--taupe);margin:0 auto 6px;max-width:640px}
   .ba-note b{color:var(--bronze)}
+  @media(prefers-reduced-motion:reduce){ .ba-grip{animation:none} }
 
   /* ===== Visor de galería (lightbox) ===== */
   .lightbox{position:fixed;inset:0;z-index:1500;display:flex;align-items:center;justify-content:center;padding:20px;
@@ -1479,12 +1485,13 @@
 
     <!-- Comparador Antes / Después (deslizable) -->
     <div class="ba reveal" id="baCompare">
-      <div class="ba-img ba-after"><span class="ba-tag ba-tag-after">Después</span></div>
-      <div class="ba-img ba-before" id="baBefore"><span class="ba-tag ba-tag-before">Antes</span></div>
+      <div class="ba-img ba-after" style="background-image:url('img/despues-labios.jpg')"><span class="ba-tag ba-tag-after">Después</span></div>
+      <div class="ba-img ba-before" id="baBefore" style="background-image:url('img/antes-labios.jpg')"><span class="ba-tag ba-tag-before">Antes</span></div>
       <div class="ba-line" id="baLine"><span class="ba-grip" aria-hidden="true">⇔</span></div>
       <input type="range" min="0" max="100" value="50" class="ba-range" id="baRange" aria-label="Comparar antes y después">
+      <span class="ba-caption">Hidratación y realce de labios</span>
     </div>
-    <p class="ba-note">Desliza para comparar. <b>Imágenes de muestra</b> — se reemplazan por tus fotos reales de antes/después.</p>
+    <p class="ba-note"><b>Desliza el control ⇔</b> para ver el antes y el después de un resultado real.</p>
 
     <div class="gallery-grid reveal">
       <!-- Para usar tus fotos reales: dentro de cada figure agrega <img src="img/tu-foto.jpg" alt="..."> -->
@@ -3577,6 +3584,23 @@
     function set(v){ before.style.clipPath = 'polygon(0 0,' + v + '% 0,' + v + '% 100%,0 100%)'; line.style.left = v + '%'; }
     set(50);
     range.addEventListener('input', function(){ set(this.value); });
+    // Pista de arrastre: al entrar en vista, el control se mueve solo una vez (50→72→30→50)
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var hecho = false;
+    function nudge(){
+      if(hecho || reduce) return; hecho = true;
+      var keys=[[0,50],[380,72],[860,30],[1300,50]], t0=performance.now();
+      (function step(now){
+        var t=now-t0, v=50;
+        for(var i=1;i<keys.length;i++){ if(t<=keys[i][0]){ var a=keys[i-1],b=keys[i],p=(t-a[0])/(b[0]-a[0]); v=a[1]+(b[1]-a[1])*(0.5-0.5*Math.cos(Math.PI*p)); break; } v=keys[i][1]; }
+        set(v); range.value=Math.round(v);
+        if(t<keys[keys.length-1][0]) requestAnimationFrame(step); else { set(50); range.value=50; }
+      })(t0);
+    }
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ setTimeout(nudge,450); io.disconnect(); } }); }, {threshold:0.45});
+      io.observe(wrap);
+    }
   })();
 
   /* Visor de galería (lightbox) */
