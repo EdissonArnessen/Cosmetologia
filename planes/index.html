@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Studio · Planes — Software para centros de estética</title>
+<meta name="description" content="El software todo-en-uno para tu centro de estética: reservas, clientes, pagos y reportes. Precio de lanzamiento.">
+<meta property="og:title" content="Studio · Software para centros de estética">
+<meta property="og:description" content="Reservas, clientes, pagos y reportes en una sola app. Precio de lanzamiento — agenda tu demo.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://tatianahernandez.web.app/img/ads/precios-feed.jpg">
+<style>
+@font-face{font-family:'Corm';src:url('../fonts/cormorant-600.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Corm';src:url('../fonts/cormorant-700.woff2') format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'Corm';src:url('../fonts/cormorant-500i.woff2') format('woff2');font-weight:500;font-style:italic;font-display:swap}
+@font-face{font-family:'Pinyon';src:url('../fonts/pinyon-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Jost';src:url('../fonts/jost-400.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Jost';src:url('../fonts/jost-500.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'Jost';src:url('../fonts/jost-600.woff2') format('woff2');font-weight:600;font-display:swap}
+:root{--ink:#3f2f22;--muse:#8a7458;--gold:#C2A05A;--gold-d:#a9833f;--gold-l:#E7CF94;--line:#ecdfc9;--card:#fff;
+ --bg1:#fbf5ec;--bg2:#f4e8d7;--bg3:#efe0cc;--grad:linear-gradient(120deg,#E7CF94,#C2A05A 58%,#a9833f)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',-apple-system,sans-serif;color:var(--ink);background:var(--bg1);overflow-x:hidden;line-height:1.6}
+h1,h2,h3{font-family:'Corm',Georgia,serif;font-weight:700;line-height:1.05;color:var(--ink)}
+.em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+.eye{font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-d);font-size:.78rem}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:'Jost';font-weight:600;border:none;cursor:pointer;text-decoration:none;border-radius:50px;transition:transform .18s,box-shadow .18s;font-size:1rem}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--grad);color:#4a3410;padding:15px 30px;box-shadow:0 16px 34px -12px rgba(166,134,63,.85)}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 22px 44px -12px rgba(166,134,63,1)}
+.btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);padding:15px 28px}
+.btn-ghost:hover{border-color:var(--gold);transform:translateY(-2px)}
+
+/* ---- HERO ---- */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;
+ background:radial-gradient(ellipse at 80% 12%,rgba(231,207,148,.55),transparent 48%),radial-gradient(ellipse at 10% 95%,rgba(201,139,139,.3),transparent 46%),linear-gradient(165deg,var(--bg1),var(--bg2) 60%,var(--bg3))}
+.aurora{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.8;
+ background:radial-gradient(circle at 20% 30%,rgba(231,207,148,.45),transparent 40%),radial-gradient(circle at 85% 70%,rgba(194,160,90,.35),transparent 42%);
+ filter:blur(10px);animation:aur 14s ease-in-out infinite alternate}
+@keyframes aur{0%{transform:translate(0,0) scale(1)}100%{transform:translate(-26px,24px) scale(1.08)}}
+.spark{position:absolute;border-radius:50%;background:radial-gradient(circle,#f6e6bd,rgba(194,160,90,0));z-index:0;pointer-events:none;animation:floaty linear infinite}
+@keyframes floaty{0%{transform:translateY(20px);opacity:0}15%{opacity:.9}85%{opacity:.9}100%{transform:translateY(-120px);opacity:0}}
+.hero .wrap{position:relative;z-index:2;padding-top:40px;padding-bottom:40px}
+.nav{display:flex;align-items:center;gap:14px;margin-bottom:auto}
+.bm{width:56px;height:56px;border-radius:14px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Corm';font-weight:700;font-style:italic;color:#4a3410;font-size:2rem;box-shadow:0 10px 22px -10px rgba(166,134,63,.7)}
+.nav b{font-family:'Corm';font-size:1.3rem}
+.nav span{display:block;font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold-d);font-weight:600}
+.h-seal{margin-left:auto}
+.seal{width:116px;height:116px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+ background:radial-gradient(circle at 36% 28%,#f7e8c0,#C2A05A 72%,#a9833f);color:#4a3410;transform:rotate(-12deg);
+ box-shadow:0 16px 30px -12px rgba(166,134,63,.85),inset 0 0 0 2px rgba(255,255,255,.55),inset 0 0 0 5px rgba(166,134,63,.4);animation:sealPulse 2.6s ease-in-out infinite}
+@keyframes sealPulse{0%,100%{transform:rotate(-12deg) scale(1)}50%{transform:rotate(-12deg) scale(1.06)}}
+.seal .a{font-family:'Jost';font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:8px}
+.seal .b{font-family:'Corm';font-weight:700;font-size:15px;line-height:.9;margin:2px 0}
+.seal .c{font-size:7px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.hero h1{font-size:clamp(2.6rem,8vw,5rem);margin-top:40px;max-width:15ch}
+.shimmer{background:linear-gradient(100deg,#C2A05A 20%,#f6e6bd 50%,#C2A05A 80%);background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-style:italic;animation:shim 3s linear infinite}
+@keyframes shim{to{background-position:-200% center}}
+.hero p.sub{font-size:clamp(1.05rem,3.6vw,1.3rem);color:var(--muse);margin:20px 0 30px;max-width:48ch}
+.hero-cta{display:flex;gap:13px;flex-wrap:wrap}
+.scrollhint{margin-top:42px;display:flex;align-items:center;gap:10px;color:var(--gold-d);font-size:.85rem;font-weight:600;animation:bob 2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+/* ---- SECTIONS ---- */
+.sec{padding:76px 0;position:relative}
+.sec.alt{background:linear-gradient(180deg,#fff,#fbf4e9)}
+.head{text-align:center;margin-bottom:34px}
+.head h2{font-size:clamp(2rem,5vw,2.9rem);margin-top:8px}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.8,.3,1),transform .7s cubic-bezier(.2,.8,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---- TOGGLE ---- */
+.toggle{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:28px}
+.tg-lbl{font-weight:600;color:var(--muse);transition:color .2s}
+.tg-lbl.on{color:var(--ink)}
+.switch{position:relative;width:62px;height:34px;border-radius:40px;background:var(--grad);cursor:pointer;flex-shrink:0;box-shadow:inset 0 2px 5px rgba(0,0,0,.2)}
+.switch .knob{position:absolute;top:4px;left:4px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.3);transition:left .25s cubic-bezier(.3,1.4,.5,1)}
+.switch.an .knob{left:32px}
+.save{font-size:.74rem;font-weight:700;color:#4a3410;background:var(--gold-l);padding:4px 11px;border-radius:30px}
+
+/* ---- PLANS ---- */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.plan{position:relative;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 26px;display:flex;flex-direction:column;
+ transition:transform .25s cubic-bezier(.2,.8,.3,1),box-shadow .25s;transform-style:preserve-3d;will-change:transform}
+.plan:hover{box-shadow:0 30px 60px -28px rgba(80,55,30,.55)}
+.plan.pop{border:2px solid var(--gold);box-shadow:0 30px 60px -28px rgba(166,134,63,.6)}
+.plan.sel{outline:3px solid var(--gold);outline-offset:3px}
+.tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);color:#4a3410;font-size:.68rem;font-weight:700;letter-spacing:.12em;padding:6px 15px;border-radius:20px;white-space:nowrap}
+.plan h3{font-size:1.7rem}
+.plan .tagline{font-family:'Corm';font-style:italic;color:var(--gold-d);font-size:1.05rem;margin-top:4px;min-height:2.6em}
+.plan .price{margin:16px 0 4px;display:flex;align-items:baseline;gap:4px}
+.plan .price .amt{font-family:'Corm';font-weight:700;font-size:2.6rem;color:var(--ink)}
+.plan .price small{color:var(--muse);font-size:.9rem}
+.plan .billed{font-size:.78rem;color:var(--muse);min-height:1.2em;margin-bottom:16px}
+.plan ul{list-style:none;flex:1;margin-bottom:22px}
+.plan li{position:relative;padding:8px 0 8px 28px;font-size:.95rem;color:#574531;border-top:1px solid var(--line)}
+.plan li:first-child{border-top:none}
+.plan li::before{content:'';position:absolute;left:0;top:13px;width:16px;height:16px;border-radius:50%;background:var(--grad);
+ -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M9 16.2l-3.5-3.5L4 14.2 9 19.2 20 8.2l-1.5-1.5z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M9 16.2l-3.5-3.5L4 14.2 9 19.2 20 8.2l-1.5-1.5z'/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* ---- SELECTOR ---- */
+.sel-q{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+.sel-btn{background:#fff;border:1.5px solid var(--line);border-radius:40px;padding:13px 22px;font-family:'Jost';font-weight:600;cursor:pointer;color:var(--ink);transition:all .18s}
+.sel-btn:hover{border-color:var(--gold);transform:translateY(-2px)}
+.sel-btn.on{background:var(--grad);color:#4a3410;border-color:transparent}
+.sel-out{text-align:center;min-height:2em;color:var(--gold-d);font-weight:600;margin-bottom:24px}
+
+/* ---- STATS ---- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center}
+.stat .n{font-family:'Corm';font-weight:700;font-size:3rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stat .k{color:var(--muse);margin-top:2px}
+
+/* ---- BEFORE/AFTER ---- */
+.ba{position:relative;max-width:520px;margin:0 auto;aspect-ratio:4/3;border-radius:20px;overflow:hidden;box-shadow:0 30px 60px -28px rgba(80,55,30,.5);border:1px solid var(--line);touch-action:pan-y}
+.ba-img{position:absolute;inset:0;background-size:cover;background-position:center}
+.ba-before{clip-path:polygon(0 0,50% 0,50% 100%,0 100%)}
+.ba-tag{position:absolute;top:12px;font-size:.66rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:rgba(63,47,34,.55);padding:5px 12px;border-radius:20px;backdrop-filter:blur(3px)}
+.ba-tag.a{right:12px}.ba-tag.b{left:12px}
+.ba-line{position:absolute;top:0;bottom:0;left:50%;width:3px;background:#fff;transform:translateX(-1.5px);box-shadow:0 0 12px rgba(0,0,0,.4);pointer-events:none}
+.ba-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:var(--grad);color:#4a3410;display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 6px 18px -5px rgba(0,0,0,.6)}
+.ba-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize}
+.ba-cap{text-align:center;color:var(--muse);margin-top:14px;font-size:.92rem}
+
+/* ---- STEPS ---- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;text-align:center}
+.step .num{width:60px;height:60px;margin:0 auto 12px;border-radius:50%;background:var(--grad);color:#4a3410;font-family:'Corm';font-weight:700;font-size:1.6rem;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 24px -12px rgba(166,134,63,.8)}
+.step b{font-size:1.05rem}
+.step p{font-size:.86rem;color:var(--muse)}
+
+/* ---- CTA / FOOT ---- */
+.final{text-align:center;background:radial-gradient(ellipse at 50% 0%,rgba(231,207,148,.5),transparent 55%),linear-gradient(180deg,#fff,#f4e8d7)}
+.final .pay{color:var(--muse);margin-top:18px;font-size:.92rem}.final .pay b{color:var(--gold-d)}
+.final .contact{margin-top:14px;font-weight:600}
+.final .contact span{color:var(--muse);font-weight:400}
+footer{background:#2a2038;color:#b7a98f;text-align:center;padding:26px 20px;font-size:.82rem}
+/* sticky mobile CTA */
+.sticky{position:fixed;left:14px;right:14px;bottom:14px;z-index:40;display:none;gap:10px;align-items:center;justify-content:center;
+ background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:50px;padding:9px 10px 9px 20px;box-shadow:0 18px 40px -16px rgba(80,55,30,.5)}
+.sticky .txt{font-weight:600;font-size:.92rem}
+.sticky .txt b{color:var(--gold-d)}
+@media(max-width:820px){.plans{grid-template-columns:1fr;max-width:420px;margin:0 auto}.plan.pop{order:-1}.stats{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.sticky{display:flex}.hero .wrap{padding-bottom:90px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="aurora"></div>
+  <div class="wrap">
+    <div class="nav">
+      <div class="bm">S</div>
+      <div><b>Studio</b><span>Software para centros de estética</span></div>
+      <div class="h-seal"><div class="seal"><span class="a">★ Precio de ★</span><span class="b">LANZA-<br>MIENTO</span><span class="c">primeros clientes</span></div></div>
+    </div>
+    <h1>Tu centro de estética, <span class="shimmer">impecable</span></h1>
+    <p class="sub">Reservas en línea, clientes, pagos y reportes en una sola app — con tu propia marca. El software que ordena tu negocio y te llena la agenda.</p>
+    <div class="hero-cta">
+      <a class="btn btn-gold" href="https://tatianahernandez.web.app/" target="_blank" rel="noopener">Ver demo en vivo →</a>
+      <a class="btn btn-ghost" href="#planes">Ver planes y precios</a>
+    </div>
+    <div class="scrollhint">Desliza para descubrir ↓</div>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="sec">
+  <div class="wrap">
+    <div class="stats reveal">
+      <div class="stat"><div class="n" data-count="24" data-suffix="/7">0</div><div class="k">Reservas automáticas</div></div>
+      <div class="stat"><div class="n" data-count="40" data-prefix="−" data-suffix="%">0</div><div class="k">Menos inasistencias*</div></div>
+      <div class="stat"><div class="n" data-count="100" data-suffix="%">0</div><div class="k">Con tu propia marca</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PLANES -->
+<section class="sec alt" id="planes">
+  <div class="wrap">
+    <div class="head reveal"><span class="eye">Planes y precios</span><h2>Elige el plan que <span class="em">hace crecer</span> tu centro</h2></div>
+    <div class="toggle reveal">
+      <span class="tg-lbl on" id="lblM">Mensual</span>
+      <div class="switch" id="switch" role="button" tabindex="0" aria-label="Cambiar facturación"><span class="knob"></span></div>
+      <span class="tg-lbl" id="lblA">Anual <span class="save">2 meses gratis</span></span>
+    </div>
+    <div class="plans" id="plans"></div>
+  </div>
+</section>
+
+<!-- SELECTOR -->
+<section class="sec">
+  <div class="wrap">
+    <div class="head reveal"><span class="eye">Ayuda inteligente</span><h2>¿Cuál plan es <span class="em">para ti</span>?</h2></div>
+    <div class="sel-q reveal">
+      <button class="sel-btn" data-sel="basico">Estoy empezando</button>
+      <button class="sel-btn" data-sel="pro">Tengo equipo y quiero control</button>
+      <button class="sel-btn" data-sel="premium">Quiero automatizar y crecer</button>
+    </div>
+    <div class="sel-out reveal" id="selOut">Toca una opción y te mostramos tu plan ideal ✨</div>
+  </div>
+</section>
+
+<!-- BEFORE/AFTER -->
+<section class="sec alt">
+  <div class="wrap">
+    <div class="head reveal"><span class="eye">Resultados que enamoran</span><h2>Muestra tu trabajo con <span class="em">estilo</span></h2></div>
+    <div class="ba reveal" id="ba">
+      <div class="ba-img ba-after" style="background-image:url('../img/despues-labios.jpg')"><span class="ba-tag a">Después</span></div>
+      <div class="ba-img ba-before" id="baBefore" style="background-image:url('../img/antes-labios.jpg')"><span class="ba-tag b">Antes</span></div>
+      <div class="ba-line" id="baLine"><span class="ba-grip">⇔</span></div>
+      <input type="range" min="0" max="100" value="50" class="ba-range" id="baRange" aria-label="Comparar antes y después">
+    </div>
+    <p class="ba-cap">Comparador antes/después, galería, asesora virtual y más — tu web lista para enamorar clientas.</p>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="sec">
+  <div class="wrap">
+    <div class="head reveal"><span class="eye">Fácil y rápido</span><h2>Cómo <span class="em">adquirirlo</span></h2></div>
+    <div class="steps reveal">
+      <div class="step"><div class="num">1</div><b>Agenda tu demo</b><p>Te mostramos la app con tu negocio.</p></div>
+      <div class="step"><div class="num">2</div><b>Prueba gratis</b><p>Configuramos tus servicios en 30 min.</p></div>
+      <div class="step"><div class="num">3</div><b>Elige tu plan</b><p>Sin permanencia, el que mejor te quede.</p></div>
+      <div class="step"><div class="num">4</div><b>¡Activamos!</b><p>Te acompañamos y arrancas ya.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="sec final">
+  <div class="wrap">
+    <div class="head reveal"><span class="eye">Da el paso</span><h2>Agenda tu <span class="em">demo gratis</span></h2></div>
+    <div class="reveal">
+      <a class="btn btn-gold" id="ctaWa" href="#" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+      <div class="pay">Pago mensual · sin permanencia · incluye configuración.<br><b>Nequi · transferencia · tarjeta.</b></div>
+      <div class="contact">WhatsApp 314 543 59 27 &nbsp;·&nbsp; <span>Demo:</span> tatianahernandez.web.app</div>
+    </div>
+  </div>
+</section>
+
+<footer>Studio · Software de gestión y reservas · Precio de lanzamiento para los primeros centros.</footer>
+
+<div class="sticky">
+  <span class="txt">Desde <b>$59.000</b>/mes</span>
+  <a class="btn btn-gold" id="ctaSticky" href="#" target="_blank" rel="noopener" style="padding:12px 22px">Agenda demo</a>
+</div>
+
+<script>
+(function(){
+  var WA='573145435927';
+  var PLANS=[
+    {id:'basico',n:'Básico',m:59000,tag:'Da el primer paso: ordena tu negocio y recibe reservas.',feats:['1 profesional','Agenda + clientes','Web con tu marca','Reserva por WhatsApp']},
+    {id:'pro',n:'Pro',m:119000,pop:true,tag:'El favorito: todo tu centro bajo control y decisiones con datos.',feats:['Varios profesionales','Pagos y caja','Reportes exportables','Fichas de atención','Asesora virtual']},
+    {id:'premium',n:'Premium',m:199000,tag:'Tu marca al máximo: automatiza, fideliza y crece sin límites.',feats:['Todo lo de Pro','Recordatorios automáticos','Reactivación de clientas','Dominio propio','Campañas','Soporte prioritario']}
+  ];
+  var anual=false;
+  var fmt=function(v){return '$'+Math.round(v).toLocaleString('es-CO');};
+  var waMsg=function(n){return 'https://wa.me/'+WA+'?text='+encodeURIComponent('Hola 🌿, me interesa el plan '+n+' de Studio. ¿Me cuentas cómo adquirirlo?');};
+
+  // render plans
+  var cont=document.getElementById('plans');
+  cont.innerHTML=PLANS.map(function(p){
+    return '<div class="plan'+(p.pop?' pop':'')+'" data-id="'+p.id+'">'
+      +(p.pop?'<span class="tag">★ MÁS POPULAR</span>':'')
+      +'<h3>'+p.n+'</h3><div class="tagline">'+p.tag+'</div>'
+      +'<div class="price"><span class="amt" data-m="'+p.m+'">'+fmt(p.m)+'</span><small>/mes</small></div>'
+      +'<div class="billed"></div>'
+      +'<ul>'+p.feats.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'
+      +'<a class="btn '+(p.pop?'btn-gold':'btn-ghost')+'" href="'+waMsg(p.n)+'" target="_blank" rel="noopener" style="justify-content:center">Elegir '+p.n+'</a>'
+      +'</div>';
+  }).join('');
+
+  // price animation
+  function tween(el,to){
+    var from=parseFloat(el.getAttribute('data-cur')||el.getAttribute('data-m')), start=performance.now(),dur=500;
+    el.setAttribute('data-cur',from);
+    (function step(t){var k=Math.min(1,(t-start)/dur);k=1-Math.pow(1-k,3);var v=from+(to-from)*k;el.textContent=fmt(v);el.setAttribute('data-cur',v);if(k<1)requestAnimationFrame(step);})(start);
+  }
+  function applyBilling(){
+    PLANS.forEach(function(p){
+      var card=cont.querySelector('[data-id="'+p.id+'"]');
+      var amt=card.querySelector('.amt'), billed=card.querySelector('.billed');
+      var monthly = anual ? Math.round(p.m*10/12/1000)*1000 : p.m;
+      tween(amt, monthly);
+      billed.textContent = anual ? ('facturado anual · '+fmt(p.m*10)+'/año') : '';
+    });
+    document.getElementById('lblM').classList.toggle('on',!anual);
+    document.getElementById('lblA').classList.toggle('on',anual);
+    document.getElementById('switch').classList.toggle('an',anual);
+  }
+  var sw=document.getElementById('switch');
+  function toggle(){anual=!anual;applyBilling();}
+  sw.addEventListener('click',toggle);
+  sw.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+  document.getElementById('lblM').addEventListener('click',function(){anual=false;applyBilling();});
+  document.getElementById('lblA').addEventListener('click',function(){anual=true;applyBilling();});
+
+  // 3D tilt
+  cont.querySelectorAll('.plan').forEach(function(card){
+    card.addEventListener('mousemove',function(e){
+      var r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-0.5,y=(e.clientY-r.top)/r.height-0.5;
+      card.style.transform='perspective(800px) rotateY('+(x*6)+'deg) rotateX('+(-y*6)+'deg) translateY(-4px)';
+    });
+    card.addEventListener('mouseleave',function(){card.style.transform='';});
+  });
+
+  // selector
+  var names={basico:'Básico',pro:'Pro',premium:'Premium'};
+  var why={basico:'Empieza ordenado con el plan Básico — tu agenda y tus clientas en un solo lugar.',pro:'El plan Pro es para ti: controla todo tu centro y decide con datos.',premium:'El plan Premium te lleva al máximo: automatiza y fideliza para crecer.'};
+  document.querySelectorAll('.sel-btn').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('.sel-btn').forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on');
+      var id=b.getAttribute('data-sel');
+      document.getElementById('selOut').innerHTML='✨ '+why[id];
+      cont.querySelectorAll('.plan').forEach(function(c){c.classList.toggle('sel',c.getAttribute('data-id')===id);});
+      var card=cont.querySelector('[data-id="'+id+'"]');
+      card.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+  });
+
+  // CTA whatsapp
+  var waGen='https://wa.me/'+WA+'?text='+encodeURIComponent('Hola 🌿, vi los planes de Studio y quiero agendar una demo gratis.');
+  document.getElementById('ctaWa').href=waGen;
+  document.getElementById('ctaSticky').href=waGen;
+
+  // before/after
+  (function(){
+    var before=document.getElementById('baBefore'),line=document.getElementById('baLine'),range=document.getElementById('baRange');
+    function set(v){before.style.clipPath='polygon(0 0,'+v+'% 0,'+v+'% 100%,0 100%)';line.style.left=v+'%';}
+    set(50);range.addEventListener('input',function(){set(this.value);});
+  })();
+
+  // reveal + count-up
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');
+    if(e.target.querySelector('[data-count]')){e.target.querySelectorAll('[data-count]').forEach(function(el){
+      var to=+el.getAttribute('data-count'),pre=el.getAttribute('data-prefix')||'',suf=el.getAttribute('data-suffix')||'',s=performance.now();
+      (function st(t){var k=Math.min(1,(t-s)/1100);k=1-Math.pow(1-k,3);el.textContent=pre+Math.round(to*k)+suf;if(k<1)requestAnimationFrame(st);})(s);
+    });}
+    io.unobserve(e.target);}});},{threshold:.2});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+
+  // sparkles
+  var hero=document.querySelector('.hero');
+  for(var i=0;i<14;i++){var s=document.createElement('span');s.className='spark';var sz=3+Math.random()*7;
+    s.style.width=sz+'px';s.style.height=sz+'px';s.style.left=(Math.random()*100)+'%';s.style.bottom=(Math.random()*70)+'%';
+    s.style.animationDuration=(6+Math.random()*7)+'s';s.style.animationDelay=(Math.random()*7)+'s';hero.appendChild(s);}
+
+  applyBilling();
+})();
+</script>
+</body>
+</html>
